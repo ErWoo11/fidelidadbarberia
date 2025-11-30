@@ -20,10 +20,17 @@
     <button class="btn" onclick="toggleScanner()">Activar escáner</button>
   </div>
 
-  <!-- Firebase y librerías -->
+  <!-- Librerías externas -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <!-- Firebase + lógica principal -->
   <script type="module">
+    // --- FIREBASE ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { 
+      getFirestore, doc, getDoc, setDoc, updateDoc, getDocs, collection, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCUELgPNjtLllR8BW67aSuLrPl9fje8hWg",
@@ -36,10 +43,64 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    window.db = db;
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <script src="cliente.js"></script>
-</body>
-</html>
+
+    // --- ID ÚNICO DEL CLIENTE ---
+    function getClienteId() {
+      let id = localStorage.getItem('cliente_uid');
+      if (!id) {
+        id = "cliente_" + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('cliente_uid', id);
+      }
+      return id;
+    }
+
+    // --- ACTUALIZAR INTERFAZ ---
+    async function actualizarUI() {
+      const uid = getClienteId();
+      try {
+        // Cargar puntos
+        const clienteSnap = await getDoc(doc(db, "clientes", uid));
+        const puntos = clienteSnap.exists() ? clienteSnap.data().puntos || 0 : 0;
+        document.getElementById('puntos').textContent = puntos;
+
+        // Cargar promociones
+        const promosSnap = await getDocs(collection(db, "promociones"));
+        const ahora = new Date();
+        let proximo = Infinity;
+
+        const cont = document.getElementById('descuentos');
+        cont.innerHTML = '';
+
+        promosSnap.forEach(doc => {
+          const p = doc.data();
+          const expirado = ahora > p.fechaExpiracion.toDate();
+          const div = document.createElement('div');
+          div.className = `promo ${expirado ? 'expired' : ''}`;
+          div.innerHTML = `
+            <h4>${p.nombre}</h4>
+            <p>${p.puntos} puntos</p>
+            <p>Fecha límite: ${p.fechaExpiracion.toDate().toISOString().split('T')[0]}</p>
+          `;
+          cont.appendChild(div);
+
+          if (!expirado && p.puntos > puntos) {
+            proximo = Math.min(proximo, p.puntos - puntos);
+          }
+        });
+
+        document.getElementById('faltan').textContent = 
+          proximo === Infinity ? 'Ninguno disponible' : proximo;
+
+        // Animación al lograr descuento
+        promosSnap.forEach(doc => {
+          const p = doc.data();
+          const expirado = ahora > p.fechaExpiracion.toDate();
+          if (puntos >= p.puntos && !expirado) {
+            const yaMostrado = localStorage.getItem(`mostrado_${doc.id}`);
+            if (!yaMostrado) {
+              setTimeout(() => {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                const msg = document.createElement('div');
+                msg.style = `
+                  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                  background: rgba(0,0,0,0.92); display: flex; align-items: center
