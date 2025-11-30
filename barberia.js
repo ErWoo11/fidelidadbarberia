@@ -10,7 +10,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 async function validarAcceso() {
-  const email = "admin@lanueva.com";
+  const email = "latribu_woo11@hotmail.com";
   const pass = document.getElementById('pass').value;
   try {
     await signInWithEmailAndPassword(auth, email, pass);
