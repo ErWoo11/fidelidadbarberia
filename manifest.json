@@ -1,7 +1,7 @@
 {
   "name": "Barbería La Nueva",
   "short_name": "La Nueva",
-  "start_url": "/index.html",
+  "start_url": "/fidelidadbarberia/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
