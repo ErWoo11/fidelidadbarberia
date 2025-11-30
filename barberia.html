@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Barbería - La Nueva</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container" id="login">
+    <h2>Acceso restringido</h2>
+    <input type="password" id="pass" placeholder="Contraseña" />
+    <br><br>
+    <button class="btn" onclick="validarAcceso()">Entrar</button>
+  </div>
+
+  <div class="container" id="panel" style="display:none;">
+    <h2>Configurar servicios</h2>
+    <form id="servicioForm">
+      <input type="text" id="servicioNombre" placeholder="Nombre del servicio" required /><br>
+      <input type="number" id="servicioPuntos" placeholder="Puntos que otorga" min="1" required /><br>
+      <button type="submit" class="btn">Guardar servicio</button>
+    </form>
+
+    <h3>Servicios registrados</h3>
+    <div id="servicios-lista"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="barberia.js"></script>
+</body>
+</html>

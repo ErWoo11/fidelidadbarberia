@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Puntos - Barbería La Nueva</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Mis Puntos</h2>
+    <p>Puntos acumulados: <strong id="puntos">0</strong></p>
+    <p>Puntos para el próximo descuento: <strong id="faltan">0</strong></p>
+
+    <h3>Descuentos disponibles</h3>
+    <div id="descuentos"></div>
+
+    <h3>Escanear código del servicio</h3>
+    <div id="reader"></div>
+    <button class="btn" onclick="toggleScanner()">Activar escáner</button>
+  </div>
+
+  <!-- Confeti y QR -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="cliente.js"></script>
+</body>
+</html>
