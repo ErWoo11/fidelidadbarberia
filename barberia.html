@@ -7,12 +7,13 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container" id="login">
-    <h2>Acceso restringido</h2>
-    <input type="password" id="pass" placeholder="Contraseña" />
-    <br><br>
-    <button class="btn" onclick="validarAcceso()">Entrar</button>
-  </div>
+
+<div class="container" id="login">
+  <h2>Acceso restringido</h2>
+  <input type="email" id="loginEmail" placeholder="Email" value="latribu_woo11@hotmail.com" required /><br>
+  <input type="password" id="loginPass" placeholder="Contraseña" required /><br><br>
+  <button class="btn" onclick="validarAcceso()">Entrar</button>
+</div>
 
   <div class="container" id="panel" style="display:none;">
     <h2>🔧 Gestión de Promociones</h2>

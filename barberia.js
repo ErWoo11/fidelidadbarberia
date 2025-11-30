@@ -10,15 +10,22 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 async function validarAcceso() {
-  const email = "latribu_woo11@hotmail.com";
-  const pass = document.getElementById('pass').value;
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+
+  if (!email || !pass) {
+    alert("Ingresa email y contraseña");
+    return;
+  }
+
   try {
     await signInWithEmailAndPassword(auth, email, pass);
     document.getElementById('login').style.display = 'none';
     document.getElementById('panel').style.display = 'block';
     cargarTodo();
   } catch (err) {
-    alert("Acceso denegado");
+    console.error(err);
+    alert("Acceso denegado: " + (err.message || "Error desconocido"));
   }
 }
 
