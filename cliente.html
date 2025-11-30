@@ -103,4 +103,138 @@
                 const msg = document.createElement('div');
                 msg.style = `
                   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                  background: rgba(0,0,0,0.92); display: flex; align-items: center
+                  background: rgba(0,0,0,0.92); display: flex; align-items: center;
+                  justify-content: center; z-index: 1000; font-size: 2.4rem;
+                  color: #d4af37; flex-direction: column; text-align: center;
+                `;
+                msg.innerHTML = `¡Felicidades!<br>¡Has desbloqueado ${p.nombre}!`;
+                msg.onclick = () => document.body.removeChild(msg);
+                document.body.appendChild(msg);
+                localStorage.setItem(`mostrado_${doc.id}`, '1');
+              }, 500);
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
+      }
+    }
+
+    // --- ESCANEO QR ---
+    let html5QrCode = null;
+
+    window.toggleScanner = function() {
+      const readerDiv = document.getElementById("reader");
+      if (!readerDiv) return;
+
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+          html5QrCode = null;
+        });
+        return;
+      }
+
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+          const cleanText = decodedText.trim();
+
+          // Código de asignación de puntos
+          if (cleanText.startsWith("BARBERIA_LA_NUEVA:qr=")) {
+            const qrId = cleanText.substring("BARBERIA_LA_NUEVA:qr=".length);
+            reclamarPuntosQR(qrId);
+            html5QrCode.stop().then(() => {
+              html5QrCode.clear();
+              html5QrCode = null;
+            });
+          }
+          // Código de suma rápida (opcional)
+          else if (cleanText.startsWith("BARBERIA_LA_NUEVA:puntos=")) {
+            const puntosStr = cleanText.substring("BARBERIA_LA_NUEVA:puntos=".length);
+            const puntos = parseInt(puntosStr, 10);
+            if (!isNaN(puntos) && puntos > 0) {
+              sumarPuntosDirecto(puntos);
+              html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+                html5QrCode = null;
+              });
+            }
+          }
+          else {
+            alert("Código no válido para esta barbería");
+          }
+        },
+        (err) => {}
+      ).catch(err => {
+        alert("No se pudo acceder a la cámara. Usa Safari o Chrome.");
+        console.error(err);
+      });
+    };
+
+    // --- RECLAMAR PUNTOS DESDE QR TEMPORAL ---
+    async function reclamarPuntosQR(qrId) {
+      const uid = getClienteId();
+      try {
+        const qrRef = doc(db, "sesiones-qr", qrId);
+        const qrSnap = await getDoc(qrRef);
+
+        if (!qrSnap.exists()) throw new Error("Código inválido");
+        const data = qrSnap.data();
+        if (data.usado) throw new Error("Código ya usado");
+
+        // Marcar como usado
+        await updateDoc(qrRef, {
+          usado: true,
+          uidCliente: uid,
+          usadoEn: serverTimestamp()
+        });
+
+        // Actualizar puntos
+        const clienteRef = doc(db, "clientes", uid);
+        const clienteSnap = await getDoc(clienteRef);
+        const puntosActuales = clienteSnap.exists() ? clienteSnap.data().puntos || 0 : 0;
+        const nuevosPuntos = puntosActuales + data.puntosAsignar;
+
+        await setDoc(clienteRef, {
+          uid: uid,
+          puntos: nuevosPuntos,
+          ultimoAcceso: serverTimestamp()
+        }, { merge: true });
+
+        alert(`¡${data.puntosAsignar} puntos añadidos! Total: ${nuevosPuntos}`);
+        actualizarUI();
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    // --- SUMAR PUNTOS SIN QR TEMPORAL (opcional) ---
+    async function sumarPuntosDirecto(puntos) {
+      const uid = getClienteId();
+      try {
+        const clienteRef = doc(db, "clientes", uid);
+        const clienteSnap = await getDoc(clienteRef);
+        const act = clienteSnap.exists() ? clienteSnap.data().puntos || 0 : 0;
+        await setDoc(clienteRef, {
+          uid: uid,
+          puntos: act + puntos,
+          ultimoAcceso: serverTimestamp()
+        }, { merge: true });
+        alert(`¡+${puntos} puntos!`);
+        actualizarUI();
+      } catch (err) {
+        console.error(err);
+        alert("Error al sumar puntos");
+      }
+    }
+
+    // --- INICIAR ---
+    document.addEventListener('DOMContentLoaded', () => {
+      actualizarUI();
+    });
+  </script>
+</body>
+</html>
