@@ -34,4 +34,150 @@
     <input type="number" id="codigoPuntos" placeholder="Puntos a asignar" value="25" min="1" />
     <br><br>
     <button class="btn" onclick="generarCodigoPuntos()">Generar código</button>
-    <p id="codigo
+    <p id="codigo-output" style="font-size:1.2rem;font-weight:bold;margin:15px;color:var(--gold);"></p>
+    <p style="font-size:0.9em;color:#aaa;">Dile al cliente que introduzca este código en su app</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { 
+      getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCUELgPNjtLllR8BW67aSuLrPl9fje8hWg",
+      authDomain: "fidelidad-barberia.firebaseapp.com",
+      projectId: "fidelidad-barberia",
+      storageBucket: "fidelidad-barberia.firebasestorage.app",
+      messagingSenderId: "811113046246",
+      appId: "1:811113046246:web:c5a346265c83cda9d71b27"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let promoEditando = null;
+
+    window.validarAcceso = async function() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      if (!email || !pass) return alert("Ingresa email y contraseña");
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('panel').style.display = 'block';
+        cargarTodo();
+      } catch (err) {
+        console.error(err);
+        alert("Error: " + err.message);
+      }
+    };
+
+    async function cargarTodo() {
+      renderizarPromociones();
+      document.getElementById('promoForm').addEventListener('submit', guardarPromocion);
+    }
+
+    async function guardarPromocion(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('promoNombre').value.trim();
+      const desc = document.getElementById('promoDesc').value.trim();
+      const puntos = parseInt(document.getElementById('promoPuntos').value);
+      const fecha = document.getElementById('promoFecha').value;
+      if (!nombre || !puntos || !fecha) return alert("Completa todos los campos");
+      try {
+        if (promoEditando !== null) {
+          await updateDoc(doc(db, "promociones", promoEditando), {
+            nombre, descripcion: desc, puntos, fechaExpiracion: new Date(fecha)
+          });
+          promoEditando = null;
+          document.getElementById('btnCancelar').style.display = 'none';
+        } else {
+          await addDoc(collection(db, "promociones"), {
+            nombre, descripcion: desc, puntos, fechaExpiracion: new Date(fecha), activa: true
+          });
+        }
+        document.getElementById('promoForm').reset();
+        renderizarPromociones();
+      } catch (err) {
+        console.error(err);
+        alert("Error al guardar");
+      }
+    }
+
+    async function renderizarPromociones() {
+      const cont = document.getElementById('promos-lista');
+      try {
+        const snap = await getDocs(collection(db, "promociones"));
+        cont.innerHTML = snap.empty ? '<p>No hay promociones</p>' : '';
+        snap.forEach(doc => {
+          const p = doc.data();
+          const fechaExp = p.fechaExpiracion.toDate();
+          const expirado = new Date() > fechaExp;
+          const div = document.createElement('div');
+          div.className = `promo ${expirado ? 'expired' : ''}`;
+          div.style.marginBottom = '20px';
+          div.innerHTML = `
+            <strong>${p.nombre}</strong> (${p.puntos} puntos)<br>
+            ${p.descripcion ? `<small>${p.descripcion}</small><br>` : ''}
+            Vence: ${fechaExp.toISOString().split('T')[0]}<br>
+            <button onclick="editarPromo('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="btn" style="background:#4a4a4a;margin:5px;">✏️ Editar</button>
+            <button onclick="eliminarPromo('${doc.id}')" class="btn" style="background:#b00;margin:5px;">🗑️ Eliminar</button>
+          `;
+          cont.appendChild(div);
+        });
+      } catch (err) { console.error(err); }
+    }
+
+    window.editarPromo = function(id, p) {
+      document.getElementById('promoNombre').value = p.nombre;
+      document.getElementById('promoDesc').value = p.descripcion || '';
+      document.getElementById('promoPuntos').value = p.puntos;
+      document.getElementById('promoFecha').value = p.fechaExpiracion.toISOString().split('T')[0];
+      promoEditando = id;
+      document.getElementById('btnCancelar').style.display = 'inline-block';
+    };
+
+    window.eliminarPromo = async function(id) {
+      if (!confirm("¿Eliminar esta promoción?")) return;
+      try {
+        await deleteDoc(doc(db, "promociones", id));
+        renderizarPromociones();
+      } catch (err) { console.error(err); }
+    };
+
+    window.cancelarEdicion = function() {
+      document.getElementById('promoForm').reset();
+      promoEditando = null;
+      document.getElementById('btnCancelar').style.display = 'none';
+    };
+
+    function generarCodigoUnico() {
+      const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+      return Array.from({length: 6}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+    }
+
+    window.generarCodigoPuntos = async function() {
+      const puntos = parseInt(document.getElementById('codigoPuntos').value);
+      if (isNaN(puntos) || puntos <= 0) return alert("Puntos inválidos");
+      try {
+        const codigo = generarCodigoUnico();
+        await addDoc(collection(db, "codigos-puntos"), {
+          codigo,
+          puntosAsignar: puntos,
+          usado: false,
+          createdAt: serverTimestamp(),
+          uidCliente: null
+        });
+        document.getElementById('codigo-output').textContent = `Código: ${codigo}`;
+        alert("¡Código generado! Dáselo al cliente.");
+      } catch (err) {
+        console.error(err);
+        alert("Error al generar código");
+      }
+    };
+  </script>
+</body>
+</html>
