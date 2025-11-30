@@ -7,13 +7,12 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-<div class="container" id="login">
-  <h2>Acceso restringido</h2>
-  <input type="email" id="loginEmail" placeholder="Email" value="latribu_woo11@hotmail.com" required /><br>
-  <input type="password" id="loginPass" placeholder="Contraseña" required /><br><br>
-  <button class="btn" onclick="validarAcceso()">Entrar</button>
-</div>
+  <div class="container" id="login">
+    <h2>Acceso restringido</h2>
+    <input type="email" id="loginEmail" placeholder="Email" value="latribu_woo11@hotmail.com" required /><br>
+    <input type="password" id="loginPass" placeholder="Contraseña" required /><br><br>
+    <button class="btn" onclick="validarAcceso()">Entrar</button>
+  </div>
 
   <div class="container" id="panel" style="display:none;">
     <h2>🔧 Gestión de Promociones</h2>
@@ -39,10 +38,23 @@
     <p style="font-size:0.9em;color:#aaa;">El cliente escanea este código para recibir puntos</p>
   </div>
 
-  <!-- Firebase y QR -->
+  <!-- Firebase y código principal (TODO en un módulo) -->
   <script type="module">
+    // --- CARGAR LIBRERÍAS ---
+    // Cargar QRCode dinámicamente (evita problemas de tracking)
+    let QRCode;
+    const qrScript = document.createElement('script');
+    qrScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    qrScript.onload = () => {
+      QRCode = window.QRCode;
+    };
+    document.head.appendChild(qrScript);
+
+    // --- FIREBASE ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { 
+      getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -57,10 +69,155 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    window.db = db;
-    window.auth = auth;
+
+    // --- VARIABLES GLOBALES ---
+    let promoEditando = null;
+
+    // --- FUNCIÓN DE ACCESO ---
+    window.validarAcceso = async function() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPass').value;
+
+      if (!email || !pass) {
+        alert("Ingresa email y contraseña");
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('panel').style.display = 'block';
+        cargarTodo();
+      } catch (err) {
+        console.error(err);
+        alert("Error: " + err.message);
+      }
+    };
+
+    // --- FUNCIONES DE PROMOCIONES ---
+    async function cargarTodo() {
+      renderizarPromociones();
+      document.getElementById('promoForm').addEventListener('submit', guardarPromocion);
+    }
+
+    async function guardarPromocion(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('promoNombre').value.trim();
+      const desc = document.getElementById('promoDesc').value.trim();
+      const puntos = parseInt(document.getElementById('promoPuntos').value);
+      const fecha = document.getElementById('promoFecha').value;
+
+      if (!nombre || !puntos || !fecha) {
+        alert("Completa todos los campos");
+        return;
+      }
+
+      try {
+        if (promoEditando !== null) {
+          await updateDoc(doc(db, "promociones", promoEditando), {
+            nombre, descripcion: desc, puntos, fechaExpiracion: new Date(fecha)
+          });
+          promoEditando = null;
+          document.getElementById('btnCancelar').style.display = 'none';
+        } else {
+          await addDoc(collection(db, "promociones"), {
+            nombre, descripcion: desc, puntos, fechaExpiracion: new Date(fecha), activa: true
+          });
+        }
+        document.getElementById('promoForm').reset();
+        renderizarPromociones();
+      } catch (err) {
+        console.error(err);
+        alert("Error al guardar promoción");
+      }
+    }
+
+    async function renderizarPromociones() {
+      const cont = document.getElementById('promos-lista');
+      try {
+        const querySnapshot = await getDocs(collection(db, "promociones"));
+        cont.innerHTML = querySnapshot.empty ? '<p>No hay promociones</p>' : '';
+
+        querySnapshot.forEach(doc => {
+          const p = doc.data();
+          const expirado = new Date() > p.fechaExpiracion.toDate();
+          const div = document.createElement('div');
+          div.className = `promo ${expirado ? 'expired' : ''}`;
+          div.style.marginBottom = '20px';
+          div.innerHTML = `
+            <strong>${p.nombre}</strong> (${p.puntos} puntos)<br>
+            ${p.descripcion ? `<small>${p.descripcion}</small><br>` : ''}
+            Vence: ${p.fechaExpiracion.toDate().toISOString().split('T')[0]}<br>
+            <button onclick="editarPromo('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="btn" style="background:#4a4a4a;margin:5px;">✏️ Editar</button>
+            <button onclick="eliminarPromo('${doc.id}')" class="btn" style="background:#b00;margin:5px;">🗑️ Eliminar</button>
+          `;
+          cont.appendChild(div);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.editarPromo = function(id, p) {
+      document.getElementById('promoNombre').value = p.nombre;
+      document.getElementById('promoDesc').value = p.descripcion || '';
+      document.getElementById('promoPuntos').value = p.puntos;
+      document.getElementById('promoFecha').value = p.fechaExpiracion.toISOString().split('T')[0];
+      promoEditando = id;
+      document.getElementById('btnCancelar').style.display = 'inline-block';
+    };
+
+    window.eliminarPromo = async function(id) {
+      if (!confirm("¿Eliminar esta promoción?")) return;
+      try {
+        await deleteDoc(doc(db, "promociones", id));
+        renderizarPromociones();
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    window.cancelarEdicion = function() {
+      document.getElementById('promoForm').reset();
+      promoEditando = null;
+      document.getElementById('btnCancelar').style.display = 'none';
+    };
+
+    // --- GENERAR QR ---
+    window.generarQRPuntos = async function() {
+      if (!QRCode) {
+        alert("Espera un momento, cargando librería QR...");
+        return;
+      }
+
+      const puntos = parseInt(document.getElementById('qrPuntos').value);
+      if (isNaN(puntos) || puntos <= 0) return alert("Puntos inválidos");
+
+      try {
+        const docRef = await addDoc(collection(db, "sesiones-qr"), {
+          puntosAsignar: puntos,
+          usado: false,
+          createdAt: serverTimestamp(),
+          uidCliente: null
+        });
+
+        const qrText = `BARBERIA_LA_NUEVA:qr=${docRef.id}`;
+        const cont = document.getElementById('qr-output');
+        cont.innerHTML = '';
+        new QRCode(cont, {
+          text: qrText,
+          width: 200,
+          height: 200,
+          colorDark: "#ffffff",
+          colorLight: "#000000"
+        });
+
+        alert("¡Código generado! Válido 5 minutos.");
+      } catch (err) {
+        console.error(err);
+        alert("Error al generar QR");
+      }
+    };
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="barberia.js"></script>
 </body>
 </html>
