@@ -15,18 +15,29 @@
     <h3>Descuentos disponibles</h3>
     <div id="descuentos"></div>
 
-    <!-- Botón de prueba (¡funciona sin QR!) -->
-    <h3>Prueba: Sumar puntos</h3>
-    <button class="btn" onclick="simularScan(25)">+25 puntos</button>
-    <button class="btn" onclick="simularScan(50)">+50 puntos</button>
-
-    <!-- Lector QR (opcional) -->
-    <h3>O escanea un código</h3>
-    <div id="reader" style="width:300px;height:300px;margin:20px auto;border:2px solid var(--gold);"></div>
+    <h3>Escanear código QR</h3>
+    <div id="reader" style="width:95%;height:280px;margin:20px auto;border:2px solid var(--gold);"></div>
     <button class="btn" onclick="toggleScanner()">Activar escáner</button>
   </div>
 
-  <!-- Librerías desde CDN -->
+  <!-- Firebase y librerías -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCUELgPNjtLllR8BW67aSuLrPl9fje8hWg",
+      authDomain: "fidelidad-barberia.firebaseapp.com",
+      projectId: "fidelidad-barberia",
+      storageBucket: "fidelidad-barberia.firebasestorage.app",
+      messagingSenderId: "811113046246",
+      appId: "1:811113046246:web:c5a346265c83cda9d71b27"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.db = db;
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="cliente.js"></script>

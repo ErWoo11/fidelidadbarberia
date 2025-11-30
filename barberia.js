@@ -1,71 +1,143 @@
-// Cambia esta contraseña por la que quieras
 const CONTRASEÑA = "barber123";
+let promoEditando = null;
 
-function validarAcceso() {
+// Firebase ya está en window
+const db = window.db;
+const auth = window.auth;
+
+import { 
+  collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+async function validarAcceso() {
+  const email = "admin@lanueva.com";
   const pass = document.getElementById('pass').value;
-  if (pass === CONTRASEÑA) {
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
     document.getElementById('login').style.display = 'none';
     document.getElementById('panel').style.display = 'block';
-    renderizarServicios();
-  } else {
-    alert("Contraseña incorrecta");
+    cargarTodo();
+  } catch (err) {
+    alert("Acceso denegado");
   }
 }
 
-function getServicios() {
-  const raw = localStorage.getItem('servicios-barberia');
-  return raw ? JSON.parse(raw) : [];
-}
-
-function setServicios(servicios) {
-  localStorage.setItem('servicios-barberia', JSON.stringify(servicios));
-}
-
-document.getElementById('servicioForm').addEventListener('submit', function(e) {
+async function guardarPromocion(e) {
   e.preventDefault();
-  const nombre = document.getElementById('servicioNombre').value.trim();
-  const puntos = parseInt(document.getElementById('servicioPuntos').value);
+  const nombre = document.getElementById('promoNombre').value.trim();
+  const desc = document.getElementById('promoDesc').value.trim();
+  const puntos = parseInt(document.getElementById('promoPuntos').value);
+  const fecha = document.getElementById('promoFecha').value;
 
-  if (nombre && puntos > 0) {
-    let servicios = getServicios();
-    servicios.push({ nombre, puntos });
-    setServicios(servicios);
-    this.reset();
-    renderizarServicios();
-  }
-});
-
-function renderizarServicios() {
-  const cont = document.getElementById('servicios-lista');
-  cont.innerHTML = '';
-  const servicios = getServicios();
-
-  if (servicios.length === 0) {
-    cont.innerHTML = '<p>No hay servicios registrados</p>';
+  if (!nombre || !puntos || !fecha) {
+    alert("Completa todos los campos");
     return;
   }
 
-  servicios.forEach((s, i) => {
-    const div = document.createElement('div');
-    div.className = 'promo';
-    div.style.marginBottom = '20px';
+  try {
+    if (promoEditando !== null) {
+      await updateDoc(doc(db, "promociones", promoEditando), {
+        nombre, descripcion: desc, puntos, fechaExpiracion: new Date(fecha)
+      });
+      promoEditando = null;
+      document.getElementById('btnCancelar').style.display = 'none';
+    } else {
+      await addDoc(collection(db, "promociones"), {
+        nombre, descripcion: desc, puntos, fechaExpiracion: new Date(fecha), activa: true
+      });
+    }
+    document.getElementById('promoForm').reset();
+    renderizarPromociones();
+  } catch (err) {
+    console.error(err);
+    alert("Error al guardar promoción");
+  }
+}
 
-    const codigo = `BARBERIA_LA_NUEVA:puntos=${s.puntos}`;
-    const qrDiv = document.createElement('div');
-    qrDiv.id = `qr-servicio-${i}`;
-    qrDiv.style.marginTop = '10px';
-    qrDiv.style.textAlign = 'center';
+async function renderizarPromociones() {
+  const cont = document.getElementById('promos-lista');
+  try {
+    const querySnapshot = await getDocs(collection(db, "promociones"));
+    cont.innerHTML = querySnapshot.empty ? '<p>No hay promociones</p>' : '';
 
-    div.innerHTML = `<strong>${s.nombre}</strong> (${s.puntos} puntos)`;
-    div.appendChild(qrDiv);
-    cont.appendChild(div);
+    querySnapshot.forEach(doc => {
+      const p = doc.data();
+      const expirado = new Date() > p.fechaExpiracion.toDate();
+      const div = document.createElement('div');
+      div.className = `promo ${expirado ? 'expired' : ''}`;
+      div.style.marginBottom = '20px';
+      div.innerHTML = `
+        <strong>${p.nombre}</strong> (${p.puntos} puntos)<br>
+        ${p.descripcion ? `<small>${p.descripcion}</small><br>` : ''}
+        Vence: ${p.fechaExpiracion.toDate().toISOString().split('T')[0]}<br>
+        <button onclick="editarPromo('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="btn" style="background:#4a4a4a;margin:5px;">✏️ Editar</button>
+        <button onclick="eliminarPromo('${doc.id}')" class="btn" style="background:#b00;margin:5px;">🗑️ Eliminar</button>
+      `;
+      cont.appendChild(div);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
 
- new QRCode(qrDiv, {
-  text: codigo,
-  width: 140,
-  height: 140,
-  colorDark: "#ffffff",     // Módulos oscuros → ¡blanco!
-  colorLight: "#000000"     // Fondo claro → ¡negro!
-});
-});
+function editarPromo(id, p) {
+  document.getElementById('promoNombre').value = p.nombre;
+  document.getElementById('promoDesc').value = p.descripcion || '';
+  document.getElementById('promoPuntos').value = p.puntos;
+  document.getElementById('promoFecha').value = p.fechaExpiracion.toISOString().split('T')[0];
+  promoEditando = id;
+  document.getElementById('btnCancelar').style.display = 'inline-block';
+}
+
+async function eliminarPromo(id) {
+  if (!confirm("¿Eliminar esta promoción?")) return;
+  try {
+    await deleteDoc(doc(db, "promociones", id));
+    renderizarPromociones();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function cancelarEdicion() {
+  document.getElementById('promoForm').reset();
+  promoEditando = null;
+  document.getElementById('btnCancelar').style.display = 'none';
+}
+
+// --- Generar QR para asignar puntos ---
+async function generarQRPuntos() {
+  const puntos = parseInt(document.getElementById('qrPuntos').value);
+  if (isNaN(puntos) || puntos <= 0) return alert("Puntos inválidos");
+
+  try {
+    const docRef = await addDoc(collection(db, "sesiones-qr"), {
+      puntosAsignar: puntos,
+      usado: false,
+      createdAt: serverTimestamp(),
+      uidCliente: null
+    });
+
+    const qrText = `BARBERIA_LA_NUEVA:qr=${docRef.id}`;
+    const cont = document.getElementById('qr-output');
+    cont.innerHTML = '';
+    new QRCode(cont, {
+      text: qrText,
+      width: 200,
+      height: 200,
+      colorDark: "#ffffff",
+      colorLight: "#000000"
+    });
+
+    alert("¡Código generado! Válido 5 minutos.");
+  } catch (err) {
+    console.error(err);
+    alert("Error al generar QR");
+  }
+}
+
+// --- Iniciar ---
+function cargarTodo() {
+  renderizarPromociones();
+  document.getElementById('promoForm').addEventListener('submit', guardarPromocion);
 }

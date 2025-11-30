@@ -1,14 +1,13 @@
-// sw.js
 const CACHE_NAME = 'barberia-la-nueva-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/cliente.html',
-  '/barberia.html',
-  '/style.css',
-  '/cliente.js',
-  '/barberia.js',
-  '/logo.png'
+  '/fidelidadbarberia/',
+  '/fidelidadbarberia/index.html',
+  '/fidelidadbarberia/cliente.html',
+  '/fidelidadbarberia/barberia.html',
+  '/fidelidadbarberia/style.css',
+  '/fidelidadbarberia/cliente.js',
+  '/fidelidadbarberia/barberia.js',
+  '/fidelidadbarberia/logo.png'
 ];
 
 self.addEventListener('install', (event) => {

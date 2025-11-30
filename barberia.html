@@ -15,17 +15,50 @@
   </div>
 
   <div class="container" id="panel" style="display:none;">
-    <h2>Configurar servicios</h2>
-    <form id="servicioForm">
-      <input type="text" id="servicioNombre" placeholder="Nombre del servicio" required /><br>
-      <input type="number" id="servicioPuntos" placeholder="Puntos que otorga" min="1" required /><br>
-      <button type="submit" class="btn">Guardar servicio</button>
+    <h2>🔧 Gestión de Promociones</h2>
+    <form id="promoForm">
+      <input type="text" id="promoNombre" placeholder="Nombre del descuento" required /><br>
+      <textarea id="promoDesc" placeholder="Descripción (opcional)"></textarea><br>
+      <input type="number" id="promoPuntos" placeholder="Puntos necesarios" min="1" required /><br>
+      <input type="date" id="promoFecha" required /><br>
+      <button type="submit" class="btn">Guardar promoción</button>
+      <button type="button" class="btn" id="btnCancelar" style="background:#666;display:none;" onclick="cancelarEdicion()">Cancelar</button>
     </form>
 
-    <h3>Servicios registrados</h3>
-    <div id="servicios-lista"></div>
+    <h3>Promociones activas</h3>
+    <div id="promos-lista"></div>
+
+    <hr style="margin:30px 0;border-color:var(--gold);">
+
+    <h2>🎯 Asignar puntos vía QR</h2>
+    <input type="number" id="qrPuntos" placeholder="Puntos a asignar" value="25" min="1" />
+    <br><br>
+    <button class="btn" onclick="generarQRPuntos()">Generar código QR</button>
+    <div id="qr-output" style="margin:20px;"></div>
+    <p style="font-size:0.9em;color:#aaa;">El cliente escanea este código para recibir puntos</p>
   </div>
 
+  <!-- Firebase y QR -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCUELgPNjtLllR8BW67aSuLrPl9fje8hWg",
+      authDomain: "fidelidad-barberia.firebaseapp.com",
+      projectId: "fidelidad-barberia",
+      storageBucket: "fidelidad-barberia.firebasestorage.app",
+      messagingSenderId: "811113046246",
+      appId: "1:811113046246:web:c5a346265c83cda9d71b27"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    window.db = db;
+    window.auth = auth;
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="barberia.js"></script>
 </body>
