@@ -1,18 +1,20 @@
-// Identificador simple del cliente (puedes cambiarlo por prompt si quieres)
+// CONFIGURACIÓN DEL CLIENTE
 const CLIENTE_ID = "cliente_default";
 const CLAVE_PUNTOS = `puntos_${CLIENTE_ID}`;
 const PREFIJO_QR = "BARBERIA_LA_NUEVA:puntos=";
 
 let html5QrCode = null;
 
+// --- Gestión de puntos ---
 function getPuntos() {
   return parseInt(localStorage.getItem(CLAVE_PUNTOS)) || 0;
 }
 
 function setPuntos(valor) {
-  localStorage.setItem(CLAVE_PUNTOS, valor.toString());
+  localStorage.setItem(CLAVE_PUNTOS, parseInt(valor).toString());
 }
 
+// --- Actualización de interfaz ---
 function actualizarUI() {
   const puntos = getPuntos();
   document.getElementById('puntos').textContent = puntos;
@@ -44,30 +46,38 @@ function actualizarUI() {
   document.getElementById('faltan').textContent = 
     proximo === Infinity ? 'Ninguno disponible' : proximo;
 
-  // Verificar si acaba de desbloquear algo
+  // Animación si se alcanzó algún descuento
   descuentos.forEach(d => {
     const expirado = ahora > new Date(d.fecha);
     if (puntos >= d.puntos && !expirado) {
-      // Solo mostrar si no se ha mostrado antes (opcional: usar bandera)
-      // Aquí lo mostramos siempre que entre con suficientes puntos
-      setTimeout(() => {
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        const msg = document.createElement('div');
-        msg.style = `
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(0,0,0,0.92); display: flex; align-items: center;
-          justify-content: center; z-index: 1000; font-size: 2.4rem;
-          color: var(--gold); flex-direction: column; text-align: center;
-        `;
-        msg.innerHTML = `¡Felicidades!<br>¡Has desbloqueado ${d.nombre}!`;
-        msg.onclick = () => document.body.removeChild(msg);
-        document.body.appendChild(msg);
-      }, 500);
+      // Evitar múltiples animaciones: solo si no se ha mostrado antes (simple)
+      const yaMostrado = localStorage.getItem(`mostrado_${d.nombre}_${d.puntos}`);
+      if (!yaMostrado) {
+        setTimeout(() => {
+          confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+          const msg = document.createElement('div');
+          msg.style = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); display: flex; align-items: center;
+            justify-content: center; z-index: 1000; font-size: 2.4rem;
+            color: #d4af37; flex-direction: column; text-align: center;
+          `;
+          msg.innerHTML = `¡Felicidades!<br>¡Has desbloqueado ${d.nombre}!`;
+          msg.onclick = () => document.body.removeChild(msg);
+          document.body.appendChild(msg);
+          // Marcar como mostrado (solo una vez por sesión o descuento)
+          localStorage.setItem(`mostrado_${d.nombre}_${d.puntos}`, '1');
+        }, 500);
+      }
     }
   });
 }
 
+// --- Escaneo de QR ---
 function toggleScanner() {
+  const readerDiv = document.getElementById("reader");
+  if (!readerDiv) return;
+
   if (html5QrCode) {
     html5QrCode.stop().then(() => {
       html5QrCode.clear();
@@ -81,11 +91,10 @@ function toggleScanner() {
     { facingMode: "environment" },
     { fps: 10, qrbox: { width: 250, height: 250 } },
     (decodedText) => {
-	console.log("Texto escaneado:", JSON.stringify(decodedText));
-  alert("Escaneado: " + decodedText); // ← LÍNEA DE PRUEBA
-      if (decodedText.startsWith(PREFIJO_QR)) {
-        const puntosStr = decodedText.substring(PREFIJO_QR.length);
-        const puntos = parseInt(puntosStr);
+      const cleanText = decodedText.trim();
+      if (cleanText.startsWith(PREFIJO_QR)) {
+        const puntosStr = cleanText.substring(PREFIJO_QR.length).trim();
+        const puntos = parseInt(puntosStr, 10);
         if (!isNaN(puntos) && puntos > 0) {
           const actuales = getPuntos();
           setPuntos(actuales + puntos);
@@ -100,14 +109,24 @@ function toggleScanner() {
         alert("Código no válido para esta barbería");
       }
     },
-    (err) => {
-      // Errores normales de escaneo
-    }
+    (err) => {}
   ).catch(err => {
-    alert("Error al acceder a la cámara. Asegúrate de permitir el acceso.");
+    alert("No se pudo acceder a la cámara. Abre esta página en Safari o con un servidor local.");
     console.error(err);
   });
 }
 
-// Iniciar
-actualizarUI();
+// --- FUNCIÓN GLOBAL: Simular suma de puntos (¡BOTÓN DE PRUEBA!) ---
+function simularScan(puntos) {
+  if (typeof puntos !== 'number' || puntos <= 0) puntos = 25;
+  const actuales = getPuntos();
+  const nuevos = actuales + puntos;
+  setPuntos(nuevos);
+  alert(`¡+${puntos} puntos! Total: ${nuevos}`);
+  actualizarUI();
+}
+
+// --- Iniciar al cargar la página ---
+document.addEventListener('DOMContentLoaded', () => {
+  actualizarUI();
+});
