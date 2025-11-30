@@ -1,18 +1,19 @@
 {
-  "name": "Barbería La Nueva",
-  "short_name": "La Nueva",
+  "name": "Barbería La nueva",
+  "short_name": "Barbería La nueva",
+  "description": "Promociones y fidelización",
   "start_url": "/fidelidadbarberia/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "theme_color": "#284e88",
   "icons": [
     {
-      "src": "logo-192.png",
+      "src": "/fidelidadbarberia/logo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "logo-512.png",
+      "src": "/fidelidadbarberia/logo.png",
       "sizes": "512x512",
       "type": "image/png"
     }
