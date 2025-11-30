@@ -60,13 +60,12 @@ function renderizarServicios() {
     div.appendChild(qrDiv);
     cont.appendChild(div);
 
-    // Generar QR
-    new QRCode(qrDiv, {
-      text: codigo,
-      width: 120,
-      height: 120,
-      colorDark: "#d4af37",
-      colorLight: "#000000"
-    });
-  });
+ new QRCode(qrDiv, {
+  text: codigo,
+  width: 140,
+  height: 140,
+  colorDark: "#ffffff",     // Módulos oscuros → ¡blanco!
+  colorLight: "#000000"     // Fondo claro → ¡negro!
+});
+});
 }

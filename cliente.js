@@ -81,6 +81,8 @@ function toggleScanner() {
     { facingMode: "environment" },
     { fps: 10, qrbox: { width: 250, height: 250 } },
     (decodedText) => {
+	console.log("Texto escaneado:", JSON.stringify(decodedText));
+  alert("Escaneado: " + decodedText); // ← LÍNEA DE PRUEBA
       if (decodedText.startsWith(PREFIJO_QR)) {
         const puntosStr = decodedText.substring(PREFIJO_QR.length);
         const puntos = parseInt(puntosStr);
