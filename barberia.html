@@ -6,18 +6,42 @@
   <title>Panel Barbería - La Nueva</title>
   <link rel="stylesheet" href="style.css" />
   
-  <!-- Fuente digital opcional -->
+  <!-- Fuente opcional -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   
   <style>
+    /* --- FONDO DE BARBERÍA --- */
+    body {
+      background-image: url('fondo.png');
+      background-size: 300px;
+      background-repeat: repeat;
+      background-position: center;
+      background-color: rgba(0, 0, 0, 0.85);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      position: relative;
+    }
+
     .logo-login {
       width: 280px;
       max-width: 80%;
       margin: 20px auto 25px;
       display: block;
       filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.6));
+    }
+
+    /* Contenedor con fondo oscuro para legibilidad */
+    .container {
+      background: rgba(0, 0, 0, 0.92);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      max-width: 600px;
+      margin: 20px auto;
+      text-align: center;
     }
 
     /* Menú de navegación */
@@ -54,7 +78,6 @@
       display: block;
       animation: fadeIn 0.4s ease;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -63,6 +86,30 @@
     .hr-section {
       margin: 25px 0;
       border-color: #333;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid var(--gold);
+      background: #111;
+      color: var(--text);
+      border-radius: 6px;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: var(--gold);
+      color: #000;
+      padding: 12px 24px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 1rem;
     }
   </style>
 </head>
@@ -75,11 +122,9 @@
     <button class="btn" onclick="validarAcceso()">Entrar</button>
   </div>
 
-  <!-- Panel principal (oculto al inicio) -->
   <div class="container" id="panel" style="display:none;">
     <h2>Panel de Administración</h2>
 
-    <!-- Menú de secciones -->
     <div class="nav-tabs">
       <button class="nav-btn active" data-section="gestion">Gestión de promociones</button>
       <button class="nav-btn" data-section="activas">Promociones activas</button>
@@ -87,7 +132,6 @@
       <button class="nav-btn" data-section="canjes">Canjes recientes</button>
     </div>
 
-    <!-- Sección 1: Gestión de promociones -->
     <div id="gestion" class="section active">
       <h3>Crear o editar promoción</h3>
       <form id="promoForm">
@@ -100,13 +144,11 @@
       </form>
     </div>
 
-    <!-- Sección 2: Promociones activas -->
     <div id="activas" class="section">
       <h3>Promociones registradas</h3>
       <div id="promos-lista"></div>
     </div>
 
-    <!-- Sección 3: Asignar puntos -->
     <div id="puntos" class="section">
       <h3>Generar código para cliente</h3>
       <input type="number" id="codigoPuntos" placeholder="Puntos a asignar" value="25" min="1" />
@@ -116,7 +158,6 @@
       <p style="font-size:0.9em;color:#aaa;">Dile al cliente que introduzca este código en su app</p>
     </div>
 
-    <!-- Sección 4: Canjes recientes -->
     <div id="canjes" class="section">
       <h3>Historial de canjes</h3>
       <div id="notificaciones-canjes"></div>
@@ -124,6 +165,7 @@
   </div>
 
   <script type="module">
+    // --- Firebase y lógica (sin cambios, igual que antes) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { 
       getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp 
@@ -145,7 +187,6 @@
 
     let promoEditando = null;
 
-    // === LOGIN ===
     window.validarAcceso = async function() {
       const pass = document.getElementById('loginPass').value;
       const emailReal = "latribu_woo11@hotmail.com";
@@ -161,21 +202,16 @@
       }
     };
 
-    // === NAVEGACIÓN ENTRE SECCIONES ===
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        // Quitar clase active de todos
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        
-        // Añadir a la seleccionada
         btn.classList.add('active');
         const sectionId = btn.getAttribute('data-section');
         document.getElementById(sectionId).classList.add('active');
       });
     });
 
-    // === FUNCIONES PRINCIPALES ===
     async function cargarTodo() {
       renderizarPromociones();
       cargarCanjes();
@@ -240,7 +276,7 @@
       document.getElementById('promoFecha').value = p.fechaExpiracion.toISOString().split('T')[0];
       promoEditando = id;
       document.getElementById('btnCancelar').style.display = 'inline-block';
-      // Cambiar a la sección de gestión
+      // Cambiar a sección "Gestión"
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelector('.nav-btn[data-section="gestion"]').classList.add('active');
