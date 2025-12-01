@@ -5,14 +5,114 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mis Puntos - Barbería La Nueva</title>
   <link rel="stylesheet" href="style.css" />
+  
+  <!-- Fuente digital Orbitron -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Estilos específicos para la sección de puntos */
+    .logo-small {
+  width: min(360px, 80vw); /* El doble de tamaño, pero nunca más del 80% del ancho de la pantalla */
+  margin: 20px auto 30px;
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.6));
+}
+
+    .section-title {
+      font-size: 1.8rem;
+      margin: 25px 0 20px;
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
+      text-align: center;
+    }
+
+    .digital-display {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin: 25px 0;
+      padding: 0 10px;
+    }
+
+    .counter-box {
+      background: #0a0a0a;
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .counter-label {
+      font-size: 0.95rem;
+      color: #aaa;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .counter-value {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+      letter-spacing: 2px;
+    }
+
+    @media (min-width: 600px) {
+      .digital-display {
+        flex-direction: row;
+        justify-content: center;
+        gap: 25px;
+      }
+      .counter-box {
+        min-width: 200px;
+      }
+    }
+
+/* --- FONDO DE BARBERÍA CON TRANSPARENCIA --- */
+body {
+  background-image: url('fondo.png');
+  background-size: 300px; /* Tamaño del patrón (ajusta según te guste) */
+  background-repeat: repeat;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.85); /* Fondo negro semi-transparente para mejorar legibilidad */
+}
+
+/* Para evitar que el fondo interfiera con el contenido */
+.container {
+  background: rgba(0, 0, 0, 0.85); /* Fondo oscuro ligeramente más opaco para el contenido */
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+  </style>
 </head>
 <body>
   <div class="container">
-    <h2>Mis Puntos</h2>
-    <p>Puntos acumulados: <strong id="puntos">0</strong></p>
-    <p>Puntos para el próximo descuento: <strong id="faltan">0</strong></p>
+    <!-- Logo -->
+    <img src="logo.png" alt="Barbería La Nueva" class="logo-small" />
 
-    <h3>Descuentos disponibles</h3>
+    <!-- Título -->
+    <h2 class="section-title">MIS PUNTOS</h2>
+
+    <!-- Display digital -->
+    <div class="digital-display">
+      <div class="counter-box">
+        <div class="counter-label">Puntos acumulados</div>
+        <div class="counter-value" id="puntos">0</div>
+      </div>
+      <div class="counter-box">
+        <div class="counter-label">Próximo descuento</div>
+        <div class="counter-value" id="faltan">0</div>
+      </div>
+    </div>
+
+    <h3>DESCUENTOS DISPONIBLES</h3>
     <div id="descuentos"></div>
 
     <hr style="margin:30px 0;border-color:var(--gold);">
@@ -28,7 +128,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { 
-      getFirestore, doc, getDoc, setDoc, updateDoc, getDocs, collection, serverTimestamp, query, where 
+      getFirestore, doc, getDoc, setDoc, updateDoc, getDocs, collection, serverTimestamp, query, where, addDoc 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -70,12 +170,21 @@
           const p = doc.data();
           const fechaExp = p.fechaExpiracion.toDate();
           const expirado = ahora > fechaExp;
+          const puedeCanjear = !expirado && puntos >= p.puntos;
+
           const div = document.createElement('div');
           div.className = `promo ${expirado ? 'expired' : ''}`;
           div.innerHTML = `
             <h4>${p.nombre}</h4>
             <p>${p.puntos} puntos</p>
             <p>Fecha límite: ${fechaExp.toISOString().split('T')[0]}</p>
+            ${puedeCanjear ? 
+              `<button class="btn" style="margin-top:10px;background:#0a0;color:#fff;" 
+                      onclick="canjearPromocion('${doc.id}', \`${p.nombre}\`, ${p.puntos})">
+                Canjear ahora
+              </button>` : 
+              (expirado ? '' : `<p style="color:#aaa;font-size:0.9em;">Te faltan ${p.puntos - puntos} puntos</p>`)
+            }
           `;
           cont.appendChild(div);
 
@@ -86,30 +195,63 @@
 
         document.getElementById('faltan').textContent = 
           proximo === Infinity ? 'Ninguno disponible' : proximo;
-
-        // Animación al lograr descuento
-        promosSnap.forEach(doc => {
-          const p = doc.data();
-          const expirado = ahora > fechaExp;
-          if (puntos >= p.puntos && !expirado) {
-            const key = `mostrado_${doc.id}`;
-            if (!localStorage.getItem(key)) {
-              setTimeout(() => {
-                confetti({ particleCount: 150, spread: 70 });
-                const msg = document.createElement('div');
-                msg.style = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:1000;font-size:2.4rem;color:#d4af37;flex-direction:column;text-align:center;`;
-                msg.innerHTML = `¡Felicidades!<br>¡Has desbloqueado ${p.nombre}!`;
-                msg.onclick = () => document.body.removeChild(msg);
-                document.body.appendChild(msg);
-                localStorage.setItem(key, '1');
-              }, 500);
-            }
-          }
-        });
       } catch (err) {
         console.error(err);
       }
     }
+
+    window.canjearPromocion = async function(promoId, nombre, puntosRequeridos) {
+      if (!confirm(`¿Quieres canjear "${nombre}" por ${puntosRequeridos} puntos?`)) {
+        return;
+      }
+
+      const uid = getClienteId();
+      try {
+        const clienteRef = doc(db, "clientes", uid);
+        const clienteSnap = await getDoc(clienteRef);
+        const puntosActuales = clienteSnap.exists() ? clienteSnap.data().puntos || 0 : 0;
+
+        if (puntosActuales < puntosRequeridos) {
+          alert("No tienes suficientes puntos.");
+          return;
+        }
+
+        const nuevosPuntos = puntosActuales - puntosRequeridos;
+        await setDoc(clienteRef, {
+          uid: uid,
+          puntos: nuevosPuntos,
+          ultimoAcceso: serverTimestamp()
+        }, { merge: true });
+
+        await addDoc(collection(db, "canjes"), {
+          tipo: "promocion",
+          clienteId: uid,
+          promocionId: promoId,
+          nombrePromocion: nombre,
+          puntosUsados: puntosRequeridos,
+          fecha: serverTimestamp(),
+          visto: false
+        });
+
+        confetti({ particleCount: 200, spread: 120, origin: { y: 0.4 } });
+        const msg = document.createElement('div');
+        msg.style = `
+          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(0,0,0,0.95); display: flex; align-items: center;
+          justify-content: center; z-index: 2000; font-size: 2.8rem;
+          color: var(--gold); flex-direction: column; text-align: center;
+          padding: 20px;
+        `;
+        msg.innerHTML = `🎉 ¡CANJEADO!<br><br><span style="font-size:3.2rem;">${nombre}</span><br><br>¡Disfruta tu recompensa!`;
+        msg.onclick = () => document.body.removeChild(msg);
+        document.body.appendChild(msg);
+
+        actualizarUI();
+      } catch (err) {
+        console.error(err);
+        alert("Error al canjear la promoción.");
+      }
+    };
 
     window.canjearCodigo = async function() {
       const input = document.getElementById('inputCodigo');
@@ -141,6 +283,14 @@
           puntos: nuevos,
           ultimoAcceso: serverTimestamp()
         }, { merge: true });
+
+        await addDoc(collection(db, "canjes"), {
+          tipo: "codigo",
+          clienteId: uid,
+          puntosAgregados: data.puntosAsignar,
+          fecha: serverTimestamp(),
+          visto: false
+        });
 
         alert(`¡${data.puntosAsignar} puntos añadidos! Total: ${nuevos}`);
         input.value = "";

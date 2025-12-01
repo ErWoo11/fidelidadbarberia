@@ -5,16 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel Barbería - La Nueva</title>
   <link rel="stylesheet" href="style.css" />
+  
+  <!-- Fuente digital (opcional, pero combina bien) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Logo grande en la página de login */
+    .logo-login {
+      width: 480px;
+      max-width: 80%;
+      margin: 20px auto 30px;
+      display: block;
+      filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.6));
+    }
+
+  </style>
 </head>
 <body>
   <div class="container" id="login">
+    <!-- Logo grande -->
+    <img src="logo.png" alt="Barbería La Nueva" class="logo-login" />
+
     <h2>Acceso restringido</h2>
-    <input type="email" id="loginEmail" placeholder="Email" value="latribu_woo11@hotmail.com" required /><br>
+    
+    <!-- Campo genérico: "Usuario" -->
+    <input type="text" id="loginUser" placeholder="Usuario" value="admin" readonly style="text-align:center;" /><br>
     <input type="password" id="loginPass" placeholder="Contraseña" required /><br><br>
     <button class="btn" onclick="validarAcceso()">Entrar</button>
   </div>
 
   <div class="container" id="panel" style="display:none;">
+    <!-- El resto del panel se mantiene igual -->
     <h2>🔧 Gestión de Promociones</h2>
     <form id="promoForm">
       <input type="text" id="promoNombre" placeholder="Nombre del descuento" required /><br>
@@ -36,6 +59,11 @@
     <button class="btn" onclick="generarCodigoPuntos()">Generar código</button>
     <p id="codigo-output" style="font-size:1.2rem;font-weight:bold;margin:15px;color:var(--gold);"></p>
     <p style="font-size:0.9em;color:#aaa;">Dile al cliente que introduzca este código en su app</p>
+
+    <hr style="margin:30px 0;border-color:var(--gold);">
+
+    <h2>🔔 Canjes recientes</h2>
+    <div id="notificaciones-canjes"></div>
   </div>
 
   <script type="module">
@@ -60,23 +88,28 @@
 
     let promoEditando = null;
 
+    // ✅ Aquí usamos el email real, pero NO aparece en el HTML
     window.validarAcceso = async function() {
-      const email = document.getElementById('loginEmail').value.trim();
       const pass = document.getElementById('loginPass').value;
-      if (!email || !pass) return alert("Ingresa email y contraseña");
+      const emailReal = "latribu_woo11@hotmail.com"; // 🔒 oculto en el código JS, no visible en el HTML
+      
+      if (!pass) return alert("Ingresa la contraseña");
+      
       try {
-        await signInWithEmailAndPassword(auth, email, pass);
+        await signInWithEmailAndPassword(auth, emailReal, pass);
         document.getElementById('login').style.display = 'none';
         document.getElementById('panel').style.display = 'block';
         cargarTodo();
       } catch (err) {
         console.error(err);
-        alert("Error: " + err.message);
+        alert("Acceso denegado");
       }
     };
 
+    // --- Resto de funciones (sin cambios) ---
     async function cargarTodo() {
       renderizarPromociones();
+      cargarCanjes();
       document.getElementById('promoForm').addEventListener('submit', guardarPromocion);
     }
 
@@ -176,6 +209,57 @@
       } catch (err) {
         console.error(err);
         alert("Error al generar código");
+      }
+    };
+
+    async function cargarCanjes() {
+      const cont = document.getElementById('notificaciones-canjes');
+      try {
+        const snap = await getDocs(collection(db, "canjes"));
+        if (snap.empty) {
+          cont.innerHTML = "<p>No hay canjes recientes</p>";
+          return;
+        }
+
+        const canjes = [];
+        snap.forEach(doc => canjes.push({ id: doc.id, ...doc.data() }));
+        canjes.sort((a, b) => b.fecha.toDate() - a.fecha.toDate());
+
+        cont.innerHTML = "";
+        canjes.forEach(c => {
+          const fecha = c.fecha.toDate().toLocaleString("es-ES");
+          const div = document.createElement('div');
+          div.className = 'promo';
+          div.style.marginBottom = '15px';
+          div.style.borderColor = c.visto ? "#555" : "#0a0";
+          div.innerHTML = `
+            <strong>${c.nombrePromocion || (c.tipo === 'codigo' ? 'Código canjeado' : 'Canje')}</strong><br>
+            Cliente: ${c.clienteId.substring(0, 12)}...<br>
+            ${c.nombrePromocion ? `Puntos usados: ${c.puntosUsados}` : `Puntos: ${c.puntosAgregados || 'N/A'}`}<br>
+            Fecha: ${fecha}<br>
+            ${!c.visto ? 
+              `<button class="btn" style="margin-top:8px;background:#0a0;color:white;font-size:0.85rem;padding:6px 12px;" 
+                      onclick="marcarVisto('${c.id}')">
+                ✅ Marcar como visto
+              </button>` : 
+              '<small style="color:#aaa;">Visto</small>'
+            }
+          `;
+          cont.appendChild(div);
+        });
+      } catch (err) {
+        console.error(err);
+        cont.innerHTML = "<p>Error al cargar canjes</p>";
+      }
+    }
+
+    window.marcarVisto = async function(canjeId) {
+      try {
+        await updateDoc(doc(db, "canjes", canjeId), { visto: true });
+        cargarCanjes();
+      } catch (err) {
+        console.error(err);
+        alert("Error al marcar como visto");
       }
     };
   </script>
