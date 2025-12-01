@@ -6,64 +6,121 @@
   <title>Panel Barbería - La Nueva</title>
   <link rel="stylesheet" href="style.css" />
   
-  <!-- Fuente digital (opcional, pero combina bien) -->
+  <!-- Fuente digital opcional -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   
   <style>
-    /* Logo grande en la página de login */
     .logo-login {
-      width: 480px;
+      width: 280px;
       max-width: 80%;
-      margin: 20px auto 30px;
+      margin: 20px auto 25px;
       display: block;
       filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.6));
     }
 
+    /* Menú de navegación */
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .nav-btn {
+      background: #222;
+      border: 2px solid var(--gold);
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .nav-btn.active {
+      background: var(--gold);
+      color: #000;
+    }
+    .nav-btn:hover:not(.active) {
+      background: #333;
+    }
+
+    /* Secciones */
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hr-section {
+      margin: 25px 0;
+      border-color: #333;
+    }
   </style>
 </head>
 <body>
   <div class="container" id="login">
-    <!-- Logo grande -->
     <img src="logo.png" alt="Barbería La Nueva" class="logo-login" />
-
     <h2>Acceso restringido</h2>
-    
-    <!-- Campo genérico: "Usuario" -->
     <input type="text" id="loginUser" placeholder="Usuario" value="admin" readonly style="text-align:center;" /><br>
     <input type="password" id="loginPass" placeholder="Contraseña" required /><br><br>
     <button class="btn" onclick="validarAcceso()">Entrar</button>
   </div>
 
+  <!-- Panel principal (oculto al inicio) -->
   <div class="container" id="panel" style="display:none;">
-    <!-- El resto del panel se mantiene igual -->
-    <h2>🔧 Gestión de Promociones</h2>
-    <form id="promoForm">
-      <input type="text" id="promoNombre" placeholder="Nombre del descuento" required /><br>
-      <textarea id="promoDesc" placeholder="Descripción (opcional)"></textarea><br>
-      <input type="number" id="promoPuntos" placeholder="Puntos necesarios" min="1" required /><br>
-      <input type="date" id="promoFecha" required /><br>
-      <button type="submit" class="btn">Guardar promoción</button>
-      <button type="button" class="btn" id="btnCancelar" style="background:#666;display:none;" onclick="cancelarEdicion()">Cancelar</button>
-    </form>
+    <h2>Panel de Administración</h2>
 
-    <h3>Promociones activas</h3>
-    <div id="promos-lista"></div>
+    <!-- Menú de secciones -->
+    <div class="nav-tabs">
+      <button class="nav-btn active" data-section="gestion">Gestión de promociones</button>
+      <button class="nav-btn" data-section="activas">Promociones activas</button>
+      <button class="nav-btn" data-section="puntos">Asignar puntos</button>
+      <button class="nav-btn" data-section="canjes">Canjes recientes</button>
+    </div>
 
-    <hr style="margin:30px 0;border-color:var(--gold);">
+    <!-- Sección 1: Gestión de promociones -->
+    <div id="gestion" class="section active">
+      <h3>Crear o editar promoción</h3>
+      <form id="promoForm">
+        <input type="text" id="promoNombre" placeholder="Nombre del descuento" required /><br>
+        <textarea id="promoDesc" placeholder="Descripción (opcional)"></textarea><br>
+        <input type="number" id="promoPuntos" placeholder="Puntos necesarios" min="1" required /><br>
+        <input type="date" id="promoFecha" required /><br>
+        <button type="submit" class="btn">Guardar promoción</button>
+        <button type="button" class="btn" id="btnCancelar" style="background:#666;display:none;" onclick="cancelarEdicion()">Cancelar</button>
+      </form>
+    </div>
 
-    <h2>🎯 Asignar puntos por código</h2>
-    <input type="number" id="codigoPuntos" placeholder="Puntos a asignar" value="25" min="1" />
-    <br><br>
-    <button class="btn" onclick="generarCodigoPuntos()">Generar código</button>
-    <p id="codigo-output" style="font-size:1.2rem;font-weight:bold;margin:15px;color:var(--gold);"></p>
-    <p style="font-size:0.9em;color:#aaa;">Dile al cliente que introduzca este código en su app</p>
+    <!-- Sección 2: Promociones activas -->
+    <div id="activas" class="section">
+      <h3>Promociones registradas</h3>
+      <div id="promos-lista"></div>
+    </div>
 
-    <hr style="margin:30px 0;border-color:var(--gold);">
+    <!-- Sección 3: Asignar puntos -->
+    <div id="puntos" class="section">
+      <h3>Generar código para cliente</h3>
+      <input type="number" id="codigoPuntos" placeholder="Puntos a asignar" value="25" min="1" />
+      <br><br>
+      <button class="btn" onclick="generarCodigoPuntos()">Generar código</button>
+      <p id="codigo-output" style="font-size:1.2rem;font-weight:bold;margin:15px;color:var(--gold);"></p>
+      <p style="font-size:0.9em;color:#aaa;">Dile al cliente que introduzca este código en su app</p>
+    </div>
 
-    <h2>🔔 Canjes recientes</h2>
-    <div id="notificaciones-canjes"></div>
+    <!-- Sección 4: Canjes recientes -->
+    <div id="canjes" class="section">
+      <h3>Historial de canjes</h3>
+      <div id="notificaciones-canjes"></div>
+    </div>
   </div>
 
   <script type="module">
@@ -88,13 +145,11 @@
 
     let promoEditando = null;
 
-    // ✅ Aquí usamos el email real, pero NO aparece en el HTML
+    // === LOGIN ===
     window.validarAcceso = async function() {
       const pass = document.getElementById('loginPass').value;
-      const emailReal = "latribu_woo11@hotmail.com"; // 🔒 oculto en el código JS, no visible en el HTML
-      
+      const emailReal = "latribu_woo11@hotmail.com";
       if (!pass) return alert("Ingresa la contraseña");
-      
       try {
         await signInWithEmailAndPassword(auth, emailReal, pass);
         document.getElementById('login').style.display = 'none';
@@ -106,7 +161,21 @@
       }
     };
 
-    // --- Resto de funciones (sin cambios) ---
+    // === NAVEGACIÓN ENTRE SECCIONES ===
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Quitar clase active de todos
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        
+        // Añadir a la seleccionada
+        btn.classList.add('active');
+        const sectionId = btn.getAttribute('data-section');
+        document.getElementById(sectionId).classList.add('active');
+      });
+    });
+
+    // === FUNCIONES PRINCIPALES ===
     async function cargarTodo() {
       renderizarPromociones();
       cargarCanjes();
@@ -171,6 +240,11 @@
       document.getElementById('promoFecha').value = p.fechaExpiracion.toISOString().split('T')[0];
       promoEditando = id;
       document.getElementById('btnCancelar').style.display = 'inline-block';
+      // Cambiar a la sección de gestión
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelector('.nav-btn[data-section="gestion"]').classList.add('active');
+      document.getElementById('gestion').classList.add('active');
     };
 
     window.eliminarPromo = async function(id) {

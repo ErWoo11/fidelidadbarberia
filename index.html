@@ -3,27 +3,137 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Barbería La Nueva</title>
+  <title>Barbería La Nueva - Fidelización</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="logo.png" />
-  <meta name="theme-color" content="#000000" />
+  
+  <!-- Fuente clásica de barbería para el eslogan -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Ajustes específicos para index.html */
+    body {
+      background-color: #000;
+      color: #cccccc;
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo-hero {
+      width: 90%;
+      max-width: 500px;
+      margin: 30px auto;
+      display: block;
+      filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.6));
+    }
+
+    .tagline {
+      font-family: 'UnifrakturMaguntia', serif;
+      font-size: 1.4rem;
+      margin: 25px 0;
+      color: var(--gold);
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+    }
+
+    .description {
+      font-family: 'IM Fell English', serif;
+      font-size: 1.10rem;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto 30px;
+      color: #ddd;
+    }
+
+    .slogan {
+      font-family: 'UnifrakturMaguntia', serif;
+      font-size: 1.9rem;
+      color: #fff;
+      margin-top: 40px;
+      text-align: center;
+      letter-spacing: 1px;
+      font-style: italic;
+      text-shadow: 0 0 6px rgba(212, 175, 55, 0.7);
+    }
+
+    .btn {
+      background-color: var(--gold);
+      color: #000;
+      padding: 14px 32px;
+      margin: 20px 0;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1.1rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    /* Redes sociales fijas en esquina inferior derecha */
+    .socials-fixed {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      gap: 18px;
+    }
+    .socials-fixed a {
+      color: var(--gold);
+      font-size: 28px;
+      text-decoration: none;
+      filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.6));
+      transition: transform 0.2s;
+    }
+    .socials-fixed a:hover {
+      transform: scale(1.2);
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <img src="logo.png" alt="Barbería La Nueva" class="logo" />
+  <div class="hero">
+    <!-- Logo muy grande -->
+    <img src="logo.png" alt="Barbería La Nueva" class="logo-hero" />
+
+    <!-- Título -->
+    <div class="tagline">APLICACIÓN DE FIDELIZACIÓN</div>
+
+    <!-- Descripción -->
+    <div class="description">
+      Barbería La nueva presenta una app de fidelización que convierte cada visita y cada servicio en puntos que se transforman en recompensas reales. 
+      Es una forma sencilla y moderna de agradecer la lealtad de quienes disfrutan del buen corte, el buen trato y el estilo clásico con sabor actual.
+    </div>
+
+    <!-- Eslogan clásico de barbería -->
+    <div class="slogan">
+      Barbería La nueva: tu estilo suma.
+    </div>
+
+
+
+    <!-- Botón principal -->
     <a href="cliente.html" class="btn">Acumular puntos</a>
 
-    <div class="socials">
-      <a href="https://facebook.com/tu-perfil" target="_blank" rel="noopener">📘</a>
-      <a href="https://instagram.com/tu-perfil" target="_blank" rel="noopener">📸</a>
-    </div>
+  <!-- Redes sociales fijas en esquina inferior derecha -->
+  <div class="socials-fixed">
+    <a href="https://facebook.com/tu-perfil" target="_blank" rel="noopener">📘</a>
+    <a href="https://instagram.com/tu-perfil" target="_blank" rel="noopener">📸</a>
+  </div>
+
   </div>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(console.error);
+        navigator.serviceWorker.register('/fidelidadbarberia/sw.js').catch(console.error);
       });
     }
   </script>
