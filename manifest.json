@@ -1,18 +1,19 @@
 {
-  "name": "Barbería La nueva",
+  "name": "Barbería La Nueva",
   "short_name": "Barbería La nueva",
+  "description": "Aplicación de fidelización para clientes de Barbería La Nueva",
   "start_url": "/fidelidadbarberia/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#000000",
+  "theme_color": "#d4af37",
   "icons": [
     {
-      "src": "logo-192.png",
+      "src": "/fidelidadbarberia/logo-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "logo-512.png",
+      "src": "/fidelidadbarberia/logo-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
