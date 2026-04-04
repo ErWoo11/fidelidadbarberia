@@ -5,153 +5,684 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mis Puntos - Barbería La Nueva</title>
   <link rel="stylesheet" href="style.css" />
-  
-  <!-- Fuente digital Orbitron -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   
   <style>
-    /* Estilos específicos para la sección de puntos */
     .logo-small {
-  width: min(360px, 80vw); /* El doble de tamaño, pero nunca más del 80% del ancho de la pantalla */
-  margin: 20px auto 30px;
-  display: block;
-  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.6));
-}
-
+      width: min(360px, 80vw);
+      margin: 20px auto 30px; display: block;
+      filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.6));
+    }
     .section-title {
-      font-size: 1.8rem;
-      margin: 25px 0 20px;
-      color: var(--gold);
-      text-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
-      text-align: center;
+      font-size: 1.8rem; margin-bottom: 20px;
+      color: var(--gold); text-shadow: 0 0 10px rgba(212,175,55,0.7);
     }
-
-    .digital-display {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin: 25px 0;
-      padding: 0 10px;
-    }
-
+    .digital-display { display: flex; flex-direction: column; gap: 20px; margin: 25px 0; }
     .counter-box {
-      background: #0a0a0a;
-      border: 2px solid var(--gold);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+      background: #0a0a0a; border: 2px solid var(--gold);
+      border-radius: 12px; padding: 16px; text-align: center;
+      box-shadow: 0 0 12px rgba(212,175,55,0.3);
     }
-
-    .counter-label {
-      font-size: 0.95rem;
-      color: #aaa;
-      margin-bottom: 8px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
+    .counter-label { font-size: 0.95rem; color: #aaa; margin-bottom: 8px; letter-spacing: 1px; }
     .counter-value {
-      font-family: 'Orbitron', monospace;
-      font-size: 2.6rem;
-      font-weight: 700;
-      color: var(--gold);
-      text-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
-      letter-spacing: 2px;
+      font-family: 'Orbitron', monospace; font-size: 2.8rem;
+      font-weight: 700; color: var(--gold);
+      text-shadow: 0 0 10px rgba(212,175,55,0.8); letter-spacing: 2px;
     }
-
     @media (min-width: 600px) {
-      .digital-display {
-        flex-direction: row;
-        justify-content: center;
-        gap: 25px;
-      }
-      .counter-box {
-        min-width: 200px;
-      }
+      .digital-display { flex-direction: row; justify-content: center; gap: 25px; }
+      .counter-box { min-width: 220px; }
     }
 
-/* --- FONDO DE BARBERÍA CON TRANSPARENCIA --- */
-body {
-  background-image: url('fondo.png');
-  background-size: 300px; /* Tamaño del patrón (ajusta según te guste) */
-  background-repeat: repeat;
-  background-position: center;
-  background-color: rgba(0, 0, 0, 0.85); /* Fondo negro semi-transparente para mejorar legibilidad */
-}
+    .nav-tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0; }
+    .nav-btn {
+      background: #222; border: 2px solid var(--gold); color: var(--text);
+      padding: 10px 16px; border-radius: 8px; cursor: pointer;
+      font-weight: bold; transition: all 0.2s;
+    }
+    .nav-btn.active { background: var(--gold); color: #000; }
+    .nav-btn:hover:not(.active) { background: #333; }
 
-/* Para evitar que el fondo interfiera con el contenido */
-.container {
-  background: rgba(0, 0, 0, 0.85); /* Fondo oscuro ligeramente más opaco para el contenido */
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-}
+    .section { display: none !important; animation: fadeIn 0.4s ease; }
+    .section.active { display: block !important; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    input, select, textarea {
+      width: 100%; padding: 12px; margin: 8px 0;
+      border: 1px solid var(--gold); background: #111;
+      color: var(--text); border-radius: 6px; font-size: 1rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; box-shadow: 0 0 8px rgba(212,175,55,0.5);
+    }
+    textarea { resize: vertical; min-height: 70px; }
+    .btn {
+      display: inline-block; background-color: var(--gold); color: #000;
+      padding: 12px 24px; margin: 12px 0; border: none;
+      border-radius: 8px; font-weight: bold; cursor: pointer;
+      text-decoration: none; font-size: 1rem; width: 100%;
+    }
+    .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+    .btn-cancelar-reserva {
+      background: #444; color: #ddd; border: 1px solid #666;
+      padding: 6px 14px; border-radius: 6px; cursor: pointer;
+      font-size: 0.85rem; font-weight: bold; margin-top: 8px;
+    }
+    .btn-cancelar-reserva:hover { background: #dc3545; color: white; border-color: #dc3545; }
+
+    /* Promociones */
+    .promo {
+      background: #1a1a1a; border: 2px solid var(--gold);
+      border-radius: 10px; padding: 15px; margin: 15px 0; position: relative;
+    }
+    .promo.expired { filter: grayscale(30%); border-color: #b00000; }
+    .promo.expired::before {
+      content: "Promoción caducada"; position: absolute; top: -12px; left: 50%;
+      transform: translateX(-50%); background: #ffdddd; color: #b00000;
+      padding: 4px 14px; font-size: 14px; font-weight: bold;
+      border-radius: 20px; border: 1px solid #ffbfbf;
+    }
+
+    /* Reservas */
+    .reserva-form {
+      background: #1a1a1a; border: 1px solid var(--gold);
+      border-radius: 10px; padding: 20px; margin: 15px 0;
+    }
+    .form-group { margin-bottom: 15px; text-align: left; }
+    .form-group label { display: block; color: var(--gold); margin-bottom: 5px; font-weight: bold; }
+
+    /* Resumen de reserva antes de confirmar */
+    .reserva-resumen {
+      background: #0d0d0d; border: 1px solid var(--gold);
+      border-radius: 8px; padding: 14px; margin: 12px 0;
+      font-size: 0.95rem; text-align: left;
+    }
+    .reserva-resumen .resumen-row { display: flex; justify-content: space-between; margin: 6px 0; }
+    .reserva-resumen .resumen-label { color: #aaa; }
+    .reserva-resumen .resumen-valor { color: var(--text-light); font-weight: bold; }
+    .resumen-puntos { color: var(--gold) !important; }
+
+    /* Selector horas */
+    .time-slots {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 8px; margin: 15px 0; max-height: 200px; overflow-y: auto;
+    }
+    .time-slot {
+      padding: 10px 5px; background: #222; border: 1px solid var(--gold);
+      border-radius: 6px; cursor: pointer; text-align: center;
+      font-size: 0.9rem; transition: all 0.2s;
+    }
+    .time-slot:hover:not(.occupied):not(.pending) { background: #333; transform: scale(1.05); }
+    .time-slot.selected { background: var(--gold); color: #000; font-weight: bold; }
+    .time-slot.occupied { background: #333; border-color: #555; color: #666; cursor: not-allowed; text-decoration: line-through; }
+    .time-slot.pending { background: rgba(255,193,7,0.3); border-color: #ffc107; cursor: not-allowed; }
+
+    /* Tarjetas mis reservas */
+    .reserva-cliente-card {
+      background: #1a1a1a; border-radius: 10px; padding: 15px;
+      margin: 10px 0; border: 1px solid var(--gold); text-align: left;
+    }
+    .reserva-cliente-card.pendiente {
+      border-left: 4px solid #ffc107;
+      background: linear-gradient(90deg, rgba(255,193,7,0.1), transparent);
+    }
+    .reserva-cliente-card.aprobado {
+      border-left: 4px solid #28a745;
+      background: linear-gradient(90deg, rgba(40,167,69,0.1), transparent);
+    }
+    .reserva-cliente-card.completada {
+      border-left: 4px solid #6f42c1;
+      background: linear-gradient(90deg, rgba(111,66,193,0.1), transparent);
+      opacity: 0.85;
+    }
+    .reserva-cliente-card.rechazado {
+      border-left: 4px solid #dc3545; opacity: 0.7;
+    }
+    .reserva-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 8px;
+      flex-wrap: wrap; gap: 5px;
+    }
+    .reserva-servicio { font-size: 1.1rem; font-weight: bold; color: var(--gold); margin: 5px 0; }
+    .reserva-info { color: #aaa; font-size: 0.9rem; }
+    .estado-badge {
+      display: inline-block; padding: 4px 12px;
+      border-radius: 20px; font-size: 0.8rem;
+      font-weight: bold; margin-top: 8px;
+    }
+    .estado-badge.pendiente { background: #ffc107; color: #000; }
+    .estado-badge.aprobado { background: #28a745; color: white; }
+    .estado-badge.rechazado { background: #dc3545; color: white; }
+    .estado-badge.completada { background: #6f42c1; color: white; }
+
+    /* Nota de reserva */
+    .reserva-nota-display {
+      background: #111; border-left: 3px solid #ffc107;
+      padding: 6px 10px; margin-top: 6px; border-radius: 0 4px 4px 0;
+      font-size: 0.85rem; color: #ccc; font-style: italic;
+    }
+
+    /* Código */
+    .codigo-input-group { display: flex; gap: 10px; margin: 15px 0; }
+    .codigo-input-group input { flex: 1; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
+    .codigo-input-group .btn { width: auto; margin: 0; }
+
+    /* Mensajes */
+    .mensaje { padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center; }
+    .mensaje.exito { background: rgba(40,167,69,0.2); border: 1px solid #28a745; color: #28a745; }
+    .mensaje.error { background: rgba(220,53,69,0.2); border: 1px solid #dc3545; color: #dc3545; }
+    .mensaje.info { background: rgba(212,175,55,0.2); border: 1px solid var(--gold); color: var(--gold); }
+
+    /* Loader */
+    .loader {
+      border: 3px solid #222; border-top: 3px solid var(--gold);
+      border-radius: 50%; width: 40px; height: 40px;
+      animation: spin 1s linear infinite; margin: 20px auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    #reader { width: 95% !important; height: 280px !important; margin: 20px auto; border: 2px solid var(--gold); }
+    /* ══════════════════════════════════════
+       PROBAR SUERTE — CRONÓGRAFO RETRO
+    ══════════════════════════════════════ */
+    #crono-display {
+      background: #050505;
+      border: 2px solid var(--gold);
+      border-radius: 16px;
+      padding: 24px 16px 20px;
+      margin: 20px auto 10px;
+      max-width: 340px;
+      box-shadow:
+        0 0 0 1px #1a1a1a,
+        0 0 30px rgba(212,175,55,0.2),
+        inset 0 0 40px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    #crono-display::before {
+      content: 'CRONÓMETRO';
+      position: absolute; top: -11px; left: 50%;
+      transform: translateX(-50%);
+      background: #050505; color: var(--gold);
+      font-size: 9px; letter-spacing: 3px;
+      padding: 0 10px; font-weight: 700;
+    }
+    .crono-row {
+      display: flex; align-items: center;
+      justify-content: center; gap: 4px;
+    }
+    .crono-digit-group { display: flex; gap: 3px; }
+    .crono-digit {
+      font-family: 'Orbitron', monospace;
+      font-size: 3.6rem; font-weight: 700;
+      color: var(--gold);
+      text-shadow:
+        0 0 10px rgba(212,175,55,0.9),
+        0 0 30px rgba(212,175,55,0.4);
+      min-width: 2.1ch; text-align: center;
+      line-height: 1;
+      /* efecto LED apagado detrás */
+      position: relative;
+    }
+    .crono-digit::before {
+      content: '8';
+      position: absolute; top: 0; left: 0; right: 0;
+      color: rgba(212,175,55,0.07);
+      z-index: 0;
+    }
+    .crono-digit { z-index: 1; }
+    .crono-digit.small {
+      font-size: 2.2rem;
+      color: rgba(212,175,55,0.75);
+      text-shadow: 0 0 8px rgba(212,175,55,0.5);
+    }
+    .crono-sep {
+      font-family: 'Orbitron', monospace;
+      font-size: 3.2rem; font-weight: 900;
+      color: var(--gold); line-height: 1;
+      text-shadow: 0 0 10px rgba(212,175,55,0.8);
+      animation: parpadeo 1s step-end infinite;
+      margin: 0 2px;
+    }
+    .crono-sep.parado { animation: none; }
+    @keyframes parpadeo { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    .crono-dot {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.4rem; font-weight: 900;
+      color: rgba(212,175,55,0.6); line-height: 1;
+      margin: 0 1px; align-self: flex-end; margin-bottom: 4px;
+    }
+    .crono-ms { align-items: flex-end; margin-bottom: 2px; }
+    .crono-msg {
+      text-align: center; margin-top: 14px;
+      font-size: 0.9rem; min-height: 22px;
+      color: #888; letter-spacing: 1px;
+    }
+    .crono-msg.ganador { color: #ffd700; font-weight: bold; font-size: 1rem; }
+    .crono-msg.perdedor { color: #888; }
+
+    /* ── PULSADOR 3D ── */
+    #btn-pulsador-wrap {
+      margin: 32px auto 10px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 14px;
+    }
+    #btn-pulsador {
+      width: 160px; height: 160px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 35%,
+        #e8c840 0%, #d4af37 40%, #a07c10 75%, #7a5c00 100%);
+      border: none; cursor: pointer;
+      box-shadow:
+        0 10px 0 #5a3e00,
+        0 12px 20px rgba(0,0,0,0.7),
+        inset 0 2px 6px rgba(255,255,255,0.25);
+      transform: translateY(0);
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      position: relative; outline: none;
+      /* anillo exterior */
+      border: 4px solid #8a6500;
+    }
+    #btn-pulsador:active,
+    #btn-pulsador.presionado {
+      transform: translateY(7px);
+      box-shadow:
+        0 3px 0 #5a3e00,
+        0 5px 10px rgba(0,0,0,0.6),
+        inset 0 2px 6px rgba(255,255,255,0.15);
+    }
+    #btn-pulsador.bloqueado {
+      background: radial-gradient(circle at 38% 35%,
+        #555 0%, #333 50%, #1a1a1a 100%);
+      border-color: #333; cursor: not-allowed;
+      box-shadow: 0 6px 0 #111, 0 8px 14px rgba(0,0,0,0.5);
+    }
+    #pulsador-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem; font-weight: 900;
+      color: #0a0a0a; letter-spacing: 3px;
+      pointer-events: none; user-select: none;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+    }
+    #btn-pulsador.bloqueado #pulsador-label { color: #555; }
+    #pulsador-hint {
+      color: #555; font-size: 0.82rem;
+      text-align: center; letter-spacing: 0.5px;
+    }
+
+    /* ── CARTEL GANADOR ── */
+    #cartel-ganador {
+      position: fixed; inset: 0; z-index: 9996;
+      background: rgba(0,0,0,0.92);
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeInFull 0.4s ease;
+    }
+    @keyframes fadeInFull { from{opacity:0} to{opacity:1} }
+    .ganador-inner {
+      text-align: center; padding: 40px 30px;
+      background: #080808; border: 2px solid var(--gold);
+      border-radius: 24px; max-width: 320px; width: 90%;
+      box-shadow: 0 0 60px rgba(212,175,55,0.4);
+      animation: zoomIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    @keyframes zoomIn {
+      from { transform: scale(0.5); opacity:0; }
+      to   { transform: scale(1);   opacity:1; }
+    }
+    .ganador-emoji { font-size: 2.5rem; margin-bottom: 16px; }
+    .ganador-titulo {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem; font-weight: 900;
+      color: var(--gold); line-height: 1.1;
+      text-shadow: 0 0 20px rgba(212,175,55,0.8);
+    }
+    .ganador-titulo2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.6rem; font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255,255,255,0.5);
+      margin-bottom: 20px;
+    }
+    .ganador-sub {
+      color: #aaa; font-size: 0.88rem; margin-bottom: 24px;
+    }
+    #btn-cerrar-ganador {
+      background: var(--gold); color: #000;
+      border: none; border-radius: 30px;
+      padding: 12px 32px; font-weight: 900;
+      font-size: 0.95rem; cursor: pointer;
+      letter-spacing: 1px;
+    }
+
+    /* ── NOTIFICACIONES CLIENTE ── */
+    #notif-campana-cli {
+      position: fixed; top: 16px; right: 16px; z-index: 9999;
+      background: #0a0a0a; border: 2px solid var(--gold);
+      border-radius: 50%; width: 44px; height: 44px;
+      display: none; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 14px rgba(212,175,55,0.25);
+      transition: transform 0.2s;
+    }
+    #notif-campana-cli:hover { transform: scale(1.08); }
+    #notif-campana-cli .campana-icon { font-size: 1.15rem; }
+    #notif-campana-cli .notif-count {
+      position: absolute; top: -6px; right: -6px;
+      background: #28a745; color: white;
+      border-radius: 50%; width: 18px; height: 18px;
+      font-size: 10px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      animation: pulse-badge 1.5s infinite;
+    }
+    @keyframes pulse-badge {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.2); }
+    }
+    #notif-panel-cli {
+      position: fixed; top: 68px; right: 16px; z-index: 9998;
+      width: min(320px, calc(100vw - 32px));
+      background: #0d0d0d; border: 1px solid var(--gold);
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+      display: none;
+    }
+    #notif-panel-cli.open { display: block; animation: slideDown 0.25s ease; }
+    @keyframes slideDown {
+      from { opacity:0; transform:translateY(-10px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .notif-header-cli {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px; border-bottom: 1px solid #1e1e1e;
+    }
+    .notif-header-cli h4 { margin:0; color: var(--gold); font-size:0.88rem; letter-spacing:1px; }
+    .notif-clear-cli { background:none; border:none; color:#555; font-size:0.78rem; cursor:pointer; }
+    .notif-clear-cli:hover { color:#dc3545; }
+    .notif-lista-cli { max-height: 300px; overflow-y: auto; }
+    .notif-item-cli {
+      display: flex; gap: 11px; padding: 13px 16px;
+      border-bottom: 1px solid #161616; transition: background 0.2s;
+    }
+    .notif-item-cli:hover { background: #111; }
+    .notif-item-cli.aprobada { border-left: 3px solid #28a745; }
+    .notif-item-cli.rechazada { border-left: 3px solid #dc3545; }
+    .notif-dot-cli { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+    .notif-dot-cli.aprobada  { background: #28a745; }
+    .notif-dot-cli.rechazada { background: #dc3545; }
+    .notif-txt { font-size:0.86rem; color:#ccc; line-height:1.45; }
+    .notif-txt strong { display:block; margin-bottom:2px; }
+    .notif-txt strong.aprobada  { color: #28a745; }
+    .notif-txt strong.rechazada { color: #dc3545; }
+    .notif-ts { font-size:0.73rem; color:#444; margin-top:3px; }
+    .notif-empty-cli { padding:22px; text-align:center; color:#444; font-size:0.86rem; }
+    /* Toast cliente */
+    .toast-cli {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      min-width: 260px; max-width: calc(100vw - 40px);
+      border-radius: 12px; padding: 14px 18px;
+      display: flex; align-items: flex-start; gap: 12px;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.65); z-index: 10000;
+      animation: toastIn 0.35s ease;
+    }
+    .toast-cli.aprobada {
+      background: #071a0a; border: 1px solid #28a745; border-left: 4px solid #28a745;
+    }
+    .toast-cli.rechazada {
+      background: #1a0707; border: 1px solid #dc3545; border-left: 4px solid #dc3545;
+    }
+    @keyframes toastIn {
+      from { opacity:0; transform:translateX(-50%) translateY(20px); }
+      to   { opacity:1; transform:translateX(-50%) translateY(0); }
+    }
+    .toast-cli.saliendo { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastOut {
+      to { opacity:0; transform:translateX(-50%) translateY(20px); }
+    }
+    .toast-cli-icon { font-size:1.4rem; flex-shrink:0; margin-top:1px; }
+    .toast-cli-body { flex:1; }
+    .toast-cli-titulo { font-weight:bold; font-size:0.92rem; margin-bottom:2px; }
+    .toast-cli-titulo.aprobada  { color:#28a745; }
+    .toast-cli-titulo.rechazada { color:#dc3545; }
+    .toast-cli-msg { font-size:0.82rem; color:#aaa; }
 
   </style>
-
-<!-- Manifest -->
-<link rel="manifest" href="/fidelidadbarberia/manifest.json" />
-
-<!-- Icons -->
-<link rel="icon" type="image/png" sizes="192x192" href="/fidelidadbarberia/logo-192.png" />
-<link rel="apple-touch-icon" href="/fidelidadbarberia/logo-192.png" />
-
-<!-- Open Graph (WhatsApp, Facebook, etc.) -->
-<meta property="og:title" content="Barbería La Nueva - Fidelización" />
-<meta property="og:description" content="Convierte cada corte en puntos y gana recompensas." />
-<meta property="og:image" content="https://erwoo11.github.io/fidelidadbarberia/logo-og.png" />
-<meta property="og:url" content="https://erwoo11.github.io/fidelidadbarberia/" />
-<meta property="og:type" content="website" />
-
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Barbería La Nueva" />
-<meta name="twitter:description" content="Tu estilo suma. ¡Canjea puntos por recompensas!" />
-<meta name="twitter:image" content="https://erwoo11.github.io/fidelidadbarberia/logo-og.png" />
-
-
 </head>
 <body>
-  <div class="container">
-    <!-- Logo -->
-    <img src="logo.png" alt="Barbería La Nueva" class="logo-small" />
-
-    <!-- Título -->
-    <h2 class="section-title">MIS PUNTOS</h2>
-
-    <!-- Display digital -->
-    <div class="digital-display">
-      <div class="counter-box">
-        <div class="counter-label">Puntos acumulados</div>
-        <div class="counter-value" id="puntos">0</div>
-      </div>
-      <div class="counter-box">
-        <div class="counter-label">Próximo descuento</div>
-        <div class="counter-value" id="faltan">0</div>
-      </div>
+  <!-- ══ CAMPANA NOTIFICACIONES CLIENTE ══ -->
+  <div id="notif-campana-cli" onclick="toggleNotifCli()">
+    <span class="campana-icon">🔔</span>
+  </div>
+  <div id="notif-panel-cli">
+    <div class="notif-header-cli">
+      <h4>MIS NOTIFICACIONES</h4>
+      <button class="notif-clear-cli" onclick="limpiarNotifsCli()">Limpiar</button>
     </div>
-
-    <h3>DESCUENTOS DISPONIBLES</h3>
-    <div id="descuentos"></div>
-
-    <hr style="margin:30px 0;border-color:var(--gold);">
-
-    <h3>¿Tienes un código de puntos?</h3>
-    <input type="text" id="inputCodigo" placeholder="Ej: A3K9M2" maxlength="8" style="text-transform:uppercase;" />
-    <br><br>
-    <button class="btn" onclick="canjearCodigo()">Canjear código</button>
+    <div class="notif-lista-cli" id="notif-lista-cli">
+      <div class="notif-empty-cli">Sin notificaciones</div>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <div class="container">
+    <img src="logo.png" alt="Barbería La Nueva" class="logo-small" />
+    
+    <!-- Login -->
+    <div id="login-section">
+      <h2 class="section-title">Bienvenido</h2>
+      <p style="color:#aaa; margin-bottom:20px;">Inicia sesión para gestionar tus puntos y reservas</p>
+      <input type="email" id="loginEmail" placeholder="Tu email" required />
+      <input type="password" id="loginPass" placeholder="Contraseña" required />
+      <button class="btn" onclick="iniciarSesion()">🔐 Iniciar sesión</button>
+      <div id="mensaje-login" style="margin-top:8px;"></div>
+      <p style="margin-top:10px; color:#aaa; font-size:0.9rem;">
+        ¿No tienes cuenta? <a href="#" style="color:var(--gold);" onclick="mostrarVerificarPin()">Regístrate</a>
+      </p>
+    </div>
+
+    <!-- Paso 1: Verificar PIN -->
+    <div id="registro-pin-section" style="display:none;">
+      <h2 class="section-title">Crear cuenta</h2>
+      <p style="color:#aaa; margin-bottom:20px; font-size:0.95rem;">
+        El registro requiere un PIN de un solo uso.<br>Pídele al barbero que te lo proporcione.
+      </p>
+      <div style="position:relative;">
+        <input type="text" id="pinRegistro"
+          placeholder="PIN de 6 dígitos"
+          maxlength="6" inputmode="numeric"
+          style="text-align:center; font-family:'Orbitron',monospace; font-size:1.5rem; letter-spacing:8px; padding:14px;" />
+      </div>
+      <div id="mensaje-pin"></div>
+      <button class="btn" onclick="verificarPin()" style="margin-top:8px;">Verificar PIN</button>
+      <p style="margin-top:15px; color:#aaa; font-size:0.9rem;">
+        ¿Ya tienes cuenta? <a href="#" style="color:var(--gold);" onclick="mostrarLogin()">Inicia sesión</a>
+      </p>
+    </div>
+
+    <!-- Paso 2: Formulario de registro (solo tras PIN válido) -->
+    <div id="registro-section" style="display:none;">
+      <h2 class="section-title">Crear cuenta</h2>
+      <div style="background:rgba(40,167,69,0.12); border:1px solid #28a745; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:0.9rem; color:#28a745;">
+        ✅ PIN verificado correctamente
+      </div>
+      <input type="text" id="registroNombre" placeholder="Tu nombre completo" required />
+      <input type="email" id="registroEmail" placeholder="Tu email" required />
+      <input type="password" id="registroPass" placeholder="Contraseña (mín. 6 caracteres)" minlength="6" required />
+      <button class="btn" onclick="registrarUsuario()">📝 Crear cuenta</button>
+      <p style="margin-top:15px; color:#aaa; font-size:0.9rem;">
+        ¿Ya tienes cuenta? <a href="#" style="color:var(--gold);" onclick="mostrarLogin()">Inicia sesión</a>
+      </p>
+    </div>
+
+    <!-- Panel Principal -->
+    <div id="panel-section" style="display:none;">
+      <div style="text-align:right; margin-bottom:10px;">
+        <span id="usuario-nombre" style="color:var(--gold); font-weight:bold;"></span>
+        <button onclick="cerrarSesion()" style="background:none; border:none; color:#666; cursor:pointer; margin-left:10px;">🚪 Salir</button>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="nav-btn active" data-section="puntos">⭐ Mis Puntos</button>
+        <button class="nav-btn" data-section="reservar">📅 Reservar</button>
+        <button class="nav-btn" data-section="mis-reservas">📋 Mis Reservas</button>
+        <button class="nav-btn" data-section="promociones">🎁 Promociones</button>
+        <button class="nav-btn" data-section="suerte" id="btn-suerte" disabled
+          style="opacity:0.35; cursor:not-allowed; position:relative;"
+          title="El barbero debe habilitarte esta opción">
+          🎰 Probar SUERTE
+          <span style="position:absolute;top:-8px;right:-8px;background:#555;color:#999;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:bold;">BLOQ</span>
+        </button>
+      </div>
+
+      <!-- MIS PUNTOS -->
+      <div id="puntos" class="section active">
+        <h3 class="section-title">Mis Puntos</h3>
+        <div class="digital-display">
+          <div class="counter-box">
+            <div class="counter-label">Puntos acumulados</div>
+            <div class="counter-value" id="puntos-acumulados">0</div>
+          </div>
+          <div class="counter-box">
+            <div class="counter-label">Próximo descuento</div>
+            <div class="counter-value" id="puntos-proximo">0</div>
+          </div>
+        </div>
+        <div class="reserva-form">
+          <h4 style="color:var(--gold); margin-bottom:15px;">¿Tienes un código de puntos?</h4>
+          <div class="codigo-input-group">
+            <input type="text" id="codigo-puntos" placeholder="Ej: ABC123" maxlength="6" style="text-transform:uppercase;" />
+            <button class="btn" onclick="canjearCodigo()" style="width:auto;">Canjear</button>
+          </div>
+          <div id="mensaje-codigo"></div>
+        </div>
+        <div style="margin-top:20px; color:#aaa; font-size:0.9rem;">
+          <p>💡 Gana puntos con cada servicio y canjéalos por descuentos exclusivos</p>
+        </div>
+      </div>
+
+      <!-- RESERVAR -->
+      <div id="reservar" class="section">
+        <h3 class="section-title">Reservar Turno</h3>
+        <div class="reserva-form">
+
+          <div class="form-group">
+            <label>📅 Selecciona un día disponible:</label>
+            <select id="reserva-fecha" required>
+              <option value="">-- Cargando días disponibles --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>✂️ Selecciona un servicio:</label>
+            <select id="reserva-servicio" required>
+              <option value="">-- Cargando servicios --</option>
+            </select>
+            <div id="servicio-info" style="margin-top:8px; color:#aaa; font-size:0.9rem;"></div>
+          </div>
+
+          <div class="form-group" id="grupo-horas" style="display:none;">
+            <label>🕐 Horarios disponibles:</label>
+            <div class="time-slots" id="time-slots"></div>
+          </div>
+
+          <!-- Nota opcional -->
+          <div class="form-group" id="grupo-nota" style="display:none;">
+            <label>💬 Nota para el barbero (opcional):</label>
+            <textarea id="reserva-nota" placeholder="Ej: quiero que me dejes un poco largo arriba, traigo foto de referencia..."></textarea>
+          </div>
+
+          <!-- Resumen antes de confirmar -->
+          <div id="reserva-resumen" style="display:none;" class="reserva-resumen">
+            <div class="resumen-row"><span class="resumen-label">Servicio:</span><span class="resumen-valor" id="resumen-servicio">—</span></div>
+            <div class="resumen-row"><span class="resumen-label">Día:</span><span class="resumen-valor" id="resumen-dia">—</span></div>
+            <div class="resumen-row"><span class="resumen-label">Hora:</span><span class="resumen-valor" id="resumen-hora">—</span></div>
+            <div class="resumen-row"><span class="resumen-label">Precio:</span><span class="resumen-valor" id="resumen-precio">—</span></div>
+            <div class="resumen-row"><span class="resumen-label">Puntos a ganar:</span><span class="resumen-valor resumen-puntos" id="resumen-puntos">—</span></div>
+          </div>
+
+          <div id="mensaje-reserva"></div>
+          <button class="btn" id="btn-reservar" onclick="confirmarReserva()" disabled>
+            ✅ Confirmar Reserva
+          </button>
+        </div>
+      </div>
+
+      <!-- MIS RESERVAS -->
+      <div id="mis-reservas" class="section">
+        <h3 class="section-title">Mis Reservas</h3>
+        <div id="lista-mis-reservas">
+          <div class="loader"></div>
+          <p style="color:#aaa; text-align:center;">Cargando reservas...</p>
+        </div>
+      </div>
+
+      <!-- PROMOCIONES -->
+      <div id="promociones" class="section">
+        <h3 class="section-title">Promociones Disponibles</h3>
+        <div id="lista-promociones">
+          <div class="loader"></div>
+          <p style="color:#aaa; text-align:center;">Cargando promociones...</p>
+        </div>
+      </div>
+      <!-- PROBAR SUERTE -->
+      <div id="suerte" class="section">
+        <h3 class="section-title">🎰 Probar SUERTE</h3>
+
+        <!-- Cronógrafo retro -->
+        <div id="crono-display">
+          <div class="crono-row">
+            <div class="crono-digit-group" id="crono-min">
+              <span class="crono-digit" id="d-m1">0</span>
+              <span class="crono-digit" id="d-m2">0</span>
+            </div>
+            <span class="crono-sep" id="crono-sep">:</span>
+            <div class="crono-digit-group" id="crono-sec">
+              <span class="crono-digit" id="d-s1">0</span>
+              <span class="crono-digit" id="d-s2">0</span>
+            </div>
+            <span class="crono-dot">.</span>
+            <div class="crono-digit-group crono-ms">
+              <span class="crono-digit small" id="d-ms1">0</span>
+              <span class="crono-digit small" id="d-ms2">0</span>
+            </div>
+          </div>
+          <div id="crono-mensaje" class="crono-msg"></div>
+        </div>
+
+        <!-- Pulsador 3D -->
+        <div id="btn-pulsador-wrap">
+          <button id="btn-pulsador" onclick="accionPulsador()">
+            <span id="pulsador-label">PULSA</span>
+          </button>
+          <p id="pulsador-hint">Pulsa para arrancar el cronómetro</p>
+        </div>
+
+        <!-- Confeti canvas (oculto hasta ganar) -->
+        <canvas id="confeti-canvas" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9997;"></canvas>
+        <!-- Cartel ganador -->
+        <div id="cartel-ganador" style="display:none;">
+          <div class="ganador-inner">
+            <div class="ganador-emoji">✂️🏆✂️</div>
+            <div class="ganador-titulo">¡CORTE DE PELO</div>
+            <div class="ganador-titulo2">GRATIS!</div>
+            <div class="ganador-sub">Muéstrale esta pantalla al barbero</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { 
-      getFirestore, doc, getDoc, setDoc, updateDoc, getDocs, collection, serverTimestamp, query, where, addDoc 
+      getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc,
+      doc, query, where, serverTimestamp, onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { 
+      getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+      signOut, onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCUELgPNjtLllR8BW67aSuLrPl9fje8hWg",
@@ -164,166 +695,1045 @@ body {
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    function getClienteId() {
-      let id = localStorage.getItem('cliente_uid');
-      if (!id) {
-        id = "cliente_" + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('cliente_uid', id);
+    let usuarioActual = null;
+    let horaSeleccionada = null;
+    let servicioSeleccionado = null;
+    let horaFinSeleccionada = null;
+
+    // ── AUTH ────────────────────────────────────────
+    let pinVerificadoId = null; // ID del doc PIN válido, para marcarlo usado al registrar
+
+    const ocultarTodo = () => {
+      ['login-section','registro-pin-section','registro-section'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+    };
+
+    window.mostrarLogin = () => {
+      ocultarTodo();
+      document.getElementById('login-section').style.display = 'block';
+    };
+
+    // Paso 1: pantalla de PIN
+    window.mostrarVerificarPin = () => {
+      ocultarTodo();
+      pinVerificadoId = null;
+      document.getElementById('pinRegistro').value = '';
+      document.getElementById('registro-pin-section').style.display = 'block';
+    };
+
+    // Verificar PIN contra Firestore
+    window.verificarPin = async () => {
+      const pin = document.getElementById('pinRegistro').value.trim();
+      if (!pin || pin.length !== 6) {
+        return mostrarMensaje('mensaje-pin', 'Introduce los 6 digitos del PIN', 'info');
       }
-      return id;
+      try {
+        const snap = await getDocs(query(
+          collection(db, 'pines-registro'),
+          where('pin', '==', pin),
+          where('usado', '==', false)
+        ));
+        if (snap.empty) {
+          return mostrarMensaje('mensaje-pin', 'PIN incorrecto o ya utilizado', 'error');
+        }
+        const pinDoc = snap.docs[0];
+        const pinData = pinDoc.data();
+        const expira = pinData.expira?.toDate?.() ?? new Date(pinData.expira);
+        if (new Date() > expira) {
+          return mostrarMensaje('mensaje-pin', 'Este PIN ha caducado. Pide uno nuevo al barbero.', 'error');
+        }
+        // PIN valido
+        pinVerificadoId = pinDoc.id;
+        ocultarTodo();
+        document.getElementById('registro-section').style.display = 'block';
+      } catch(err) {
+        mostrarMensaje('mensaje-pin', 'Error al verificar PIN: ' + err.message, 'error');
+      }
+    };
+
+    window.iniciarSesion = async () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      if (!email || !pass) return mostrarMensaje('mensaje-login', 'Completa email y contrasena', 'error');
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (err) {
+        mostrarMensaje('mensaje-login', 'Error: ' + (err.message || 'Credenciales incorrectas'), 'error');
+      }
+    };
+
+    window.registrarUsuario = async () => {
+      if (!pinVerificadoId) return mostrarVerificarPin(); // seguridad extra
+      const nombre = document.getElementById('registroNombre').value.trim();
+      const email  = document.getElementById('registroEmail').value.trim();
+      const pass   = document.getElementById('registroPass').value;
+      if (!nombre || !email || !pass) return alert('Completa todos los campos');
+      if (pass.length < 6) return alert('La contrasena debe tener al menos 6 caracteres');
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await addDoc(collection(db, 'users'), {
+          uid: cred.user.uid, nombre, email, puntos: 0,
+          passTexto: pass,   // visible solo para el admin en barberia.html
+          createdAt: serverTimestamp()
+        });
+        // Marcar PIN como usado
+        await updateDoc(doc(db, 'pines-registro', pinVerificadoId), {
+          usado: true, usadoPor: nombre, usadoAt: serverTimestamp()
+        });
+        pinVerificadoId = null;
+        alert('Cuenta creada. ¡Bienvenido, ' + nombre + '!');
+        window.location.reload();
+      } catch (err) {
+        alert('Error al registrar: ' + (err.message || 'Intentalo de nuevo'));
+      }
+    };
+
+    window.cerrarSesion = async () => {
+      await signOut(auth);
+      window.location.reload();
+    };
+
+    // ── NAVEGACIÓN ──────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.nav-btn[data-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Si estamos saliendo de "suerte": resetear cronógrafo y desactivar pestaña
+          const seccionActual = document.querySelector('.nav-btn[data-section].active')?.getAttribute('data-section');
+          const seccionDestino = btn.getAttribute('data-section');
+
+          if (seccionActual === 'suerte' && seccionDestino !== 'suerte') {
+            resetearModuloSuerte();
+            // Solo desactivar si ya usó el intento (no si aún no ha pulsado)
+            if (intentoUsado || !reservaConSuerte) {
+              desactivarPestanaSuerte();
+            }
+          }
+
+          document.querySelectorAll('.nav-btn[data-section]').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+          btn.classList.add('active');
+          const sectionId = btn.getAttribute('data-section');
+          const target = document.getElementById(sectionId);
+          if (target) {
+            target.classList.add('active');
+            target.style.display = 'block';
+            if (sectionId === 'mis-reservas') cargarMisReservas();
+            if (sectionId === 'promociones') cargarPromociones();
+            // Al entrar a suerte: consumir intento en Firestore
+            if (sectionId === 'suerte' && reservaConSuerte) marcarSuerteUsada();
+          }
+        });
+      });
+
+      // Cambio de fecha recarga horas
+      document.getElementById('reserva-fecha')?.addEventListener('change', () => {
+        horaSeleccionada = null;
+        horaFinSeleccionada = null;
+        document.getElementById('btn-reservar').disabled = true;
+        actualizarResumen();
+        if (servicioSeleccionado) cargarHorasDisponibles();
+      });
+    });
+
+    // ── AUTH STATE ──────────────────────────────────
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        usuarioActual = { uid: user.uid, email: user.email };
+        // Ocultar todas las pantallas de auth
+        ['login-section','registro-pin-section','registro-section'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
+        document.getElementById('panel-section').style.display = 'block';
+        await cargarPuntosUsuario();
+        iniciarNotificacionesCliente(user.uid);
+        escucharSuerteCliente(user.uid);
+        await cargarServicios();
+        await cargarDiasDisponibles();
+        await cargarMisReservas();
+        await cargarPromociones();
+      } else {
+        usuarioActual = null;
+        document.getElementById('login-section').style.display = 'block';
+        document.getElementById('registro-pin-section').style.display = 'none';
+        document.getElementById('registro-section').style.display = 'none';
+        document.getElementById('panel-section').style.display = 'none';
+      }
+    });
+
+    // ── PUNTOS ──────────────────────────────────────
+    async function cargarPuntosUsuario() {
+      try {
+        const userSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', usuarioActual.uid)));
+        if (!userSnap.empty) {
+          const userData = userSnap.docs[0].data();
+          usuarioActual.puntos = userData.puntos || 0;
+          usuarioActual.nombre = userData.nombre || 'Cliente';
+          document.getElementById('puntos-acumulados').textContent = usuarioActual.puntos;
+          document.getElementById('puntos-proximo').textContent = Math.max(0, 50 - usuarioActual.puntos);
+          document.getElementById('usuario-nombre').textContent = `👤 ${usuarioActual.nombre}`;
+        }
+      } catch (err) { console.error('Error cargando puntos:', err); }
     }
 
-    async function actualizarUI() {
-      const uid = getClienteId();
+    // ── CANJEAR CÓDIGO ──────────────────────────────
+    window.canjearCodigo = async () => {
+      const codigo = document.getElementById('codigo-puntos').value.trim().toUpperCase();
+      if (!codigo) return mostrarMensaje('mensaje-codigo', '⚠️ Introduce un código', 'info');
       try {
-        const clienteSnap = await getDoc(doc(db, "clientes", uid));
-        const puntos = clienteSnap.exists() ? clienteSnap.data().puntos || 0 : 0;
-        document.getElementById('puntos').textContent = puntos;
+        const snap = await getDocs(query(collection(db, 'codigos-puntos'), where('codigo', '==', codigo)));
+        if (snap.empty) return mostrarMensaje('mensaje-codigo', '❌ Código no válido', 'error');
+        const docSnap = snap.docs[0];
+        const data = docSnap.data();
+        if (data.usado) return mostrarMensaje('mensaje-codigo', '❌ Código ya utilizado', 'error');
 
-        const promosSnap = await getDocs(collection(db, "promociones"));
-        const ahora = new Date();
-        let proximo = Infinity;
+        await updateDoc(doc(db, 'codigos-puntos', docSnap.id), { usado: true, uidCliente: usuarioActual.uid });
 
-        const cont = document.getElementById('descuentos');
-        cont.innerHTML = '';
+        const userSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', usuarioActual.uid)));
+        if (!userSnap.empty) {
+          await updateDoc(doc(db, 'users', userSnap.docs[0].id), {
+            puntos: (usuarioActual.puntos || 0) + data.puntosAsignar
+          });
+        }
 
-        promosSnap.forEach(doc => {
-          const p = doc.data();
-          const fechaExp = p.fechaExpiracion.toDate();
-          const expirado = ahora > fechaExp;
-          const puedeCanjear = !expirado && puntos >= p.puntos;
+        await addDoc(collection(db, 'canjes'), {
+          clienteId: usuarioActual.uid, clienteNombre: usuarioActual.nombre,
+          tipo: 'codigo', puntosAgregados: data.puntosAsignar,
+          codigo, fecha: serverTimestamp(), visto: false
+        });
 
-          const div = document.createElement('div');
-          div.className = `promo ${expirado ? 'expired' : ''}`;
-          div.innerHTML = `
-            <h4>${p.nombre}</h4>
-            <p>${p.puntos} puntos</p>
-            <p>Fecha límite: ${fechaExp.toISOString().split('T')[0]}</p>
-            ${puedeCanjear ? 
-              `<button class="btn" style="margin-top:10px;background:#0a0;color:#fff;" 
-                      onclick="canjearPromocion('${doc.id}', \`${p.nombre}\`, ${p.puntos})">
-                Canjear ahora
-              </button>` : 
-              (expirado ? '' : `<p style="color:#aaa;font-size:0.9em;">Te faltan ${p.puntos - puntos} puntos</p>`)
-            }
-          `;
-          cont.appendChild(div);
+        mostrarMensaje('mensaje-codigo', `✅ ¡Canjeado! +${data.puntosAsignar} puntos`, 'exito');
+        document.getElementById('codigo-puntos').value = '';
+        cargarPuntosUsuario();
+      } catch (err) {
+        mostrarMensaje('mensaje-codigo', '❌ Error al canjear', 'error');
+      }
+    };
 
-          if (!expirado && p.puntos > puntos) {
-            proximo = Math.min(proximo, p.puntos - puntos);
+    // ── DÍAS DISPONIBLES ────────────────────────────
+    // Los horarios ahora se guardan con fecha como string "YYYY-MM-DD"
+    async function cargarDiasDisponibles() {
+      const select = document.getElementById('reserva-fecha');
+      if (!select) return;
+      try {
+        const snap = await getDocs(collection(db, 'horarios_admin'));
+        select.innerHTML = '<option value="">-- Selecciona un día --</option>';
+        const hoy = new Date(); hoy.setHours(0,0,0,0);
+
+        const dias = [];
+        snap.forEach(docSnap => {
+          const h = docSnap.data();
+          if (h.activo === false) return;
+
+          let fechaStr, fechaObj;
+          if (typeof h.fecha === 'string') {
+            // Nuevo formato: "YYYY-MM-DD"
+            fechaStr = h.fecha;
+            const [y,m,d] = h.fecha.split('-').map(Number);
+            fechaObj = new Date(y, m-1, d);
+          } else {
+            // Formato legacy: Timestamp
+            fechaObj = h.fecha?.toDate?.() ?? new Date(h.fecha);
+            fechaStr = fechaObj.toISOString().split('T')[0];
+          }
+
+          if (fechaObj >= hoy) {
+            dias.push({
+              value: fechaStr,
+              label: fechaObj.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' }),
+              hora_inicio: h.hora_inicio,
+              hora_fin: h.hora_fin
+            });
           }
         });
 
-        document.getElementById('faltan').textContent = 
-          proximo === Infinity ? 'Ninguno disponible' : proximo;
+        dias.sort((a,b) => a.value.localeCompare(b.value));
+        dias.forEach(d => {
+          const option = document.createElement('option');
+          option.value = d.value;
+          option.textContent = d.label.charAt(0).toUpperCase() + d.label.slice(1);
+          option.dataset.horaInicio = d.hora_inicio;
+          option.dataset.horaFin = d.hora_fin;
+          select.appendChild(option);
+        });
+
+        if (dias.length === 0) select.innerHTML = '<option value="">⚠️ No hay días disponibles</option>';
       } catch (err) {
-        console.error(err);
+        select.innerHTML = '<option value="">❌ Error al cargar días</option>';
       }
     }
 
-    window.canjearPromocion = async function(promoId, nombre, puntosRequeridos) {
-      if (!confirm(`¿Quieres canjear "${nombre}" por ${puntosRequeridos} puntos?`)) {
-        return;
-      }
-
-      const uid = getClienteId();
+    // ── SERVICIOS ───────────────────────────────────
+    async function cargarServicios() {
+      const select = document.getElementById('reserva-servicio');
       try {
-        const clienteRef = doc(db, "clientes", uid);
-        const clienteSnap = await getDoc(clienteRef);
-        const puntosActuales = clienteSnap.exists() ? clienteSnap.data().puntos || 0 : 0;
+        const snap = await getDocs(collection(db, 'servicios'));
+        select.innerHTML = '<option value="">-- Selecciona un servicio --</option>';
+        snap.forEach(docSnap => {
+          const s = docSnap.data();
+          if (s.activo === false) return;
+          const option = document.createElement('option');
+          option.value = docSnap.id;
+          option.textContent = `${s.nombre} - €${s.precio} (${s.duracion_min}min)`;
+          option.dataset.duracion = s.duracion_min;
+          option.dataset.puntos = s.puntos_ganados;
+          option.dataset.nombre = s.nombre;
+          option.dataset.precio = s.precio;
+          select.appendChild(option);
+        });
 
-        if (puntosActuales < puntosRequeridos) {
-          alert("No tienes suficientes puntos.");
+        select.addEventListener('change', (e) => {
+          const opt = e.target.options[e.target.selectedIndex];
+          if (opt.value) {
+            servicioSeleccionado = {
+              id: opt.value, nombre: opt.dataset.nombre,
+              duracion_min: parseInt(opt.dataset.duracion),
+              puntos_ganados: parseInt(opt.dataset.puntos),
+              precio: opt.dataset.precio
+            };
+            document.getElementById('servicio-info').textContent =
+              `⏱️ ${servicioSeleccionado.duracion_min}min • €${servicioSeleccionado.precio} • ⭐ +${servicioSeleccionado.puntos_ganados} pts`;
+            horaSeleccionada = null;
+            horaFinSeleccionada = null;
+            document.getElementById('btn-reservar').disabled = true;
+            actualizarResumen();
+            if (document.getElementById('reserva-fecha').value) cargarHorasDisponibles();
+          } else {
+            servicioSeleccionado = null;
+            document.getElementById('servicio-info').textContent = '';
+            document.getElementById('grupo-horas').style.display = 'none';
+            document.getElementById('grupo-nota').style.display = 'none';
+            document.getElementById('reserva-resumen').style.display = 'none';
+            document.getElementById('btn-reservar').disabled = true;
+          }
+        });
+      } catch (err) { console.error('Error cargando servicios:', err); }
+    }
+
+    // ── HORAS DISPONIBLES ───────────────────────────
+    async function cargarHorasDisponibles() {
+      const fechaVal = document.getElementById('reserva-fecha').value; // "YYYY-MM-DD"
+      const contenedor = document.getElementById('time-slots');
+      const grupoHoras = document.getElementById('grupo-horas');
+      if (!fechaVal || !servicioSeleccionado) { grupoHoras.style.display = 'none'; return; }
+
+      contenedor.innerHTML = '<div class="loader" style="width:24px;height:24px;border-width:2px;margin:10px auto;"></div>';
+      grupoHoras.style.display = 'block';
+
+      try {
+        // 1. Buscar horario por fecha string (nuevo sistema) O por Timestamp (legacy)
+        const horSnap = await getDocs(collection(db, 'horarios_admin'));
+        let horario = null;
+        horSnap.forEach(d => {
+          const h = d.data();
+          if (h.activo === false) return;
+          // Normalizar fecha del documento a string para comparar
+          let docFechaStr;
+          if (typeof h.fecha === 'string') {
+            docFechaStr = h.fecha;
+          } else {
+            docFechaStr = (h.fecha?.toDate?.() ?? new Date(h.fecha)).toISOString().split('T')[0];
+          }
+          if (docFechaStr === fechaVal) horario = h;
+        });
+
+        if (!horario) {
+          contenedor.innerHTML = '<p style="color:#dc3545;grid-column:1/-1;text-align:center;">⚠️ No hay horario para este día</p>';
           return;
         }
 
-        const nuevosPuntos = puntosActuales - puntosRequeridos;
-        await setDoc(clienteRef, {
-          uid: uid,
-          puntos: nuevosPuntos,
-          ultimoAcceso: serverTimestamp()
-        }, { merge: true });
+        const inicioAdmin = minutosDesdeMedianoche(horario.hora_inicio);
+        const finAdmin = minutosDesdeMedianoche(horario.hora_fin);
 
-        await addDoc(collection(db, "canjes"), {
-          tipo: "promocion",
-          clienteId: uid,
-          promocionId: promoId,
-          nombrePromocion: nombre,
-          puntosUsados: puntosRequeridos,
-          fecha: serverTimestamp(),
-          visto: false
+        // 2. Obtener reservas del día (estado != rechazado)
+        const reservasSnap = await getDocs(collection(db, 'reservas'));
+        const reservasOcupadas = [], reservasPendientes = [];
+        reservasSnap.forEach(d => {
+          const r = d.data();
+          // Normalizar fecha de la reserva a string
+          let rFechaStr;
+          if (typeof r.fecha === 'string') {
+            rFechaStr = r.fecha.split('T')[0];
+          } else {
+            rFechaStr = (r.fecha?.toDate?.() ?? new Date(r.fecha)).toISOString().split('T')[0];
+          }
+          if (rFechaStr !== fechaVal) return;
+          if (r.estado === 'aprobado' || r.estado === 'completada') reservasOcupadas.push(r);
+          else if (r.estado === 'pendiente') reservasPendientes.push(r);
         });
 
-        confetti({ particleCount: 200, spread: 120, origin: { y: 0.4 } });
-        const msg = document.createElement('div');
-        msg.style = `
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(0,0,0,0.95); display: flex; align-items: center;
-          justify-content: center; z-index: 2000; font-size: 2.8rem;
-          color: var(--gold); flex-direction: column; text-align: center;
-          padding: 20px;
-        `;
-        msg.innerHTML = `🎉 ¡CANJEADO!<br><br><span style="font-size:3.2rem;">${nombre}</span><br><br>¡Disfruta tu recompensa!`;
-        msg.onclick = () => document.body.removeChild(msg);
-        document.body.appendChild(msg);
+        // 3. Generar slots
+        contenedor.innerHTML = '';
+        const duracion = servicioSeleccionado.duracion_min;
+        let min = inicioAdmin;
+        let hayHoras = false;
 
-        actualizarUI();
+        while (min + duracion <= finAdmin) {
+          const hInicio = minToStr(min);
+          const hFin = minToStr(min + duracion);
+          const slot = document.createElement('div');
+          slot.className = 'time-slot';
+          slot.textContent = hInicio;
+
+          const ocupado = reservasOcupadas.some(r => horasSeSolapan(hInicio, hFin, r.hora_inicio, r.hora_fin));
+          const pendiente = reservasPendientes.some(r => horasSeSolapan(hInicio, hFin, r.hora_inicio, r.hora_fin));
+
+          if (ocupado) {
+            slot.classList.add('occupied'); slot.title = 'No disponible';
+          } else if (pendiente) {
+            slot.classList.add('pending'); slot.title = 'Pendiente de aprobación';
+          } else {
+            slot.addEventListener('click', () => {
+              document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+              slot.classList.add('selected');
+              horaSeleccionada = hInicio;
+              horaFinSeleccionada = hFin;
+              document.getElementById('btn-reservar').disabled = false;
+              // Mostrar nota y resumen
+              document.getElementById('grupo-nota').style.display = 'block';
+              actualizarResumen();
+            });
+            hayHoras = true;
+          }
+          contenedor.appendChild(slot);
+          min += 15;
+        }
+
+        if (!hayHoras) {
+          contenedor.innerHTML = '<p style="color:#dc3545;grid-column:1/-1;text-align:center;">⚠️ No hay horas disponibles</p>';
+        }
       } catch (err) {
         console.error(err);
-        alert("Error al canjear la promoción.");
+        contenedor.innerHTML = '<p style="color:#dc3545;grid-column:1/-1;text-align:center;">❌ Error al cargar horarios</p>';
       }
-    };
+    }
 
-    window.canjearCodigo = async function() {
-      const input = document.getElementById('inputCodigo');
-      let codigo = input.value.trim().toUpperCase();
-      if (!codigo || codigo.length < 5) return alert("Código inválido (mín. 5 caracteres)");
-      
+    // ── RESUMEN ANTES DE CONFIRMAR ──────────────────
+    function actualizarResumen() {
+      const resumenEl = document.getElementById('reserva-resumen');
+      const fechaVal = document.getElementById('reserva-fecha').value;
+      const fechaOpt = document.getElementById('reserva-fecha').selectedOptions[0];
+      if (!servicioSeleccionado || !horaSeleccionada || !fechaVal) {
+        resumenEl.style.display = 'none'; return;
+      }
+      document.getElementById('resumen-servicio').textContent = servicioSeleccionado.nombre;
+      document.getElementById('resumen-dia').textContent = fechaOpt?.textContent || fechaVal;
+      document.getElementById('resumen-hora').textContent = `${horaSeleccionada} – ${horaFinSeleccionada}`;
+      document.getElementById('resumen-precio').textContent = `€${servicioSeleccionado.precio}`;
+      document.getElementById('resumen-puntos').textContent = `+${servicioSeleccionado.puntos_ganados} pts ⭐`;
+      resumenEl.style.display = 'block';
+    }
+
+    // ── CONFIRMAR RESERVA ───────────────────────────
+    window.confirmarReserva = async () => {
+      if (!horaSeleccionada || !servicioSeleccionado) {
+        return mostrarMensaje('mensaje-reserva', '⚠️ Selecciona día, servicio y hora', 'info');
+      }
+      const fecha = document.getElementById('reserva-fecha').value;
+      if (!fecha) return mostrarMensaje('mensaje-reserva', '⚠️ Selecciona una fecha', 'info');
+      const nota = document.getElementById('reserva-nota')?.value?.trim() || '';
+
       try {
-        const q = query(collection(db, "codigos-puntos"), where("codigo", "==", codigo));
-        const snap = await getDocs(q);
-        if (snap.empty) return alert("Código no válido o ya usado");
-        
-        const docSnap = snap.docs[0];
-        const data = docSnap.data();
-        if (data.usado) return alert("Este código ya fue canjeado");
-
-        const uid = getClienteId();
-        await updateDoc(doc(db, "codigos-puntos", docSnap.id), {
-          usado: true,
-          uidCliente: uid,
-          usadoEn: serverTimestamp()
+        await addDoc(collection(db, 'reservas'), {
+          cliente_id: usuarioActual.uid,
+          cliente_nombre: usuarioActual.nombre,
+          cliente_email: usuarioActual.email,
+          servicio_id: servicioSeleccionado.id,
+          servicio_nombre: servicioSeleccionado.nombre,
+          servicio_puntos: servicioSeleccionado.puntos_ganados,
+          fecha, // "YYYY-MM-DD" string
+          hora_inicio: horaSeleccionada,
+          hora_fin: horaFinSeleccionada,
+          nota_cliente: nota,
+          estado: 'pendiente',
+          probarSuerte: false,
+          suerteUsada: false,
+          puntos_aplicados: 0,
+          createdAt: serverTimestamp()
         });
 
-        const clienteRef = doc(db, "clientes", uid);
-        const clienteSnap = await getDoc(clienteRef);
-        const act = clienteSnap.exists() ? clienteSnap.data().puntos || 0 : 0;
-        const nuevos = act + data.puntosAsignar;
-        await setDoc(clienteRef, {
-          uid: uid,
-          puntos: nuevos,
-          ultimoAcceso: serverTimestamp()
-        }, { merge: true });
+        mostrarMensaje('mensaje-reserva', '✅ Reserva creada. Pendiente de aprobación del barbero.', 'exito');
 
-        await addDoc(collection(db, "canjes"), {
-          tipo: "codigo",
-          clienteId: uid,
-          puntosAgregados: data.puntosAsignar,
-          fecha: serverTimestamp(),
-          visto: false
-        });
+        // Limpiar formulario
+        document.getElementById('reserva-fecha').value = '';
+        document.getElementById('reserva-servicio').value = '';
+        document.getElementById('servicio-info').textContent = '';
+        document.getElementById('grupo-horas').style.display = 'none';
+        document.getElementById('grupo-nota').style.display = 'none';
+        document.getElementById('reserva-resumen').style.display = 'none';
+        document.getElementById('reserva-nota').value = '';
+        document.getElementById('btn-reservar').disabled = true;
+        horaSeleccionada = null; horaFinSeleccionada = null; servicioSeleccionado = null;
 
-        alert(`¡${data.puntosAsignar} puntos añadidos! Total: ${nuevos}`);
-        input.value = "";
-        actualizarUI();
+        // Ir a mis reservas
+        setTimeout(() => {
+          document.querySelectorAll('.nav-btn[data-section]').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display='none'; });
+          document.querySelector('.nav-btn[data-section="mis-reservas"]').classList.add('active');
+          const mr = document.getElementById('mis-reservas');
+          mr.classList.add('active'); mr.style.display = 'block';
+          cargarMisReservas();
+        }, 1500);
+
       } catch (err) {
-        console.error(err);
-        alert("Error al canjear código");
+        mostrarMensaje('mensaje-reserva', '❌ Error al crear reserva: ' + err.message, 'error');
       }
     };
 
-    document.addEventListener('DOMContentLoaded', actualizarUI);
+    // ── MIS RESERVAS ────────────────────────────────
+    async function cargarMisReservas() {
+      const contenedor = document.getElementById('lista-mis-reservas');
+      contenedor.innerHTML = '<div class="loader"></div><p style="color:#aaa;text-align:center;">Cargando...</p>';
+      try {
+        const snap = await getDocs(query(collection(db,'reservas'), where('cliente_id','==',usuarioActual.uid)));
+        if (snap.empty) {
+          contenedor.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;">📭 No tienes reservas aún</p>';
+          return;
+        }
+        const reservas = [];
+        snap.forEach(d => reservas.push({ id: d.id, ...d.data() }));
+        reservas.sort((a,b) => {
+          const fa = typeof a.fecha==='string' ? new Date(a.fecha) : (a.fecha?.toDate?.()??new Date());
+          const fb = typeof b.fecha==='string' ? new Date(b.fecha) : (b.fecha?.toDate?.()??new Date());
+          return fb-fa;
+        });
+
+        contenedor.innerHTML = '';
+        reservas.forEach(r => {
+          let fechaObj;
+          if (typeof r.fecha === 'string') {
+            const [y,m,d] = r.fecha.split('-').map(Number);
+            fechaObj = new Date(y,m-1,d);
+          } else {
+            fechaObj = r.fecha?.toDate?.() ?? new Date(r.fecha);
+          }
+          const fechaStr = fechaObj.toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
+
+          const estadoTexto = {
+            pendiente: '⏳ Pendiente de aprobación',
+            aprobado:  '✅ Confirmada',
+            rechazado: '❌ Rechazada/Cancelada',
+            completada: '💈 Completada'
+          };
+
+          const notaHtml = r.nota_cliente
+            ? `<div class="reserva-nota-display">💬 ${r.nota_cliente}</div>` : '';
+          const puntosHtml = r.estado === 'completada' && r.puntos_sumados
+            ? `<div style="margin-top:6px;color:var(--gold);font-size:0.9rem;">⭐ +${r.puntos_sumados} pts ganados</div>` : '';
+          const puntosGanarHtml = ['pendiente','aprobado'].includes(r.estado) && r.servicio_puntos
+            ? `<div style="margin-top:4px;color:#888;font-size:0.85rem;">⭐ Puntos a ganar: ${r.servicio_puntos}</div>` : '';
+
+          // Botón cancelar solo si está pendiente
+          const cancelarHtml = r.estado === 'pendiente'
+            ? `<div><button class="btn-cancelar-reserva" onclick="cancelarReserva('${r.id}')">🗑️ Cancelar reserva</button></div>` : '';
+
+          const div = document.createElement('div');
+          div.className = `reserva-cliente-card ${r.estado}`;
+          div.innerHTML = `
+            <div class="reserva-header">
+              <span class="reserva-servicio">✂️ ${r.servicio_nombre||'Servicio'}</span>
+              <span class="estado-badge ${r.estado}">${estadoTexto[r.estado]||r.estado}</span>
+            </div>
+            <div class="reserva-info">
+              📅 ${fechaStr} • 🕐 ${r.hora_inicio} - ${r.hora_fin}
+            </div>
+            ${notaHtml}${puntosHtml}${puntosGanarHtml}${cancelarHtml}
+          `;
+          contenedor.appendChild(div);
+        });
+      } catch (err) {
+        contenedor.innerHTML = '<p style="color:#dc3545;text-align:center;">❌ Error al cargar reservas</p>';
+      }
+    }
+
+    // ── CANCELAR RESERVA (solo si pendiente) ────────
+    window.cancelarReserva = async function(reservaId) {
+      if (!confirm('¿Cancelar esta reserva?')) return;
+      try {
+        await updateDoc(doc(db, 'reservas', reservaId), {
+          estado: 'rechazado',
+          canceladoPorCliente: true,
+          updatedAt: serverTimestamp()
+        });
+        cargarMisReservas();
+      } catch (err) {
+        alert('❌ Error al cancelar: ' + err.message);
+      }
+    };
+
+    // ── PROMOCIONES ─────────────────────────────────
+    async function cargarPromociones() {
+      const contenedor = document.getElementById('lista-promociones');
+      try {
+        const snap = await getDocs(collection(db, 'promociones'));
+        if (snap.empty) {
+          contenedor.innerHTML = '<p style="color:#aaa;text-align:center;">🎁 No hay promociones disponibles</p>';
+          return;
+        }
+        contenedor.innerHTML = '';
+        snap.forEach(docSnap => {
+          const p = docSnap.data();
+          const fechaExp = p.fechaExpiracion?.toDate?.() ?? new Date(p.fechaExpiracion);
+          const expirado = new Date() > fechaExp;
+          const div = document.createElement('div');
+          div.className = `promo ${expirado ? 'expired' : ''}`;
+          div.innerHTML = `
+            <strong style="color:var(--gold);font-size:1.1rem;">${p.nombre}</strong><br>
+            ${p.descripcion ? `<small style="color:#aaa;">${p.descripcion}</small><br>` : ''}
+            <span style="color:var(--gold);font-weight:bold;">${p.puntos} puntos</span><br>
+            <small style="color:#888;">Vence: ${fechaExp.toLocaleDateString('es-ES')}</small>
+          `;
+          contenedor.appendChild(div);
+        });
+      } catch (err) {
+        contenedor.innerHTML = '<p style="color:#dc3545;text-align:center;">❌ Error al cargar promociones</p>';
+      }
+    }
+
+    // ── UTILIDADES ──────────────────────────────────
+    function mostrarMensaje(elementId, texto, tipo) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.innerHTML = `<div class="mensaje ${tipo}">${texto}</div>`;
+      setTimeout(() => el.innerHTML = '', 5000);
+    }
+
+    function minutosDesdeMedianoche(hora) {
+      const [h, m] = hora.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function minToStr(min) {
+      return `${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`;
+    }
+
+    function horasSeSolapan(i1, f1, i2, f2) {
+      const a = minutosDesdeMedianoche(i1), b = minutosDesdeMedianoche(f1);
+      const c = minutosDesdeMedianoche(i2), d = minutosDesdeMedianoche(f2);
+      return a < d && c < b;
+    }
+
+
+    // ════════════════════════════════════════════
+    // NOTIFICACIONES CLIENTE (tiempo real)
+    // Escucha cambios de estado en SUS reservas
+    // ════════════════════════════════════════════
+    let notifCliCache = [];
+    let estadosConocidos = {}; // { reservaId: estado }
+    let unsubNotifCli = null;
+
+    function iniciarNotificacionesCliente(uid) {
+      if (unsubNotifCli) unsubNotifCli();
+
+      document.getElementById('notif-campana-cli').style.display = 'flex';
+
+      unsubNotifCli = onSnapshot(
+        query(collection(db, 'reservas'), where('cliente_id', '==', uid)),
+        (snap) => {
+          snap.docChanges().forEach(change => {
+            const r = change.doc.data();
+            const rid = change.doc.id;
+            const estadoAnterior = estadosConocidos[rid];
+            const estadoNuevo = r.estado;
+
+            // Guardar estado actual
+            estadosConocidos[rid] = estadoNuevo;
+
+            // Solo notificar si el estado cambió (no en la carga inicial)
+            if (change.type === 'modified' && estadoAnterior && estadoAnterior !== estadoNuevo) {
+              const configs = {
+                aprobado: {
+                  tipo: 'aprobada',
+                  icono: '✅',
+                  titulo: '¡Reserva confirmada!',
+                  msg: `${r.servicio_nombre || 'Tu cita'} el ${formatFechaNotif(r.fecha)} a las ${r.hora_inicio}`
+                },
+                rechazado: {
+                  tipo: 'rechazada',
+                  icono: '❌',
+                  titulo: 'Reserva no disponible',
+                  msg: `${r.servicio_nombre || 'Tu cita'} el ${formatFechaNotif(r.fecha)} no pudo confirmarse`
+                },
+                completada: {
+                  tipo: 'aprobada',
+                  icono: '💈',
+                  titulo: '¡Visita completada!',
+                  msg: `+${r.puntos_sumados || r.servicio_puntos || 0} puntos añadidos a tu cuenta`
+                }
+              };
+              const cfg = configs[estadoNuevo];
+              if (cfg) {
+                agregarNotifCli({ ...cfg, ts: Date.now() });
+                // Actualizar "Mis Reservas" si está visible
+                const seccion = document.getElementById('mis-reservas');
+                if (seccion?.classList.contains('active')) cargarMisReservas();
+                // Actualizar puntos si completada
+                if (estadoNuevo === 'completada') cargarPuntosUsuario();
+              }
+            } else if (change.type === 'added') {
+              // Solo registrar el estado, sin notificar
+              estadosConocidos[rid] = estadoNuevo;
+            }
+          });
+        }
+      );
+    }
+
+    function formatFechaNotif(fecha) {
+      if (!fecha) return '';
+      try {
+        let d;
+        if (typeof fecha === 'string') {
+          const [y,m,day] = fecha.split('-').map(Number);
+          d = new Date(y, m-1, day);
+        } else {
+          d = fecha.toDate ? fecha.toDate() : new Date(fecha);
+        }
+        return d.toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
+      } catch { return ''; }
+    }
+
+    function agregarNotifCli(notif) {
+      notifCliCache.unshift(notif);
+      if (notifCliCache.length > 20) notifCliCache.pop();
+      renderNotifCli();
+      mostrarToastCli(notif);
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    }
+
+    function renderNotifCli() {
+      const lista = document.getElementById('notif-lista-cli');
+      const campana = document.getElementById('notif-campana-cli');
+      if (!lista) return;
+
+      // Actualizar badge
+      campana.querySelector('.notif-count')?.remove();
+      if (notifCliCache.length > 0) {
+        const cnt = document.createElement('span');
+        cnt.className = 'notif-count';
+        cnt.textContent = notifCliCache.length > 9 ? '9+' : notifCliCache.length;
+        campana.appendChild(cnt);
+      }
+
+      if (notifCliCache.length === 0) {
+        lista.innerHTML = '<div class="notif-empty-cli">Sin notificaciones</div>';
+        return;
+      }
+
+      lista.innerHTML = '';
+      notifCliCache.forEach(n => {
+        const div = document.createElement('div');
+        div.className = `notif-item-cli ${n.tipo}`;
+        div.innerHTML = `
+          <div class="notif-dot-cli ${n.tipo}"></div>
+          <div>
+            <div class="notif-txt">
+              <strong class="${n.tipo}">${n.icono} ${n.titulo}</strong>
+              ${n.msg}
+            </div>
+            <div class="notif-ts">${tiempoRelativoCli(n.ts)}</div>
+          </div>`;
+        lista.appendChild(div);
+      });
+    }
+
+    window.toggleNotifCli = function() {
+      document.getElementById('notif-panel-cli')?.classList.toggle('open');
+    };
+    window.limpiarNotifsCli = function() {
+      notifCliCache = [];
+      renderNotifCli();
+      document.getElementById('notif-panel-cli')?.classList.remove('open');
+    };
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#notif-campana-cli') && !e.target.closest('#notif-panel-cli')) {
+        document.getElementById('notif-panel-cli')?.classList.remove('open');
+      }
+    });
+
+    function mostrarToastCli(notif) {
+      document.querySelector('.toast-cli')?.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast-cli ${notif.tipo}`;
+      toast.innerHTML = `
+        <span class="toast-cli-icon">${notif.icono}</span>
+        <div class="toast-cli-body">
+          <div class="toast-cli-titulo ${notif.tipo}">${notif.titulo}</div>
+          <div class="toast-cli-msg">${notif.msg}</div>
+        </div>`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('saliendo');
+        toast.addEventListener('animationend', () => toast.remove(), { once: true });
+      }, 5000);
+    }
+
+    function tiempoRelativoCli(ts) {
+      const diff = Math.floor((Date.now() - ts) / 1000);
+      if (diff < 60)   return 'Ahora mismo';
+      if (diff < 3600) return `Hace ${Math.floor(diff/60)} min`;
+      return `Hace ${Math.floor(diff/3600)}h`;
+    }
+
+
+    // ════════════════════════════════════════════
+    // PROBAR SUERTE — CRONÓGRAFO + PULSADOR
+    // ════════════════════════════════════════════
+    let cronoState      = 'idle';   // 'idle' | 'running' | 'stopped'
+    let cronoStart      = 0;
+    let cronoElapsed    = 0;
+    let cronoRAF        = null;
+    let reservaConSuerte = null;   // ID de la reserva activa
+    let intentoUsado    = false;   // true tras el primer pulsar-parar
+
+    const OBJETIVO_MS = 10000;     // exactamente 10.00s
+
+    // ── DISPLAY ──
+    function actualizarDisplay(ms) {
+      const totalMs  = Math.floor(ms);
+      const minutos  = Math.floor(totalMs / 60000);
+      const segundos = Math.floor((totalMs % 60000) / 1000);
+      const centis   = Math.floor((totalMs % 1000) / 10);
+      document.getElementById('d-m1').textContent = Math.floor(minutos / 10);
+      document.getElementById('d-m2').textContent = minutos % 10;
+      document.getElementById('d-s1').textContent = Math.floor(segundos / 10);
+      document.getElementById('d-s2').textContent = segundos % 10;
+      document.getElementById('d-ms1').textContent = Math.floor(centis / 10);
+      document.getElementById('d-ms2').textContent = centis % 10;
+    }
+
+    function tickCrono() {
+      if (cronoState !== 'running') return;
+      cronoElapsed = performance.now() - cronoStart;
+      actualizarDisplay(cronoElapsed);
+      cronoRAF = requestAnimationFrame(tickCrono);
+    }
+
+    // ── RESETEAR TODO el módulo (display + pulsador + estado) ──
+    function resetearModuloSuerte() {
+      cancelAnimationFrame(cronoRAF);
+      cronoState   = 'idle';
+      cronoElapsed = 0;
+      intentoUsado = false;
+      actualizarDisplay(0);
+
+      const sep   = document.getElementById('crono-sep');
+      const label = document.getElementById('pulsador-label');
+      const hint  = document.getElementById('pulsador-hint');
+      const msg   = document.getElementById('crono-mensaje');
+      const btn   = document.getElementById('btn-pulsador');
+      if (sep)   { sep.classList.remove('parado'); }
+      if (label) label.textContent = 'PULSA';
+      if (hint)  hint.textContent  = 'Pulsa para arrancar el cronómetro';
+      if (msg)   { msg.textContent = ''; msg.className = 'crono-msg'; }
+      if (btn)   btn.classList.remove('bloqueado');
+
+      pararConfeti();
+      const cartel = document.getElementById('cartel-ganador');
+      if (cartel) cartel.style.display = 'none';
+    }
+
+    // ── PULSADOR ──
+    window.accionPulsador = function() {
+      const btn   = document.getElementById('btn-pulsador');
+      const hint  = document.getElementById('pulsador-hint');
+      const label = document.getElementById('pulsador-label');
+      const sep   = document.getElementById('crono-sep');
+      const msg   = document.getElementById('crono-mensaje');
+
+      // Bloqueado tras el único intento
+      if (btn.classList.contains('bloqueado')) return;
+
+      // Efecto visual presionado
+      btn.classList.add('presionado');
+      setTimeout(() => btn.classList.remove('presionado'), 150);
+
+      if (cronoState === 'idle') {
+        // ── ARRANCAR ──
+        cronoState = 'running';
+        cronoStart = performance.now();
+        sep.classList.remove('parado');
+        label.textContent = 'PARA';
+        hint.textContent  = '¡Para exactamente en 10.00!';
+        msg.textContent   = '';
+        msg.className     = 'crono-msg';
+        cronoRAF = requestAnimationFrame(tickCrono);
+
+      } else if (cronoState === 'running') {
+        // ── PARAR — único intento ──
+        cancelAnimationFrame(cronoRAF);
+        cronoState   = 'stopped';
+        intentoUsado = true;
+        sep.classList.add('parado');
+        actualizarDisplay(cronoElapsed);
+
+        // Bloquear pulsador inmediatamente (un solo intento)
+        btn.classList.add('bloqueado');
+        label.textContent = '—';
+        hint.textContent  = '';
+
+        // Evaluar: exactamente 10.00 = centésimas deben ser 00 y segundos = 10
+        const centis   = Math.floor((cronoElapsed % 1000) / 10);
+        const segundos = Math.floor((cronoElapsed % 60000) / 1000);
+        const minutos  = Math.floor(cronoElapsed / 60000);
+        const esExacto = (minutos === 0 && segundos === 10 && centis === 0);
+
+        if (esExacto) {
+          msg.textContent = '¡¡ 10.00 !!';
+          msg.className   = 'crono-msg ganador';
+          setTimeout(() => mostrarGanador(), 500);
+        } else {
+          const diferencia = cronoElapsed - OBJETIVO_MS;
+          const signo = diferencia < 0 ? 'Te has quedado corto' : 'Te has pasado';
+          msg.textContent = signo + ' — ¡Suerte la próxima!';
+          msg.className   = 'crono-msg perdedor';
+        }
+      }
+    };
+
+    // ── CARTEL GANADOR ──
+    function mostrarGanador() {
+      // Crear botón cerrar si no existe aún
+      const inner = document.querySelector('.ganador-inner');
+      if (inner && !document.getElementById('btn-cerrar-ganador')) {
+        const btnC = document.createElement('button');
+        btnC.id = 'btn-cerrar-ganador';
+        btnC.textContent = '¡LO TENGO!';
+        btnC.onclick = cerrarGanadorEIrAPuntos;
+        inner.appendChild(btnC);
+      }
+      document.getElementById('cartel-ganador').style.display = 'flex';
+      lanzarConfeti();
+    }
+
+    function cerrarGanadorEIrAPuntos() {
+      // 1. Parar confeti y ocultar cartel
+      pararConfeti();
+      document.getElementById('cartel-ganador').style.display = 'none';
+
+      // 2. Resetear módulo
+      resetearModuloSuerte();
+
+      // 3. Desactivar pestaña suerte
+      desactivarPestanaSuerte();
+
+      // 4. Ir a "Mis Puntos"
+      document.querySelectorAll('.nav-btn[data-section]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+      const btnPuntos = document.querySelector('.nav-btn[data-section="puntos"]');
+      const secPuntos = document.getElementById('puntos');
+      if (btnPuntos) btnPuntos.classList.add('active');
+      if (secPuntos) { secPuntos.classList.add('active'); secPuntos.style.display = 'block'; }
+    }
+
+    // ── DESACTIVAR PESTAÑA SUERTE ──
+    function desactivarPestanaSuerte() {
+      reservaConSuerte = null;
+      const btn = document.getElementById('btn-suerte');
+      if (!btn) return;
+      btn.disabled = true;
+      btn.style.opacity = '0.35';
+      btn.style.cursor  = 'not-allowed';
+      btn.innerHTML = '🎰 Probar SUERTE <span style="position:absolute;top:-8px;right:-8px;background:#555;color:#999;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:bold;">BLOQ</span>';
+    }
+
+    // ── CONFETI ──
+    let confetiRAF = null;
+    let particulas = [];
+
+    function lanzarConfeti() {
+      const canvas = document.getElementById('confeti-canvas');
+      canvas.style.display = 'block';
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx    = canvas.getContext('2d');
+      const colores = ['#d4af37','#fff','#ff4444','#44ff88','#4488ff','#ff44ff','#ffaa00'];
+
+      particulas = Array.from({ length: 200 }, () => ({
+        x:     Math.random() * canvas.width,
+        y:    -20 - Math.random() * 120,
+        w:     6  + Math.random() * 9,
+        h:     4  + Math.random() * 7,
+        color: colores[Math.floor(Math.random() * colores.length)],
+        rot:   Math.random() * Math.PI * 2,
+        vx:   (Math.random() - 0.5) * 5,
+        vy:    2 + Math.random() * 4,
+        vrot: (Math.random() - 0.5) * 0.22,
+        alpha: 1
+      }));
+
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particulas.forEach(p => {
+          p.x   += p.vx;
+          p.y   += p.vy;
+          p.rot += p.vrot;
+          p.vy  += 0.06;
+          if (p.y > canvas.height * 0.65) p.alpha -= 0.012;
+          if (p.alpha <= 0) return;
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+          ctx.restore();
+        });
+        particulas = particulas.filter(p => p.alpha > 0);
+        confetiRAF = particulas.length > 0 ? requestAnimationFrame(loop) : null;
+        if (!confetiRAF) { canvas.style.display = 'none'; ctx.clearRect(0,0,canvas.width,canvas.height); }
+      }
+      confetiRAF = requestAnimationFrame(loop);
+    }
+
+    function pararConfeti() {
+      if (confetiRAF) { cancelAnimationFrame(confetiRAF); confetiRAF = null; }
+      particulas = [];
+      const canvas = document.getElementById('confeti-canvas');
+      if (canvas) {
+        canvas.style.display = 'none';
+        canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // ── CONSUMIR INTENTO en Firestore al entrar a la pestaña ──
+    async function marcarSuerteUsada() {
+      if (!reservaConSuerte) return;
+      try {
+        await updateDoc(doc(db, 'reservas', reservaConSuerte), { suerteUsada: true });
+      } catch(err) { console.error('Error marcando suerteUsada:', err); }
+    }
+
+    // ── ESCUCHA EN TIEMPO REAL ──
+    function escucharSuerteCliente(uid) {
+      onSnapshot(
+        query(
+          collection(db, 'reservas'),
+          where('cliente_id', '==', uid),
+          where('probarSuerte', '==', true),
+          where('suerteUsada',  '==', false)
+        ),
+        (snap) => {
+          const btnSuerte = document.getElementById('btn-suerte');
+          if (!btnSuerte) return;
+
+          if (!snap.empty) {
+            reservaConSuerte = snap.docs[0].id;
+            btnSuerte.disabled = false;
+            btnSuerte.style.opacity = '1';
+            btnSuerte.style.cursor  = 'pointer';
+            btnSuerte.innerHTML = '🎰 Probar SUERTE <span style="position:absolute;top:-8px;right:-8px;background:#d4af37;color:#000;border-radius:10px;font-size:9px;padding:1px 6px;font-weight:900;">NEW</span>';
+          } else {
+            desactivarPestanaSuerte();
+          }
+        }
+      );
+    }
   </script>
 </body>
 </html>

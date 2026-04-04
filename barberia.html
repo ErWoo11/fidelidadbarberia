@@ -5,170 +5,611 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel Barbería - La Nueva</title>
   <link rel="stylesheet" href="style.css" />
-  
-  <!-- Fuente opcional -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-  
+
   <style>
-    /* --- FONDO DE BARBERÍA --- */
     body {
       background-image: url('fondo.png');
-      background-size: 300px;
-      background-repeat: repeat;
+      background-size: 300px; background-repeat: repeat;
       background-position: center;
-      background-color: rgba(0, 0, 0, 0.85);
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      position: relative;
+      background-color: rgba(0,0,0,0.85);
+      margin: 0; padding: 0; min-height: 100vh;
     }
-
     .logo-login {
-      width: 280px;
-      max-width: 80%;
-      margin: 20px auto 25px;
-      display: block;
-      filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.6));
+      width: 280px; max-width: 80%;
+      margin: 20px auto 25px; display: block;
+      filter: drop-shadow(0 0 10px rgba(212,175,55,0.6));
     }
-
-    /* Contenedor con fondo oscuro para legibilidad */
     .container {
-      background: rgba(0, 0, 0, 0.92);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-      max-width: 600px;
-      margin: 20px auto;
-      text-align: center;
+      background: rgba(0,0,0,0.92);
+      border-radius: 16px; padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      max-width: 600px; margin: 20px auto; text-align: center;
     }
 
-    /* Menú de navegación */
-    .nav-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
+    /* ── MENÚ PRINCIPAL (2 botones grandes) ── */
+    .main-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
       margin: 20px 0;
     }
-    .nav-btn {
-      background: #222;
+    .main-tab-btn {
+      background: #1a1a1a;
       border: 2px solid var(--gold);
       color: var(--text);
-      padding: 10px 16px;
-      border-radius: 8px;
+      padding: 16px 10px;
+      border-radius: 12px;
       cursor: pointer;
       font-weight: bold;
+      font-size: 1.05rem;
       transition: all 0.2s;
+      position: relative;
     }
-    .nav-btn.active {
-      background: var(--gold);
-      color: #000;
+    .main-tab-btn .tab-icon { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+    .main-tab-btn.active { background: var(--gold); color: #000; }
+    .main-tab-btn:hover:not(.active) { background: #2a2a2a; }
+
+    /* ── SUB-MENÚ (pestañas internas) ── */
+    .sub-tabs {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      justify-content: center; margin: 16px 0 20px;
+      border-bottom: 1px solid #333; padding-bottom: 14px;
     }
-    .nav-btn:hover:not(.active) {
-      background: #333;
+    .sub-tab-btn {
+      background: #222; border: 1px solid #444; color: #aaa;
+      padding: 8px 14px; border-radius: 20px; cursor: pointer;
+      font-size: 0.88rem; font-weight: bold; transition: all 0.2s;
+      position: relative;
+    }
+    .sub-tab-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
+    .sub-tab-btn:hover:not(.active) { background: #333; color: var(--text); border-color: #666; }
+
+    /* Badge notificación */
+    .badge {
+      position: absolute; top: -7px; right: -7px;
+      background: #dc3545; color: white;
+      border-radius: 50%; width: 18px; height: 18px;
+      font-size: 10px; font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      animation: pulse-badge 1.5s infinite;
+    }
+    @keyframes pulse-badge {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.2); }
     }
 
-    /* Secciones */
-    .section {
-      display: none;
-    }
-    .section.active {
-      display: block;
-      animation: fadeIn 0.4s ease;
-    }
+    /* ── SECCIONES ── */
+    .main-panel { display: none; }
+    .main-panel.active { display: block; animation: fadeIn 0.3s ease; }
+    .sub-panel { display: none; }
+    .sub-panel.active { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .hr-section {
-      margin: 25px 0;
-      border-color: #333;
+    .hr-section { margin: 25px 0; border-color: #333; }
+    input, textarea, select {
+      width: 100%; padding: 10px; margin: 8px 0;
+      border: 1px solid var(--gold); background: #111;
+      color: var(--text); border-radius: 6px;
     }
-
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid var(--gold);
-      background: #111;
-      color: var(--text);
-      border-radius: 6px;
-    }
-
     .btn {
-      display: inline-block;
-      background-color: var(--gold);
-      color: #000;
-      padding: 12px 24px;
-      margin: 12px 0;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      text-decoration: none;
+      display: inline-block; background-color: var(--gold); color: #000;
+      padding: 12px 24px; margin: 10px 0; border: none;
+      border-radius: 8px; font-weight: bold; cursor: pointer;
       font-size: 1rem;
     }
+
+    /* ── PIN de registro ── */
+    .pin-display {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.6rem; font-weight: 700;
+      color: var(--gold); letter-spacing: 8px;
+      text-shadow: 0 0 14px rgba(212,175,55,0.8);
+      background: #0a0a0a; border: 2px solid var(--gold);
+      border-radius: 12px; padding: 18px 10px;
+      margin: 16px 0; text-align: center;
+    }
+    .pin-meta { color: #aaa; font-size: 0.85rem; margin: 4px 0 12px; }
+    .pin-item {
+      background: #1a1a1a; border: 1px solid #333;
+      border-radius: 8px; padding: 12px 16px;
+      margin: 8px 0; display: flex;
+      justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .pin-item .pin-code {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.2rem; color: var(--gold); letter-spacing: 4px;
+    }
+    .pin-item .pin-estado {
+      font-size: 0.8rem; padding: 3px 10px;
+      border-radius: 20px; font-weight: bold;
+    }
+    .pin-item .pin-estado.disponible { background: #28a745; color: white; }
+    .pin-item .pin-estado.usado     { background: #555; color: #aaa; }
+    .pin-item .pin-usado-por { font-size: 0.8rem; color: #888; width: 100%; }
+    .btn-small-red {
+      padding: 5px 10px; background: #6b0000; color: #ff6b6b;
+      border: 1px solid #aa0000; border-radius: 6px; cursor: pointer;
+      font-size: 0.8rem; font-weight: bold;
+    }
+
+    /* ── Filtros reservas ── */
+    .filtros-reservas {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      justify-content: center; margin: 10px 0 18px;
+    }
+    .filtro-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid #444;
+      background: #1a1a1a; color: #aaa; cursor: pointer;
+      font-size: 0.85rem; transition: all 0.2s;
+    }
+    .filtro-btn.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: bold; }
+
+    /* ── Cards reserva ── */
+    .reserva-card.completada {
+      border-left: 5px solid #6f42c1;
+      background: linear-gradient(90deg, rgba(111,66,193,0.15), transparent);
+      opacity: 0.85;
+    }
+    .btn-completar { background: #6f42c1; color: white; }
+    .estado-badge.completada { background: #6f42c1; color: white; }
+    /* Botón Probar SUERTE en cards de reserva */
+    .btn-suerte {
+      background: linear-gradient(135deg, #1a1200, #3a2a00);
+      color: var(--gold);
+      border: 1px solid var(--gold);
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 8px rgba(212,175,55,0.3);
+      transition: all 0.2s;
+    }
+    .btn-suerte:hover {
+      background: var(--gold); color: #000;
+      box-shadow: 0 0 14px rgba(212,175,55,0.6);
+    }
+    .reserva-nota {
+      background: #1a1a1a; border-left: 3px solid #ffc107;
+      padding: 8px 12px; margin-top: 8px;
+      border-radius: 0 6px 6px 0; font-size: 0.9rem; color: #ddd; font-style: italic;
+    }
+
+    /* ── Tabla de clientes ── */
+    .cliente-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 12px 14px; margin: 6px 0;
+      background: #111; border: 1px solid #2a2a2a;
+      border-radius: 10px; transition: border-color 0.2s;
+    }
+    .cliente-row:hover { border-color: var(--gold); }
+    .cliente-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--gold); color: #000;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1rem; flex-shrink: 0;
+    }
+    .cliente-info { flex: 1; text-align: left; min-width: 0; }
+    .cliente-nombre { font-weight: bold; color: var(--text-light); font-size: 0.97rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cliente-email  { font-size: 0.78rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cliente-puntos {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--gold); white-space: nowrap;
+      text-shadow: 0 0 8px rgba(212,175,55,0.5);
+    }
+    .cliente-puntos-label { font-size: 0.7rem; color: #666; text-align: right; }
+
+    /* ── SISTEMA DE NOTIFICACIONES ── */
+    #notif-campana {
+      position: fixed; top: 16px; right: 16px; z-index: 9999;
+      background: #0a0a0a; border: 2px solid var(--gold);
+      border-radius: 50%; width: 46px; height: 46px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 14px rgba(212,175,55,0.3);
+      transition: transform 0.2s;
+    }
+    #notif-campana:hover { transform: scale(1.08); }
+    #notif-campana .campana-icon { font-size: 1.2rem; line-height:1; }
+    #notif-campana .notif-count {
+      position: absolute; top: -6px; right: -6px;
+      background: #dc3545; color: white;
+      border-radius: 50%; width: 18px; height: 18px;
+      font-size: 10px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      animation: pulse-badge 1.5s infinite;
+    }
+    /* Panel de notificaciones desplegable */
+    #notif-panel {
+      position: fixed; top: 70px; right: 16px; z-index: 9998;
+      width: min(340px, calc(100vw - 32px));
+      background: #0d0d0d; border: 1px solid var(--gold);
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+      display: none;
+      animation: slideDown 0.25s ease;
+    }
+    #notif-panel.open { display: block; }
+    @keyframes slideDown {
+      from { opacity:0; transform: translateY(-10px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .notif-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px; border-bottom: 1px solid #222;
+    }
+    .notif-header h4 { margin:0; color: var(--gold); font-size:0.9rem; letter-spacing:1px; }
+    .notif-clear {
+      background: none; border: none; color: #666;
+      font-size: 0.78rem; cursor: pointer; transition: color 0.2s;
+    }
+    .notif-clear:hover { color: #dc3545; }
+    .notif-lista { max-height: 320px; overflow-y: auto; }
+    .notif-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 13px 16px; border-bottom: 1px solid #1a1a1a;
+      transition: background 0.2s; cursor: default;
+    }
+    .notif-item:hover { background: #111; }
+    .notif-item.nueva { border-left: 3px solid var(--gold); }
+    .notif-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold); flex-shrink: 0; margin-top: 5px;
+    }
+    .notif-dot.leida { background: #333; }
+    .notif-texto { font-size: 0.87rem; color: var(--text); line-height: 1.4; }
+    .notif-texto strong { color: var(--gold); }
+    .notif-tiempo { font-size: 0.74rem; color: #555; margin-top: 3px; }
+    .notif-empty { padding: 24px; text-align:center; color: #555; font-size:0.88rem; }
+    /* Toast flotante */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #0d0d0d; border: 1px solid var(--gold);
+      border-left: 4px solid var(--gold);
+      border-radius: 10px; padding: 14px 20px;
+      min-width: 260px; max-width: calc(100vw - 40px);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+      z-index: 10000; display: flex; align-items: center; gap: 12px;
+      animation: toastIn 0.35s ease;
+    }
+    @keyframes toastIn {
+      from { opacity:0; transform: translateX(-50%) translateY(20px); }
+      to   { opacity:1; transform: translateX(-50%) translateY(0); }
+    }
+    .toast.saliendo { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastOut {
+      to { opacity:0; transform: translateX(-50%) translateY(20px); }
+    }
+    .toast-icon { font-size: 1.3rem; flex-shrink:0; }
+    .toast-body { flex:1; }
+    .toast-titulo { font-weight: bold; color: var(--gold); font-size:0.9rem; }
+    .toast-msg { font-size: 0.83rem; color: #bbb; margin-top:2px; }
+
+
+    /* ── CALENDARIO DE HORARIOS ── */
+    .cal-wrap {
+      margin: 0 auto 18px;
+      user-select: none;
+    }
+    .cal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .cal-header h4 { margin: 0; color: var(--gold); font-size: 1rem; }
+    .cal-nav {
+      background: none; border: 1px solid #444; color: var(--gold);
+      border-radius: 6px; width: 30px; height: 30px;
+      cursor: pointer; font-size: 1rem; transition: all 0.15s;
+    }
+    .cal-nav:hover { background: var(--gold); color: #000; border-color: var(--gold); }
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 4px; margin-top: 6px;
+    }
+    .cal-dow {
+      text-align: center; font-size: 0.7rem; color: #666;
+      padding: 4px 0; font-weight: bold; letter-spacing: 0.5px;
+    }
+    .cal-day {
+      aspect-ratio: 1; display: flex; align-items: center;
+      justify-content: center; border-radius: 8px;
+      font-size: 0.85rem; cursor: pointer;
+      border: 1px solid transparent; transition: all 0.15s;
+      background: #111;
+    }
+    .cal-day:hover:not(.cal-empty):not(.cal-pasado) {
+      border-color: var(--gold); color: var(--gold);
+    }
+    .cal-day.cal-empty { background: transparent; cursor: default; }
+    .cal-day.cal-pasado { color: #333; cursor: not-allowed; background: #0a0a0a; }
+    .cal-day.cal-hoy { border-color: #555; color: #aaa; }
+    .cal-day.cal-seleccionado {
+      background: var(--gold); color: #000 !important;
+      font-weight: 900; border-color: var(--gold);
+    }
+    .cal-day.cal-tiene-horario {
+      border-color: #28a745; color: #28a745;
+      background: rgba(40,167,69,0.1);
+    }
+    .cal-day.cal-tiene-horario.cal-seleccionado {
+      background: var(--gold); color: #000 !important;
+    }
+
+    /* ── GESTIÓN DE RESERVAS (crear manual) ── */
+    .form-reserva-admin {
+      background: #0d0d0d; border: 1px solid #333;
+      border-radius: 12px; padding: 18px; margin-bottom: 20px;
+    }
+    .form-reserva-admin h4 {
+      color: var(--gold); margin: 0 0 14px;
+      font-size: 0.95rem; letter-spacing: 1px;
+    }
+    .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .form-row > * { flex: 1; min-width: 130px; }
+
+    /* Contraseña en clientes */
+    .cliente-pass {
+      font-family: monospace; font-size: 0.8rem;
+      color: #888; margin-top: 2px; letter-spacing: 1px;
+    }
+    .cliente-pass .pass-dots { cursor: pointer; color: #555; }
+    .cliente-pass .pass-dots:hover { color: var(--gold); }
+    .btn-reset-pass {
+      padding: 4px 10px; background: none;
+      border: 1px solid #444; color: #888; border-radius: 5px;
+      font-size: 0.75rem; cursor: pointer; transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-reset-pass:hover { border-color: #ffc107; color: #ffc107; }
+    .btn-eliminar-cliente {
+      padding: 4px 10px; background: none;
+      border: 1px solid #6b0000; color: #ff6b6b; border-radius: 5px;
+      font-size: 0.75rem; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-eliminar-cliente:hover { background: #6b0000; }
+
   </style>
 </head>
 <body>
+
+  <!-- ══ CAMPANA DE NOTIFICACIONES ══ -->
+  <div id="notif-campana" style="display:none;" onclick="toggleNotifPanel()">
+    <span class="campana-icon">🔔</span>
+  </div>
+  <div id="notif-panel">
+    <div class="notif-header">
+      <h4>NOTIFICACIONES</h4>
+      <button class="notif-clear" onclick="limpiarNotifs()">Limpiar todo</button>
+    </div>
+    <div class="notif-lista" id="notif-lista">
+      <div class="notif-empty">Sin notificaciones</div>
+    </div>
+  </div>
+
+  <!-- ══ LOGIN ══ -->
   <div class="container" id="login">
     <img src="logo.png" alt="Barbería La Nueva" class="logo-login" />
     <h2>Acceso restringido</h2>
-    <input type="text" id="loginUser" placeholder="Usuario" value="admin" readonly style="text-align:center;" /><br>
-    <input type="password" id="loginPass" placeholder="Contraseña" required /><br><br>
-    <button class="btn" onclick="validarAcceso()">Entrar</button>
+    <input type="text" value="admin" readonly style="text-align:center;" />
+    <input type="password" id="loginPass" placeholder="Contraseña" required />
+    <button class="btn" onclick="validarAcceso()" style="width:100%;">Entrar</button>
   </div>
 
+  <!-- ══ PANEL ══ -->
   <div class="container" id="panel" style="display:none;">
-    <h2>Panel de Administración</h2>
+    <h2 style="margin-bottom:6px;">Panel de Administración</h2>
 
-    <div class="nav-tabs">
-      <button class="nav-btn active" data-section="gestion">Gestión de promociones</button>
-      <button class="nav-btn" data-section="activas">Promociones activas</button>
-      <button class="nav-btn" data-section="puntos">Asignar puntos</button>
-      <button class="nav-btn" data-section="canjes">Canjes recientes</button>
+    <!-- MENÚ PRINCIPAL: 2 botones -->
+    <div class="main-tabs">
+      <button class="main-tab-btn active" data-main="promociones">
+        <span class="tab-icon">🎁</span>Promociones
+      </button>
+      <button class="main-tab-btn" data-main="reservas" id="btn-main-reservas">
+        <span class="tab-icon">📅</span>Reservas
+      </button>
     </div>
 
-    <div id="gestion" class="section active">
-      <h3>Crear o editar promoción</h3>
-      <form id="promoForm">
-        <input type="text" id="promoNombre" placeholder="Nombre del descuento" required /><br>
-        <textarea id="promoDesc" placeholder="Descripción (opcional)"></textarea><br>
-        <input type="number" id="promoPuntos" placeholder="Puntos necesarios" min="1" required /><br>
-        <input type="date" id="promoFecha" required /><br>
-        <button type="submit" class="btn">Guardar promoción</button>
-        <button type="button" class="btn" id="btnCancelar" style="background:#666;display:none;" onclick="cancelarEdicion()">Cancelar</button>
-      </form>
-    </div>
+    <!-- ══════════════════════════════════════════ -->
+    <!-- PANEL: PROMOCIONES                         -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="panel-promociones" class="main-panel active">
 
-    <div id="activas" class="section">
-      <h3>Promociones registradas</h3>
-      <div id="promos-lista"></div>
-    </div>
+      <!-- Sub-menú Promociones -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-sub="gestion">✏️ Gestión</button>
+        <button class="sub-tab-btn" data-sub="activas">📋 Activas</button>
+        <button class="sub-tab-btn" data-sub="puntos">⭐ Asignar puntos</button>
+        <button class="sub-tab-btn" data-sub="canjes">🔄 Canjes</button>
+        <button class="sub-tab-btn" data-sub="pines">🔑 Registro clientes</button>
+        <button class="sub-tab-btn" data-sub="clientes">👥 Clientes</button>
+      </div>
 
-    <div id="puntos" class="section">
-      <h3>Generar código para cliente</h3>
-      <input type="number" id="codigoPuntos" placeholder="Puntos a asignar" value="25" min="1" />
-      <br><br>
-      <button class="btn" onclick="generarCodigoPuntos()">Generar código</button>
-      <p id="codigo-output" style="font-size:1.2rem;font-weight:bold;margin:15px;color:var(--gold);"></p>
-      <p style="font-size:0.9em;color:#aaa;">Dile al cliente que introduzca este código en su app</p>
-    </div>
+      <!-- Gestión -->
+      <div id="gestion" class="sub-panel active">
+        <h3>Crear o editar promoción</h3>
+        <form id="promoForm">
+          <input type="text" id="promoNombre" placeholder="Nombre del descuento" required />
+          <textarea id="promoDesc" placeholder="Descripción (opcional)"></textarea>
+          <input type="number" id="promoPuntos" placeholder="Puntos necesarios" min="1" required />
+          <input type="date" id="promoFecha" required />
+          <button type="submit" class="btn" style="width:100%;">💾 Guardar promoción</button>
+          <button type="button" class="btn" id="btnCancelar" style="background:#666;display:none;width:100%;" onclick="cancelarEdicion()">Cancelar</button>
+        </form>
+      </div>
 
-    <div id="canjes" class="section">
-      <h3>Historial de canjes</h3>
-      <div id="notificaciones-canjes"></div>
-    </div>
-  </div>
+      <!-- Activas -->
+      <div id="activas" class="sub-panel">
+        <h3>Promociones registradas</h3>
+        <div id="promos-lista"></div>
+      </div>
+
+      <!-- Asignar puntos -->
+      <div id="puntos" class="sub-panel">
+        <h3>Generar código de puntos</h3>
+        <p style="color:#aaa;font-size:0.9rem;margin-bottom:12px;">Genera un código para que el cliente sume puntos manualmente</p>
+        <input type="number" id="codigoPuntos" placeholder="Puntos a asignar" value="25" min="1" />
+        <button class="btn" onclick="generarCodigoPuntos()" style="width:100%;">Generar código</button>
+        <p id="codigo-output" style="font-size:1.4rem;font-weight:bold;margin:15px;color:var(--gold);letter-spacing:4px;"></p>
+      </div>
+
+      <!-- Canjes -->
+      <div id="canjes" class="sub-panel">
+        <h3>Historial de canjes</h3>
+        <div id="notificaciones-canjes"></div>
+      </div>
+
+      <!-- PINes de registro -->
+      <div id="pines" class="sub-panel">
+        <h3>🔑 PINs de registro</h3>
+        <p style="color:#aaa;font-size:0.9rem;margin-bottom:16px;">
+          Genera un PIN de un solo uso para que un nuevo cliente pueda crear su cuenta.
+          Sin PIN, el registro está bloqueado.
+        </p>
+        <button class="btn" onclick="generarPin()" style="width:100%;">➕ Generar nuevo PIN</button>
+        <div id="pin-generado" style="display:none;">
+          <p style="color:#aaa;font-size:0.85rem;margin:8px 0 0;">PIN generado — dáselo al cliente:</p>
+          <div class="pin-display" id="pin-valor">——</div>
+          <p class="pin-meta">Válido para un solo registro. Caduca en 48h.</p>
+        </div>
+        <hr class="hr-section" />
+        <h4 style="text-align:left;margin-bottom:10px;">PINs recientes</h4>
+        <div id="lista-pines"></div>
+      </div>
+
+      <!-- Clientes -->
+      <div id="clientes" class="sub-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+          <h3 style="margin:0;">Clientes registrados</h3>
+          <div style="background:#0a0a0a; border:2px solid var(--gold); border-radius:10px; padding:10px 20px; text-align:center; min-width:110px;">
+            <div style="font-size:0.75rem; color:#aaa; letter-spacing:1px; margin-bottom:4px;">TOTAL</div>
+            <div id="total-clientes" style="font-family:'Orbitron',monospace; font-size:2rem; font-weight:700; color:var(--gold); text-shadow:0 0 10px rgba(212,175,55,0.7);">—</div>
+          </div>
+        </div>
+        <input type="text" id="buscador-clientes" placeholder="🔍 Buscar por nombre..." oninput="filtrarClientes()" style="margin-bottom:14px;" />
+        <div id="lista-clientes"></div>
+      </div>
+
+    </div><!-- /panel-promociones -->
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- PANEL: RESERVAS                            -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="panel-reservas" class="main-panel">
+
+      <!-- Sub-menú Reservas -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-sub="config-horario">⏰ Horarios</button>
+        <button class="sub-tab-btn" data-sub="config-servicios">✂️ Servicios</button>
+        <button class="sub-tab-btn" data-sub="aprobar-reservas" id="btn-sub-reservas">✅ Reservas</button>
+        <button class="sub-tab-btn" data-sub="gestion-reservas">📋 Gestión</button>
+      </div>
+
+      <!-- Horarios -->
+      <div id="config-horario" class="sub-panel active">
+        <h4 style="margin-bottom:14px;">📅 Añadir día disponible</h4>
+
+        <!-- Calendario visual -->
+        <div class="cal-wrap">
+          <div class="cal-header">
+            <button class="cal-nav" onclick="calAnterior()">‹</button>
+            <h4 id="cal-titulo">—</h4>
+            <button class="cal-nav" onclick="calSiguiente()">›</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+
+        <!-- Día seleccionado + horas -->
+        <div id="horario-form" style="display:none; margin-top:4px;">
+          <div style="background:#111; border:1px solid var(--gold); border-radius:8px; padding:12px; margin-bottom:10px;">
+            <span style="color:#aaa; font-size:0.85rem;">Día seleccionado: </span>
+            <strong id="cal-dia-label" style="color:var(--gold);"></strong>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <input type="time" id="hora-inicio" value="09:00" style="flex:1;min-width:120px;" />
+            <input type="time" id="hora-fin" value="20:00" style="flex:1;min-width:120px;" />
+          </div>
+          <button class="btn" onclick="guardarHorario()" style="width:100%;">💾 Guardar horario</button>
+        </div>
+
+        <input type="hidden" id="fecha-horario" />
+        <div id="lista-horarios" style="margin-top:18px;"></div>
+      </div>
+
+      <!-- Servicios -->
+      <div id="config-servicios" class="sub-panel">
+        <h4>➕ Nuevo servicio</h4>
+        <input type="text" id="servicio-nombre" placeholder="Nombre (ej: Corte clásico)" />
+        <input type="number" id="servicio-duracion" placeholder="Duración (min)" min="15" step="15" value="30" />
+        <input type="number" id="servicio-precio" placeholder="Precio (€)" step="0.50" min="0" />
+        <input type="number" id="servicio-puntos" placeholder="Puntos que genera" min="0" value="10" />
+        <button class="btn" onclick="guardarServicio()" style="width:100%;">💾 Guardar servicio</button>
+        <div id="lista-servicios" style="margin-top:15px;"></div>
+      </div>
+
+      <!-- Aprobar Reservas -->
+      <div id="aprobar-reservas" class="sub-panel">
+        <div class="filtros-reservas">
+          <button class="filtro-btn active" data-filtro="pendiente">⏳ Pendientes</button>
+          <button class="filtro-btn" data-filtro="aprobado">✅ Aprobadas</button>
+          <button class="filtro-btn" data-filtro="completada">💈 Completadas</button>
+          <button class="filtro-btn" data-filtro="rechazado">❌ Rechazadas</button>
+        </div>
+        <div id="contenedor-reservas-filtradas"></div>
+      </div>
+
+      <!-- Gestión de Reservas (crear manual) -->
+      <div id="gestion-reservas" class="sub-panel">
+
+        <!-- Formulario crear reserva -->
+        <div class="form-reserva-admin">
+          <h4>➕ NUEVA RESERVA MANUAL</h4>
+
+          <div class="form-row">
+            <input type="text" id="gr-nombre" placeholder="Nombre del cliente" />
+            <input type="tel" id="gr-telefono" placeholder="Teléfono (opcional)" />
+          </div>
+          <div class="form-row">
+            <select id="gr-servicio">
+              <option value="">— Servicio —</option>
+            </select>
+            <input type="date" id="gr-fecha" />
+          </div>
+          <div class="form-row">
+            <input type="time" id="gr-hora-inicio" value="10:00" />
+            <input type="time" id="gr-hora-fin" value="10:30" />
+          </div>
+          <select id="gr-estado" style="margin-bottom:10px;">
+            <option value="aprobado">✅ Aprobada directamente</option>
+            <option value="pendiente">⏳ Pendiente</option>
+          </select>
+          <button class="btn" onclick="crearReservaAdmin()" style="width:100%;">
+            💾 Crear reserva
+          </button>
+        </div>
+
+        <!-- Lista de todas las reservas con opción de eliminar -->
+        <h4 style="color:var(--gold); margin-bottom:12px; letter-spacing:1px;">TODAS LAS RESERVAS</h4>
+        <div class="filtros-reservas" style="margin-bottom:16px;">
+          <button class="filtro-btn active" data-filtro-gr="todas">Todas</button>
+          <button class="filtro-btn" data-filtro-gr="pendiente">⏳ Pendientes</button>
+          <button class="filtro-btn" data-filtro-gr="aprobado">✅ Aprobadas</button>
+          <button class="filtro-btn" data-filtro-gr="completada">💈 Completadas</button>
+        </div>
+        <div id="lista-gestion-reservas"></div>
+      </div>
+
+    </div><!-- /panel-reservas -->
+  </div><!-- /container panel -->
 
   <script type="module">
-    // --- Firebase y lógica (sin cambios, igual que antes) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { 
-      getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp 
+    import {
+      getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc,
+      doc, serverTimestamp, query, where, onSnapshot, increment, orderBy
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -182,196 +623,1037 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const db  = getFirestore(app);
     const auth = getAuth(app);
 
     let promoEditando = null;
+    let filtroActivo  = 'pendiente';
+    let unsubReservas = null;
 
+    // ════════════════════════════════════════════
+    // ACCESO
+    // ════════════════════════════════════════════
     window.validarAcceso = async function() {
       const pass = document.getElementById('loginPass').value;
-      const emailReal = "latribu_woo11@hotmail.com";
       if (!pass) return alert("Ingresa la contraseña");
       try {
-        await signInWithEmailAndPassword(auth, emailReal, pass);
+        await signInWithEmailAndPassword(auth, "latribu_woo11@hotmail.com", pass);
         document.getElementById('login').style.display = 'none';
         document.getElementById('panel').style.display = 'block';
         cargarTodo();
-      } catch (err) {
-        console.error(err);
-        alert("Acceso denegado");
-      }
+      } catch { alert("Acceso denegado"); }
     };
 
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    // ════════════════════════════════════════════
+    // NAVEGACIÓN: MENÚ PRINCIPAL (2 botones)
+    // ════════════════════════════════════════════
+    document.querySelectorAll('.main-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.main-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
-        const sectionId = btn.getAttribute('data-section');
-        document.getElementById(sectionId).classList.add('active');
+        const panelId = 'panel-' + btn.getAttribute('data-main');
+        document.getElementById(panelId)?.classList.add('active');
       });
     });
 
+    // ════════════════════════════════════════════
+    // NAVEGACIÓN: SUB-PESTAÑAS
+    // Cada sub-panel vive dentro de su main-panel,
+    // así los ids no colisionan entre sí.
+    // ════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', () => {
+
+      document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Solo actuar sobre los botones y paneles del mismo contenedor padre
+          const parentPanel = btn.closest('.main-panel');
+          parentPanel.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+          parentPanel.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          const subId = btn.getAttribute('data-sub');
+          const target = document.getElementById(subId);
+          if (!target) return;
+          target.classList.add('active');
+
+          // Carga de datos según sub-panel
+          if (subId === 'activas')          renderizarPromociones();
+          if (subId === 'canjes')           cargarCanjes();
+          if (subId === 'pines')            cargarPines();
+          if (subId === 'clientes')         cargarClientes();
+          if (subId === 'config-horario')   { cargarHorarios(); sincronizarCalConHorarios(); renderCalendario(); }
+          if (subId === 'config-servicios') cargarServicios();
+          if (subId === 'aprobar-reservas') iniciarListenerReservas();
+          if (subId === 'gestion-reservas') { cargarServiciosEnGR(); cargarTodasReservas('todas'); }
+        });
+      });
+
+      // Filtros de estado en reservas
+      document.querySelectorAll('.filtro-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filtroActivo = btn.getAttribute('data-filtro');
+          iniciarListenerReservas();
+        });
+      });
+    });
+
+    // ════════════════════════════════════════════
+    // CARGA INICIAL
+    // ════════════════════════════════════════════
     async function cargarTodo() {
+      document.getElementById('promoForm').addEventListener('submit', guardarPromocion);
       renderizarPromociones();
       cargarCanjes();
-      document.getElementById('promoForm').addEventListener('submit', guardarPromocion);
+      cargarHorarios();
+      cargarServicios();
+      escucharPendientesParaBadge();
+      iniciarListenerNotificaciones();
     }
 
+    // ════════════════════════════════════════════
+    // BADGE PENDIENTES (tiempo real)
+    // ════════════════════════════════════════════
+    function escucharPendientesParaBadge() {
+      onSnapshot(
+        query(collection(db, "reservas"), where("estado", "==", "pendiente")),
+        (snap) => {
+          const btn = document.getElementById('btn-main-reservas');
+          if (!btn) return;
+          btn.querySelector('.badge')?.remove();
+          if (snap.size > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'badge';
+            badge.textContent = snap.size;
+            btn.appendChild(badge);
+          }
+          // También en sub-botón
+          const sub = document.getElementById('btn-sub-reservas');
+          if (!sub) return;
+          sub.querySelector('.badge')?.remove();
+          if (snap.size > 0) {
+            const b2 = document.createElement('span');
+            b2.className = 'badge';
+            b2.textContent = snap.size;
+            sub.appendChild(b2);
+          }
+        }
+      );
+    }
+
+    // ════════════════════════════════════════════
+    // RESERVAS: LISTENER TIEMPO REAL
+    // ════════════════════════════════════════════
+    function iniciarListenerReservas() {
+      if (unsubReservas) unsubReservas();
+      const cont = document.getElementById('contenedor-reservas-filtradas');
+      if (!cont) return;
+      cont.innerHTML = '<p style="color:#aaa;text-align:center;">Cargando...</p>';
+
+      unsubReservas = onSnapshot(
+        query(collection(db, "reservas"), where("estado", "==", filtroActivo)),
+        (snap) => {
+          if (snap.empty) {
+            const msgs = { pendiente:'Sin reservas pendientes', aprobado:'Sin reservas aprobadas', completada:'Sin reservas completadas', rechazado:'Sin reservas rechazadas' };
+            cont.innerHTML = `<p style="color:#aaa;font-style:italic;text-align:center;">✨ ${msgs[filtroActivo]||'Sin reservas'}</p>`;
+            return;
+          }
+          const reservas = [];
+          snap.forEach(d => reservas.push({ id: d.id, ...d.data() }));
+          const desc = ['completada','rechazado'].includes(filtroActivo);
+          reservas.sort((a,b) => {
+            const fa = fechaADate(a.fecha), fb = fechaADate(b.fecha);
+            return desc ? fb-fa : fa-fb;
+          });
+          cont.innerHTML = '';
+          reservas.forEach(r => cont.appendChild(crearCardReserva(r)));
+        },
+        (err) => { cont.innerHTML = `<p style="color:#dc3545">⚠️ ${err.message}</p>`; }
+      );
+    }
+
+    function fechaADate(f) {
+      if (!f) return new Date(0);
+      if (typeof f === 'string') return new Date(f);
+      if (f.toDate) return f.toDate();
+      return new Date(f);
+    }
+
+    function crearCardReserva(r) {
+      const div = document.createElement('div');
+      div.className = `reserva-card ${r.estado}`;
+      const fechaStr = fechaADate(r.fecha).toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
+      const notaHtml  = r.nota_cliente ? `<div class="reserva-nota">💬 "${r.nota_cliente}"</div>` : '';
+      const ptsHtml   = r.servicio_puntos ? `<div style="margin:5px 0;color:var(--gold);">⭐ Puntos a ganar: ${r.servicio_puntos}</div>` : '';
+
+      let accionesHtml = '';
+      if (r.estado === 'pendiente') {
+        accionesHtml = `<div class="reserva-actions">
+          <button class="btn-small btn-aprobar" onclick="cambiarEstado('${r.id}','aprobado')">✅ Aprobar</button>
+          <button class="btn-small btn-rechazar" onclick="cambiarEstado('${r.id}','rechazado')">❌ Rechazar</button>
+        </div>`;
+      } else if (r.estado === 'aprobado') {
+        const suerteYaActivada = r.probarSuerte === true;
+        const btnSuerteHtml = !suerteYaActivada
+          ? `<button class="btn-small btn-suerte" onclick="habilitarSuerte('${r.id}')">🎰 Probar SUERTE</button>`
+          : `<span style="font-size:0.78rem;color:var(--gold);opacity:0.7;">🎰 Suerte activada</span>`;
+        accionesHtml = `<div class="reserva-actions">
+          <button class="btn-small btn-completar" onclick="marcarCompletada('${r.id}','${r.cliente_id||''}',${r.servicio_puntos||0},'${(r.cliente_nombre||'Cliente').replace(/'/g,"\\'")}')">💈 Marcar completada</button>
+          <button class="btn-small btn-rechazar"  onclick="cambiarEstado('${r.id}','rechazado')">❌ Cancelar</button>
+          ${btnSuerteHtml}
+        </div>`;
+      } else if (r.estado === 'completada') {
+        accionesHtml = `<div style="margin-top:8px;">
+          <span class="estado-badge completada">💈 Completada</span>
+          ${r.puntos_sumados ? `<span style="margin-left:8px;color:var(--gold);font-size:0.85rem;">+${r.puntos_sumados} pts sumados</span>` : ''}
+        </div>`;
+      } else {
+        accionesHtml = `<span class="estado-badge rechazada" style="margin-top:8px;display:inline-block;">❌ Rechazada/Cancelada</span>`;
+      }
+
+      div.innerHTML = `
+        <div class="reserva-header">
+          <span class="reserva-cliente">👤 ${r.cliente_nombre||'Cliente'}</span>
+          <span class="reserva-fecha">📅 ${fechaStr}</span>
+        </div>
+        <div class="reserva-servicio">✂️ ${r.servicio_nombre||'Servicio'}</div>
+        <div class="reserva-horario">🕐 ${r.hora_inicio} - ${r.hora_fin}</div>
+        ${ptsHtml}${notaHtml}${accionesHtml}`;
+      return div;
+    }
+
+    // ── HABILITAR PROBAR SUERTE ──
+    window.habilitarSuerte = async function(reservaId) {
+      if (!confirm('¿Habilitar "Probar SUERTE" para esta reserva?\nEl cliente tendrá un único intento.')) return;
+      try {
+        await updateDoc(doc(db, 'reservas', reservaId), {
+          probarSuerte: true,
+          suerteUsada: false,
+          updatedAt: serverTimestamp()
+        });
+        // El onSnapshot recargará la card automáticamente
+      } catch(err) { alert('❌ Error: ' + err.message); }
+    };
+
+    window.cambiarEstado = async function(id, estado) {
+      try { await updateDoc(doc(db,"reservas",id), { estado, updatedAt: serverTimestamp() }); }
+      catch(err) { alert("Error: "+err.message); }
+    };
+
+    window.marcarCompletada = async function(reservaId, clienteId, pts, nombre) {
+      if (!confirm(`¿Marcar como completada?\nSe sumarán ${pts} puntos a ${nombre}.`)) return;
+      try {
+        await updateDoc(doc(db,"reservas",reservaId), { estado:'completada', puntos_sumados:pts, completadaAt:serverTimestamp(), updatedAt:serverTimestamp() });
+        if (clienteId && pts > 0) {
+          const uSnap = await getDocs(query(collection(db,"users"), where("uid","==",clienteId)));
+          if (!uSnap.empty) {
+            await updateDoc(doc(db,"users",uSnap.docs[0].id), { puntos: increment(pts) });
+            await addDoc(collection(db,"canjes"), {
+              clienteId, clienteNombre: nombre, tipo:'reserva_completada',
+              nombrePromocion:`Reserva completada (+${pts} pts)`,
+              puntosAgregados: pts, reservaId, fecha: serverTimestamp(), visto: false
+            });
+          }
+        }
+        alert(`✅ Completada. +${pts} pts sumados a ${nombre}`);
+      } catch(err) { alert("❌ Error: "+err.message); }
+    };
+
+    // ════════════════════════════════════════════
+    // PINES DE REGISTRO
+    // ════════════════════════════════════════════
+    function generarPinAleatorio() {
+      // PIN de 6 dígitos numéricos (fácil de dictar de viva voz)
+      return String(Math.floor(100000 + Math.random() * 900000));
+    }
+
+    window.generarPin = async function() {
+      const pin = generarPinAleatorio();
+      const expira = new Date(Date.now() + 48 * 60 * 60 * 1000); // +48h
+      try {
+        await addDoc(collection(db, "pines-registro"), {
+          pin, usado: false, expira, createdAt: serverTimestamp()
+        });
+        document.getElementById('pin-generado').style.display = 'block';
+        document.getElementById('pin-valor').textContent = pin;
+        cargarPines();
+      } catch(err) { alert("❌ Error: "+err.message); }
+    };
+
+    async function cargarPines() {
+      const cont = document.getElementById('lista-pines');
+      if (!cont) return;
+      cont.innerHTML = '<p style="color:#aaa;text-align:center;font-size:0.9rem;">Cargando...</p>';
+      try {
+        const snap = await getDocs(collection(db, "pines-registro"));
+        if (snap.empty) { cont.innerHTML = '<p style="color:#aaa;font-size:0.9rem;">No hay PINs generados aún.</p>'; return; }
+
+        const pines = [];
+        snap.forEach(d => pines.push({ id: d.id, ...d.data() }));
+        // Ordenar: disponibles primero, luego por fecha desc
+        pines.sort((a,b) => {
+          if (a.usado !== b.usado) return a.usado ? 1 : -1;
+          return (b.createdAt?.toDate?.()??new Date()) - (a.createdAt?.toDate?.()??new Date());
+        });
+
+        cont.innerHTML = '';
+        const ahora = new Date();
+        pines.forEach(p => {
+          const expira = p.expira?.toDate?.() ?? new Date(p.expira);
+          const expirado = !p.usado && ahora > expira;
+          const item = document.createElement('div');
+          item.className = 'pin-item';
+
+          let estadoHtml;
+          if (p.usado) {
+            estadoHtml = `<span class="pin-estado usado">Usado</span>`;
+          } else if (expirado) {
+            estadoHtml = `<span class="pin-estado usado">Expirado</span>`;
+          } else {
+            estadoHtml = `<span class="pin-estado disponible">Disponible</span>`;
+          }
+
+          const usadoPorHtml = p.usado && p.usadoPor
+            ? `<div class="pin-usado-por">👤 Registrado: ${p.usadoPor}</div>` : '';
+
+          item.innerHTML = `
+            <span class="pin-code">${p.pin}</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${estadoHtml}
+              ${!p.usado ? `<button class="btn-small-red" onclick="eliminarPin('${p.id}')">🗑️</button>` : ''}
+            </div>
+            ${usadoPorHtml}
+          `;
+          cont.appendChild(item);
+        });
+      } catch(err) { cont.innerHTML = `<p style="color:#dc3545">Error: ${err.message}</p>`; }
+    }
+
+    window.eliminarPin = async function(id) {
+      if (!confirm("¿Eliminar este PIN?")) return;
+      try { await deleteDoc(doc(db,"pines-registro",id)); cargarPines(); }
+      catch(err) { alert("Error: "+err.message); }
+    };
+
+    // ════════════════════════════════════════════
+    // PROMOCIONES
+    // ════════════════════════════════════════════
     async function guardarPromocion(e) {
       e.preventDefault();
       const nombre = document.getElementById('promoNombre').value.trim();
-      const desc = document.getElementById('promoDesc').value.trim();
+      const desc   = document.getElementById('promoDesc').value.trim();
       const puntos = parseInt(document.getElementById('promoPuntos').value);
-      const fecha = document.getElementById('promoFecha').value;
-      if (!nombre || !puntos || !fecha) return alert("Completa todos los campos");
+      const fecha  = document.getElementById('promoFecha').value;
+      if (!nombre||!puntos||!fecha) return alert("Completa todos los campos");
       try {
-        if (promoEditando !== null) {
-          await updateDoc(doc(db, "promociones", promoEditando), {
-            nombre, descripcion: desc, puntos, fechaExpiracion: new Date(fecha)
-          });
+        if (promoEditando) {
+          await updateDoc(doc(db,"promociones",promoEditando), { nombre, descripcion:desc, puntos, fechaExpiracion:new Date(fecha) });
           promoEditando = null;
           document.getElementById('btnCancelar').style.display = 'none';
         } else {
-          await addDoc(collection(db, "promociones"), {
-            nombre, descripcion: desc, puntos, fechaExpiracion: new Date(fecha), activa: true
-          });
+          await addDoc(collection(db,"promociones"), { nombre, descripcion:desc, puntos, fechaExpiracion:new Date(fecha), activa:true });
         }
         document.getElementById('promoForm').reset();
         renderizarPromociones();
-      } catch (err) {
-        console.error(err);
-        alert("Error al guardar");
-      }
+      } catch { alert("Error al guardar"); }
     }
 
     async function renderizarPromociones() {
       const cont = document.getElementById('promos-lista');
       try {
-        const snap = await getDocs(collection(db, "promociones"));
-        cont.innerHTML = snap.empty ? '<p>No hay promociones</p>' : '';
-        snap.forEach(doc => {
-          const p = doc.data();
-          const fechaExp = p.fechaExpiracion.toDate();
+        const snap = await getDocs(collection(db,"promociones"));
+        cont.innerHTML = snap.empty ? '<p style="color:#aaa;">No hay promociones</p>' : '';
+        snap.forEach(docSnap => {
+          const p = docSnap.data();
+          const fechaExp = p.fechaExpiracion?.toDate?.() || new Date(p.fechaExpiracion);
           const expirado = new Date() > fechaExp;
           const div = document.createElement('div');
-          div.className = `promo ${expirado ? 'expired' : ''}`;
+          div.className = `promo ${expirado?'expired':''}`;
           div.style.marginBottom = '20px';
           div.innerHTML = `
             <strong>${p.nombre}</strong> (${p.puntos} puntos)<br>
             ${p.descripcion ? `<small>${p.descripcion}</small><br>` : ''}
             Vence: ${fechaExp.toISOString().split('T')[0]}<br>
-            <button onclick="editarPromo('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="btn" style="background:#4a4a4a;margin:5px;">✏️ Editar</button>
-            <button onclick="eliminarPromo('${doc.id}')" class="btn" style="background:#b00;margin:5px;">🗑️ Eliminar</button>
-          `;
+            <button onclick="editarPromo('${docSnap.id}',${JSON.stringify({...p,fechaExpiracion:fechaExp.toISOString()}).replace(/"/g,'&quot;')})" class="btn" style="background:#4a4a4a;margin:5px;">✏️ Editar</button>
+            <button onclick="eliminarPromo('${docSnap.id}')" class="btn" style="background:#b00;margin:5px;">🗑️ Eliminar</button>`;
           cont.appendChild(div);
         });
-      } catch (err) { console.error(err); }
+      } catch(err) { console.error(err); }
     }
 
     window.editarPromo = function(id, p) {
       document.getElementById('promoNombre').value = p.nombre;
-      document.getElementById('promoDesc').value = p.descripcion || '';
-      document.getElementById('promoPuntos').value = p.puntos;
-      document.getElementById('promoFecha').value = p.fechaExpiracion.toISOString().split('T')[0];
+      document.getElementById('promoDesc').value   = p.descripcion || '';
+      document.getElementById('promoPuntos').value  = p.puntos;
+      document.getElementById('promoFecha').value   = p.fechaExpiracion?.split('T')[0] || '';
       promoEditando = id;
       document.getElementById('btnCancelar').style.display = 'inline-block';
-      // Cambiar a sección "Gestión"
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelector('.nav-btn[data-section="gestion"]').classList.add('active');
+      // Ir a sub-panel Gestión dentro de Promociones
+      document.querySelectorAll('#panel-promociones .sub-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#panel-promociones .sub-panel').forEach(p => p.classList.remove('active'));
+      document.querySelector('#panel-promociones .sub-tab-btn[data-sub="gestion"]').classList.add('active');
       document.getElementById('gestion').classList.add('active');
+      // Asegurar que el main panel Promociones esté activo
+      document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.main-panel').forEach(p => p.classList.remove('active'));
+      document.querySelector('.main-tab-btn[data-main="promociones"]').classList.add('active');
+      document.getElementById('panel-promociones').classList.add('active');
     };
-
     window.eliminarPromo = async function(id) {
       if (!confirm("¿Eliminar esta promoción?")) return;
-      try {
-        await deleteDoc(doc(db, "promociones", id));
-        renderizarPromociones();
-      } catch (err) { console.error(err); }
+      try { await deleteDoc(doc(db,"promociones",id)); renderizarPromociones(); } catch {}
     };
-
     window.cancelarEdicion = function() {
       document.getElementById('promoForm').reset();
       promoEditando = null;
       document.getElementById('btnCancelar').style.display = 'none';
     };
 
-    function generarCodigoUnico() {
-      const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-      return Array.from({length: 6}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
-    }
-
+    // ════════════════════════════════════════════
+    // CÓDIGOS DE PUNTOS
+    // ════════════════════════════════════════════
     window.generarCodigoPuntos = async function() {
       const puntos = parseInt(document.getElementById('codigoPuntos').value);
-      if (isNaN(puntos) || puntos <= 0) return alert("Puntos inválidos");
+      if (isNaN(puntos)||puntos<=0) return alert("Puntos inválidos");
+      const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+      const codigo = Array.from({length:6}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
       try {
-        const codigo = generarCodigoUnico();
-        await addDoc(collection(db, "codigos-puntos"), {
-          codigo,
-          puntosAsignar: puntos,
-          usado: false,
-          createdAt: serverTimestamp(),
-          uidCliente: null
-        });
-        document.getElementById('codigo-output').textContent = `Código: ${codigo}`;
-        alert("¡Código generado! Dáselo al cliente.");
-      } catch (err) {
-        console.error(err);
-        alert("Error al generar código");
-      }
+        await addDoc(collection(db,"codigos-puntos"), { codigo, puntosAsignar:puntos, usado:false, createdAt:serverTimestamp(), uidCliente:null });
+        document.getElementById('codigo-output').textContent = codigo;
+      } catch { alert("Error al generar código"); }
     };
 
+    // ════════════════════════════════════════════
+    // CANJES
+    // ════════════════════════════════════════════
     async function cargarCanjes() {
       const cont = document.getElementById('notificaciones-canjes');
       try {
-        const snap = await getDocs(collection(db, "canjes"));
-        if (snap.empty) {
-          cont.innerHTML = "<p>No hay canjes recientes</p>";
-          return;
-        }
-
+        const snap = await getDocs(collection(db,"canjes"));
+        if (snap.empty) { cont.innerHTML = "<p style='color:#aaa;'>No hay canjes recientes</p>"; return; }
         const canjes = [];
-        snap.forEach(doc => canjes.push({ id: doc.id, ...doc.data() }));
-        canjes.sort((a, b) => b.fecha.toDate() - a.fecha.toDate());
-
-        cont.innerHTML = "";
+        snap.forEach(d => canjes.push({id:d.id,...d.data()}));
+        canjes.sort((a,b)=>(b.fecha?.toDate?.()??new Date())-(a.fecha?.toDate?.()??new Date()));
+        cont.innerHTML = '';
         canjes.forEach(c => {
-          const fecha = c.fecha.toDate().toLocaleString("es-ES");
+          const fecha = (c.fecha?.toDate?.()??new Date(c.fecha)).toLocaleString('es-ES');
           const div = document.createElement('div');
-          div.className = 'promo';
-          div.style.marginBottom = '15px';
-          div.style.borderColor = c.visto ? "#555" : "#0a0";
+          div.className = 'promo'; div.style.marginBottom = '15px';
+          div.style.borderColor = c.visto ? '#555' : '#0a0';
           div.innerHTML = `
-            <strong>${c.nombrePromocion || (c.tipo === 'codigo' ? 'Código canjeado' : 'Canje')}</strong><br>
-            Cliente: ${c.clienteId.substring(0, 12)}...<br>
-            ${c.nombrePromocion ? `Puntos usados: ${c.puntosUsados}` : `Puntos: ${c.puntosAgregados || 'N/A'}`}<br>
+            <strong>${c.nombrePromocion||(c.tipo==='codigo'?'Código canjeado':'Canje')}</strong><br>
+            Cliente: ${c.clienteNombre||c.clienteId?.substring(0,12)||'N/A'}<br>
+            Puntos: ${c.puntosAgregados||c.puntosUsados||'N/A'}<br>
             Fecha: ${fecha}<br>
-            ${!c.visto ? 
-              `<button class="btn" style="margin-top:8px;background:#0a0;color:white;font-size:0.85rem;padding:6px 12px;" 
-                      onclick="marcarVisto('${c.id}')">
-                ✅ Marcar como visto
-              </button>` : 
-              '<small style="color:#aaa;">Visto</small>'
-            }
-          `;
+            ${!c.visto?`<button class="btn" style="margin-top:8px;background:#0a0;color:white;font-size:0.85rem;padding:6px 12px;" onclick="marcarVisto('${c.id}')">✅ Marcar como visto</button>`:'<small style="color:#aaa;">Visto</small>'}`;
           cont.appendChild(div);
         });
-      } catch (err) {
-        console.error(err);
-        cont.innerHTML = "<p>Error al cargar canjes</p>";
+      } catch { cont.innerHTML = "<p>Error al cargar canjes</p>"; }
+    }
+    window.marcarVisto = async function(id) {
+      try { await updateDoc(doc(db,"canjes",id),{visto:true}); cargarCanjes(); } catch {}
+    };
+
+    // ════════════════════════════════════════════
+    // HORARIOS
+    // ════════════════════════════════════════════
+    window.guardarHorario = async function() {
+      const fecha  = document.getElementById('fecha-horario').value;
+      const inicio = document.getElementById('hora-inicio').value;
+      const fin    = document.getElementById('hora-fin').value;
+      if (!fecha||!inicio||!fin) return alert("⚠️ Completa todos los campos");
+      if (inicio>=fin) return alert("⚠️ Hora inicio debe ser menor que hora fin");
+      try {
+        await addDoc(collection(db,"horarios_admin"), { fecha, hora_inicio:inicio, hora_fin:fin, activo:true, creadoPor:auth.currentUser?.email, createdAt:serverTimestamp() });
+        alert("✅ Horario guardado");
+        document.getElementById('fecha-horario').value = '';
+        calFechaSeleccionada = null;
+        document.getElementById('horario-form').style.display = 'none';
+        document.getElementById('cal-dia-label').textContent = '';
+        cargarHorarios();
+        sincronizarCalConHorarios();
+      } catch(err) { alert("❌ "+err.message); }
+    };
+
+    async function cargarHorarios() {
+      const cont = document.getElementById('lista-horarios');
+      if (!cont) return;
+      try {
+        const snap = await getDocs(collection(db,"horarios_admin"));
+        if (snap.empty) { cont.innerHTML='<p style="color:#aaa">No hay horarios configurados</p>'; return; }
+        const hs = [];
+        snap.forEach(d=>hs.push({id:d.id,...d.data()}));
+        hs.sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
+        cont.innerHTML='';
+        hs.forEach(h=>{
+          let fechaStr;
+          if (typeof h.fecha==='string') {
+            const [y,m,d]=h.fecha.split('-').map(Number);
+            fechaStr=new Date(y,m-1,d).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'});
+          } else {
+            fechaStr=(h.fecha?.toDate?.()??new Date(h.fecha)).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'});
+          }
+          const div=document.createElement('div');
+          div.className='lista-item';
+          div.innerHTML=`
+            <div class="lista-item-info">
+              <strong>${fechaStr.charAt(0).toUpperCase()+fechaStr.slice(1)}</strong><br>
+              <small>${h.hora_inicio} - ${h.hora_fin}</small>
+            </div>
+            <div class="lista-item-actions">
+              <button class="btn-small btn-eliminar" onclick="eliminarHorario('${h.id}')">🗑️</button>
+            </div>`;
+          cont.appendChild(div);
+        });
+      } catch(err) { cont.innerHTML='<p style="color:#dc3545">Error al cargar horarios</p>'; }
+    }
+    window.eliminarHorario = async function(id) {
+      if (!confirm("¿Eliminar este horario?")) return;
+      try { await deleteDoc(doc(db,"horarios_admin",id)); cargarHorarios(); } catch(err) { alert(err.message); }
+    };
+
+    // ════════════════════════════════════════════
+    // SERVICIOS
+    // ════════════════════════════════════════════
+    window.guardarServicio = async function() {
+      const nombre   = document.getElementById('servicio-nombre')?.value?.trim();
+      const duracion = parseInt(document.getElementById('servicio-duracion')?.value);
+      const precio   = parseFloat(document.getElementById('servicio-precio')?.value);
+      const puntos   = parseInt(document.getElementById('servicio-puntos')?.value);
+      if (!nombre)                      return alert("⚠️ Nombre obligatorio");
+      if (!duracion||duracion<15)       return alert("⚠️ Duración mínima 15 min");
+      if (isNaN(precio)||precio<0)      return alert("⚠️ Precio inválido");
+      if (isNaN(puntos)||puntos<0)      return alert("⚠️ Puntos inválidos");
+      try {
+        await addDoc(collection(db,"servicios"), { nombre, duracion_min:duracion, precio, puntos_ganados:puntos, activo:true, createdAt:serverTimestamp(), creadoPor:auth.currentUser?.email });
+        alert("✅ Servicio guardado");
+        document.getElementById('servicio-nombre').value='';
+        document.getElementById('servicio-precio').value='';
+        cargarServicios();
+      } catch(err) { alert("❌ "+(err.message||err.code)); }
+    };
+
+    async function cargarServicios() {
+      const cont = document.getElementById('lista-servicios');
+      if (!cont) return;
+      try {
+        const snap = await getDocs(collection(db,"servicios"));
+        if (snap.empty) { cont.innerHTML='<p style="color:#aaa;font-style:italic;">No hay servicios aún.</p>'; return; }
+        cont.innerHTML='';
+        snap.forEach(docSnap=>{
+          const s=docSnap.data();
+          const div=document.createElement('div');
+          div.className='lista-item';
+          div.innerHTML=`
+            <div class="lista-item-info">
+              <strong>${s.nombre||'Sin nombre'}</strong><br>
+              <small>${s.duracion_min||'?'}min • €${s.precio||'0'} • +${s.puntos_ganados||'0'} pts</small>
+            </div>
+            <div class="lista-item-actions">
+              <button class="btn-small btn-eliminar" onclick="eliminarServicio('${docSnap.id}')">🗑️</button>
+            </div>`;
+          cont.appendChild(div);
+        });
+      } catch(err) { cont.innerHTML=`<p style="color:#dc3545">⚠️ ${err.message}</p>`; }
+    }
+    window.eliminarServicio = async function(id) {
+      if (!confirm("¿Eliminar este servicio?")) return;
+      try { await deleteDoc(doc(db,"servicios",id)); cargarServicios(); } catch(err) { alert(err.message); }
+    };
+
+
+    // ════════════════════════════════════════════
+    // CLIENTES
+    // ════════════════════════════════════════════
+    let todosLosClientes = [];
+
+    async function cargarClientes() {
+      const cont = document.getElementById('lista-clientes');
+      const totalEl = document.getElementById('total-clientes');
+      if (!cont) return;
+      cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:16px;">Cargando...</p>';
+
+      try {
+        const snap = await getDocs(collection(db, 'users'));
+        todosLosClientes = [];
+        snap.forEach(d => todosLosClientes.push({ id: d.id, ...d.data() }));
+
+        // Ordenar por puntos desc
+        todosLosClientes.sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
+
+        if (totalEl) totalEl.textContent = todosLosClientes.length;
+
+        renderizarClientes(todosLosClientes);
+      } catch(err) {
+        cont.innerHTML = '<p style="color:#dc3545;">Error al cargar clientes: ' + err.message + '</p>';
       }
     }
 
-    window.marcarVisto = async function(canjeId) {
+    function renderizarClientes(lista) {
+      const cont = document.getElementById('lista-clientes');
+      if (!cont) return;
+
+      if (lista.length === 0) {
+        cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;font-style:italic;">No se encontraron clientes</p>';
+        return;
+      }
+
+      cont.innerHTML = '';
+      lista.forEach((c, i) => {
+        const iniciales = (c.nombre || 'C').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+        const div = document.createElement('div');
+        div.className = 'cliente-row';
+        div.style.flexWrap = 'wrap';
+        div.style.gap = '10px';
+
+        const passId   = `pass-val-${i}`;
+        const tienePass = c.passTexto ? true : false;
+        const passHtml  = tienePass
+          ? `<span class="cliente-pass">
+               🔑 <span id="${passId}" style="display:none;">${c.passTexto}</span>
+               <span class="pass-dots" onclick="togglePass('${passId}')">••••••</span>
+             </span>`
+          : `<span class="cliente-pass" style="color:#333;">Sin contraseña guardada</span>`;
+
+        div.innerHTML = `
+          <div class="cliente-avatar">${iniciales}</div>
+          <div class="cliente-info" style="flex:1;min-width:140px;">
+            <div class="cliente-nombre">${c.nombre || 'Sin nombre'}</div>
+            <div class="cliente-email">${c.email || ''}</div>
+            ${passHtml}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+            <div style="text-align:right;">
+              <div class="cliente-puntos">${c.puntos || 0}</div>
+              <div class="cliente-puntos-label">puntos</div>
+            </div>
+            <button class="btn-reset-pass" onclick="enviarResetPass('${c.email || ''}','${(c.nombre||'').replace(/'/g,"\\'")}')">
+              📧 Reset pass
+            </button>
+          </div>
+        `;
+        cont.appendChild(div);
+      });
+    }
+
+    window.filtrarClientes = function() {
+      const q = (document.getElementById('buscador-clientes')?.value || '').toLowerCase().trim();
+      if (!q) return renderizarClientes(todosLosClientes);
+      const filtrados = todosLosClientes.filter(c =>
+        (c.nombre || '').toLowerCase().includes(q) ||
+        (c.email  || '').toLowerCase().includes(q)
+      );
+      renderizarClientes(filtrados);
+    };
+
+
+    // ════════════════════════════════════════════
+    // SISTEMA DE NOTIFICACIONES (barbería)
+    // Escucha nuevas reservas pendientes en tiempo real
+    // ════════════════════════════════════════════
+    let notifCache = [];      // notificaciones en memoria
+    let notifPanelOpen = false;
+    let reservasConocidas = null; // null = primera carga (no notificar)
+
+    function iniciarListenerNotificaciones() {
+      document.getElementById('notif-campana').style.display = 'flex';
+
+      onSnapshot(
+        query(collection(db, 'reservas'), where('estado', '==', 'pendiente')),
+        (snap) => {
+          if (reservasConocidas === null) {
+            // Primera carga: registrar IDs existentes sin notificar
+            reservasConocidas = new Set(snap.docs.map(d => d.id));
+            return;
+          }
+
+          snap.docChanges().forEach(change => {
+            if (change.type === 'added' && !reservasConocidas.has(change.doc.id)) {
+              reservasConocidas.add(change.doc.id);
+              const r = change.doc.data();
+              agregarNotif({
+                id: change.doc.id,
+                icono: '📅',
+                titulo: 'Nueva reserva',
+                mensaje: `${r.cliente_nombre || 'Cliente'} · ${r.servicio_nombre || 'Servicio'} · ${r.hora_inicio}`,
+                ts: Date.now()
+              });
+            }
+          });
+        }
+      );
+    }
+
+    function agregarNotif(notif) {
+      notifCache.unshift(notif);
+      if (notifCache.length > 30) notifCache.pop();
+      renderNotifPanel();
+      mostrarToast(notif.icono, notif.titulo, notif.mensaje);
+      // Vibrar si el dispositivo lo soporta
+      if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+    }
+
+    function renderNotifPanel() {
+      const lista = document.getElementById('notif-lista');
+      const campana = document.getElementById('notif-campana');
+      if (!lista) return;
+
+      // Badge en campana
+      campana.querySelector('.notif-count')?.remove();
+      if (notifCache.length > 0) {
+        const cnt = document.createElement('span');
+        cnt.className = 'notif-count';
+        cnt.textContent = notifCache.length > 9 ? '9+' : notifCache.length;
+        campana.appendChild(cnt);
+      }
+
+      if (notifCache.length === 0) {
+        lista.innerHTML = '<div class="notif-empty">Sin notificaciones nuevas</div>';
+        return;
+      }
+
+      lista.innerHTML = '';
+      notifCache.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notif-item nueva';
+        const hace = tiempoRelativo(n.ts);
+        div.innerHTML = `
+          <div class="notif-dot"></div>
+          <div>
+            <div class="notif-texto"><strong>${n.icono} ${n.titulo}</strong><br>${n.mensaje}</div>
+            <div class="notif-tiempo">${hace}</div>
+          </div>`;
+        lista.appendChild(div);
+      });
+    }
+
+    window.toggleNotifPanel = function() {
+      const panel = document.getElementById('notif-panel');
+      notifPanelOpen = !notifPanelOpen;
+      panel.classList.toggle('open', notifPanelOpen);
+    };
+
+    window.limpiarNotifs = function() {
+      notifCache = [];
+      renderNotifPanel();
+      document.getElementById('notif-panel').classList.remove('open');
+      notifPanelOpen = false;
+    };
+
+    // Cerrar panel al hacer click fuera
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#notif-campana') && !e.target.closest('#notif-panel')) {
+        document.getElementById('notif-panel')?.classList.remove('open');
+        notifPanelOpen = false;
+      }
+    });
+
+    function mostrarToast(icono, titulo, mensaje) {
+      // Eliminar toast anterior si existe
+      document.querySelector('.toast')?.remove();
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <span class="toast-icon">${icono}</span>
+        <div class="toast-body">
+          <div class="toast-titulo">${titulo}</div>
+          <div class="toast-msg">${mensaje}</div>
+        </div>`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('saliendo');
+        toast.addEventListener('animationend', () => toast.remove());
+      }, 4500);
+    }
+
+    function tiempoRelativo(ts) {
+      const diff = Math.floor((Date.now() - ts) / 1000);
+      if (diff < 60)  return 'Ahora mismo';
+      if (diff < 3600) return `Hace ${Math.floor(diff/60)} min`;
+      return `Hace ${Math.floor(diff/3600)}h`;
+    }
+
+
+    // ════════════════════════════════════════════
+    // CALENDARIO (selección visual de fecha)
+    // ════════════════════════════════════════════
+    let calYear  = new Date().getFullYear();
+    let calMonth = new Date().getMonth(); // 0-11
+    let calFechaSeleccionada = null; // "YYYY-MM-DD"
+    let calFechasConHorario  = new Set(); // fechas que ya tienen horario
+
+    const CAL_MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                       'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const CAL_DIAS  = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+
+    function renderCalendario() {
+      const titulo = document.getElementById('cal-titulo');
+      const grid   = document.getElementById('cal-grid');
+      if (!titulo || !grid) return;
+
+      titulo.textContent = `${CAL_MESES[calMonth]} ${calYear}`;
+      grid.innerHTML = '';
+
+      // Cabecera días de la semana
+      CAL_DIAS.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'cal-dow';
+        el.textContent = d;
+        grid.appendChild(el);
+      });
+
+      const hoy      = new Date(); hoy.setHours(0,0,0,0);
+      const primerDia = new Date(calYear, calMonth, 1);
+      // Lunes = 0, ajustar getDay() (domingo=0 → 6)
+      let offsetLunes = primerDia.getDay() - 1;
+      if (offsetLunes < 0) offsetLunes = 6;
+
+      // Celdas vacías
+      for (let i = 0; i < offsetLunes; i++) {
+        const vacio = document.createElement('div');
+        vacio.className = 'cal-day cal-empty';
+        grid.appendChild(vacio);
+      }
+
+      const diasEnMes = new Date(calYear, calMonth + 1, 0).getDate();
+      for (let d = 1; d <= diasEnMes; d++) {
+        const fecha  = new Date(calYear, calMonth, d);
+        const fechaStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const el = document.createElement('div');
+        el.className = 'cal-day';
+        el.textContent = d;
+
+        if (fecha < hoy) {
+          el.classList.add('cal-pasado');
+        } else {
+          if (fecha.getTime() === hoy.getTime()) el.classList.add('cal-hoy');
+          if (calFechasConHorario.has(fechaStr)) el.classList.add('cal-tiene-horario');
+          if (fechaStr === calFechaSeleccionada) el.classList.add('cal-seleccionado');
+
+          el.addEventListener('click', () => seleccionarDiaCal(fechaStr, fecha));
+        }
+        grid.appendChild(el);
+      }
+    }
+
+    function seleccionarDiaCal(fechaStr, fechaObj) {
+      calFechaSeleccionada = fechaStr;
+      document.getElementById('fecha-horario').value = fechaStr;
+
+      const label = document.getElementById('cal-dia-label');
+      const form  = document.getElementById('horario-form');
+      if (label) label.textContent = fechaObj.toLocaleDateString('es-ES',
+        { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+      if (form) form.style.display = 'block';
+
+      renderCalendario();
+    }
+
+    window.calAnterior = function() {
+      calMonth--;
+      if (calMonth < 0) { calMonth = 11; calYear--; }
+      renderCalendario();
+    };
+    window.calSiguiente = function() {
+      calMonth++;
+      if (calMonth > 11) { calMonth = 0; calYear++; }
+      renderCalendario();
+    };
+
+    // Actualizar las fechas con horario y redibujar el calendario
+    async function sincronizarCalConHorarios() {
       try {
-        await updateDoc(doc(db, "canjes", canjeId), { visto: true });
-        cargarCanjes();
-      } catch (err) {
-        console.error(err);
-        alert("Error al marcar como visto");
+        const snap = await getDocs(collection(db, 'horarios_admin'));
+        calFechasConHorario = new Set();
+        snap.forEach(d => {
+          const h = d.data();
+          if (typeof h.fecha === 'string') calFechasConHorario.add(h.fecha);
+        });
+        renderCalendario();
+      } catch(e) { console.error(e); }
+    }
+
+    // ════════════════════════════════════════════
+    // GESTIÓN DE RESERVAS — CREAR MANUAL
+    // ════════════════════════════════════════════
+    async function cargarServiciosEnGR() {
+      const sel = document.getElementById('gr-servicio');
+      if (!sel || sel.options.length > 1) return; // ya cargados
+      try {
+        const snap = await getDocs(collection(db, 'servicios'));
+        snap.forEach(d => {
+          const s = d.data();
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = `${s.nombre} (${s.duracion_min}min · €${s.precio})`;
+          opt.dataset.duracion = s.duracion_min;
+          opt.dataset.nombre   = s.nombre;
+          opt.dataset.puntos   = s.puntos_ganados || 0;
+          sel.appendChild(opt);
+        });
+        // Auto-calcular hora_fin al cambiar servicio u hora_inicio
+        const autoFin = () => {
+          const opt = sel.options[sel.selectedIndex];
+          const duracion = parseInt(opt?.dataset?.duracion || 0);
+          const inicio = document.getElementById('gr-hora-inicio').value;
+          if (!duracion || !inicio) return;
+          const [h, m] = inicio.split(':').map(Number);
+          const fin = new Date(2000, 0, 1, h, m + duracion);
+          document.getElementById('gr-hora-fin').value =
+            `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
+        };
+        sel.addEventListener('change', autoFin);
+        document.getElementById('gr-hora-inicio')?.addEventListener('change', autoFin);
+      } catch(e) { console.error(e); }
+    }
+
+    window.crearReservaAdmin = async function() {
+      const nombre   = document.getElementById('gr-nombre').value.trim();
+      const tel      = document.getElementById('gr-telefono').value.trim();
+      const fecha    = document.getElementById('gr-fecha').value;
+      const hInicio  = document.getElementById('gr-hora-inicio').value;
+      const hFin     = document.getElementById('gr-hora-fin').value;
+      const estado   = document.getElementById('gr-estado').value;
+      const sel      = document.getElementById('gr-servicio');
+      const svcOpt   = sel.options[sel.selectedIndex];
+
+      if (!nombre) return alert('⚠️ Introduce el nombre del cliente');
+      if (!fecha)  return alert('⚠️ Selecciona una fecha');
+      if (!hInicio || !hFin) return alert('⚠️ Indica la hora de inicio y fin');
+      if (!svcOpt?.value) return alert('⚠️ Selecciona un servicio');
+
+      try {
+        await addDoc(collection(db, 'reservas'), {
+          cliente_id:      'admin-manual',
+          cliente_nombre:  nombre,
+          cliente_email:   '',
+          cliente_telefono: tel,
+          servicio_id:     svcOpt.value,
+          servicio_nombre: svcOpt.dataset.nombre,
+          servicio_puntos: parseInt(svcOpt.dataset.puntos || 0),
+          fecha,
+          hora_inicio:   hInicio,
+          hora_fin:      hFin,
+          estado,
+          nota_cliente:  '',
+          puntos_aplicados: 0,
+          probarSuerte:  false,
+          suerteUsada:   false,
+          esManual:      true,
+          createdAt:     serverTimestamp()
+        });
+        alert('✅ Reserva creada');
+        // Limpiar
+        document.getElementById('gr-nombre').value    = '';
+        document.getElementById('gr-telefono').value  = '';
+        document.getElementById('gr-fecha').value     = '';
+        document.getElementById('gr-servicio').value  = '';
+        cargarTodasReservas(filtroGRActivo);
+      } catch(e) { alert('❌ Error: ' + e.message); }
+    };
+
+    // ── LISTA TODAS LAS RESERVAS CON ELIMINAR ──
+    let filtroGRActivo = 'todas';
+
+    // Filtros en Gestión
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.filtro-btn[data-filtro-gr]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filtro-btn[data-filtro-gr]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filtroGRActivo = btn.getAttribute('data-filtro-gr');
+          cargarTodasReservas(filtroGRActivo);
+        });
+      });
+    });
+
+    async function cargarTodasReservas(filtro = 'todas') {
+      const cont = document.getElementById('lista-gestion-reservas');
+      if (!cont) return;
+      cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:12px;">Cargando...</p>';
+      try {
+        const snap = await getDocs(collection(db, 'reservas'));
+        let reservas = [];
+        snap.forEach(d => reservas.push({ id: d.id, ...d.data() }));
+        if (filtro !== 'todas') reservas = reservas.filter(r => r.estado === filtro);
+        reservas.sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+
+        if (reservas.length === 0) {
+          cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:16px;font-style:italic;">Sin reservas</p>';
+          return;
+        }
+
+        cont.innerHTML = '';
+        reservas.forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'lista-item';
+          div.style.flexDirection = 'column';
+          div.style.alignItems    = 'flex-start';
+          div.style.gap           = '6px';
+
+          const estadoColor = {
+            pendiente: '#ffc107', aprobado: '#28a745',
+            completada: '#6f42c1', rechazado: '#dc3545'
+          };
+          const col = estadoColor[r.estado] || '#888';
+
+          div.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;width:100%;flex-wrap:wrap;gap:6px;">
+              <strong style="color:var(--text-light);">👤 ${r.cliente_nombre || 'Sin nombre'}</strong>
+              <span style="font-size:0.78rem;padding:2px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col};">${r.estado}</span>
+            </div>
+            <div style="font-size:0.85rem;color:#aaa;">
+              ✂️ ${r.servicio_nombre || '—'} &nbsp;·&nbsp;
+              📅 ${r.fecha || '—'} &nbsp;·&nbsp;
+              🕐 ${r.hora_inicio} – ${r.hora_fin}
+              ${r.esManual ? '<span style="margin-left:6px;font-size:0.74rem;color:#555;">(manual)</span>' : ''}
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <button class="btn-small btn-eliminar" onclick="eliminarReservaAdmin('${r.id}')">🗑️ Eliminar</button>
+            </div>`;
+          cont.appendChild(div);
+        });
+      } catch(e) {
+        cont.innerHTML = `<p style="color:#dc3545;">Error: ${e.message}</p>`;
+      }
+    }
+
+    window.eliminarReservaAdmin = async function(id) {
+      if (!confirm('¿Eliminar esta reserva? Esta acción no se puede deshacer.')) return;
+      try {
+        await deleteDoc(doc(db, 'reservas', id));
+        cargarTodasReservas(filtroGRActivo);
+      } catch(e) { alert('❌ Error: ' + e.message); }
+    };
+
+
+    // ════════════════════════════════════════════
+    // CONTRASEÑAS Y RESET DE CLIENTES
+    // ════════════════════════════════════════════
+    window.togglePass = function(spanId) {
+      const val  = document.getElementById(spanId);
+      const dots = val?.nextElementSibling;
+      if (!val || !dots) return;
+      if (val.style.display === 'none') {
+        val.style.display  = 'inline';
+        dots.textContent   = val.textContent;
+        dots.style.color   = 'var(--gold)';
+      } else {
+        val.style.display  = 'none';
+        dots.textContent   = '••••••';
+        dots.style.color   = '';
       }
     };
+
+    window.enviarResetPass = async function(email, nombre) {
+      if (!email) return alert('Este cliente no tiene email registrado.');
+      if (!confirm(`¿Enviar email de recuperación de contraseña a ${nombre} (${email})?`)) return;
+      try {
+        const { sendPasswordResetEmail } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+        await sendPasswordResetEmail(auth, email);
+        alert(`✅ Email de recuperación enviado a ${email}`);
+      } catch(e) { alert('❌ Error: ' + e.message); }
+    };
+
   </script>
-</body>
-</html>
