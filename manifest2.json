@@ -2,7 +2,7 @@
   "name": "Barbería La Nueva",
   "short_name": "Barbería La nueva",
   "description": "Aplicación de fidelización para clientes de Barbería La Nueva",
-  "start_url": "/fidelidadbarberia/",
+  "start_url": "/fidelidadbarberia/barberia.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#d4af37",
