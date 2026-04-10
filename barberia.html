@@ -458,7 +458,12 @@
 
       <!-- Canjes -->
       <div id="canjes" class="sub-panel">
-        <h3>Historial de canjes</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h3 style="margin:0;">Historial de canjes</h3>
+          <button onclick="eliminarTodosCanjes()" title="Eliminar todos los canjes"
+            style="background:none;border:1px solid #6b0000;color:#ff6b6b;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:1.1rem;transition:all 0.2s;"
+            onmouseover="this.style.background='#6b0000'" onmouseout="this.style.background='none'">🗑️</button>
+        </div>
         <div id="notificaciones-canjes"></div>
       </div>
 
@@ -552,11 +557,16 @@
 
       <!-- Aprobar Reservas -->
       <div id="aprobar-reservas" class="sub-panel">
-        <div class="filtros-reservas">
-          <button class="filtro-btn active" data-filtro="pendiente">⏳ Pendientes</button>
-          <button class="filtro-btn" data-filtro="aprobado">✅ Aprobadas</button>
-          <button class="filtro-btn" data-filtro="completada">💈 Completadas</button>
-          <button class="filtro-btn" data-filtro="rechazado">❌ Rechazadas</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+          <div class="filtros-reservas" style="margin:0;">
+            <button class="filtro-btn active" data-filtro="pendiente">⏳ Pendientes</button>
+            <button class="filtro-btn" data-filtro="aprobado">✅ Aprobadas</button>
+            <button class="filtro-btn" data-filtro="completada">💈 Completadas</button>
+            <button class="filtro-btn" data-filtro="rechazado">❌ Rechazadas</button>
+          </div>
+          <button onclick="eliminarTodasReservas()" title="Eliminar TODAS las reservas"
+            style="background:none;border:1px solid #6b0000;color:#ff6b6b;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:1.1rem;transition:all 0.2s;flex-shrink:0;"
+            onmouseover="this.style.background='#6b0000'" onmouseout="this.style.background='none'">🗑️</button>
         </div>
         <div id="contenedor-reservas-filtradas"></div>
       </div>
@@ -710,6 +720,8 @@
       cargarServicios();
       escucharPendientesParaBadge();
       iniciarListenerNotificaciones();
+      escucharSuerteGanada();
+      escucharCanjesNuevos();
     }
 
     // ════════════════════════════════════════════
@@ -786,6 +798,9 @@
       const fechaStr = fechaADate(r.fecha).toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
       const notaHtml  = r.nota_cliente ? `<div class="reserva-nota">💬 "${r.nota_cliente}"</div>` : '';
       const ptsHtml   = r.servicio_puntos ? `<div style="margin:5px 0;color:var(--gold);">⭐ Puntos a ganar: ${r.servicio_puntos}</div>` : '';
+      const suerteGanadaHtml = r.suerteGanada === true
+        ? `<div style="margin:5px 0;background:rgba(212,175,55,0.12);border:1px solid var(--gold);border-radius:6px;padding:6px 10px;font-size:0.85rem;color:var(--gold);">🎰 <strong>¡Premio ganado!</strong> — No se sumarán puntos al completar</div>`
+        : '';
 
       let accionesHtml = '';
       if (r.estado === 'pendiente') {
@@ -799,7 +814,7 @@
           ? `<button class="btn-small btn-suerte" onclick="habilitarSuerte('${r.id}')">🎰 Probar SUERTE</button>`
           : `<span style="font-size:0.78rem;color:var(--gold);opacity:0.7;">🎰 Suerte activada</span>`;
         accionesHtml = `<div class="reserva-actions">
-          <button class="btn-small btn-completar" onclick="marcarCompletada('${r.id}','${r.cliente_id||''}',${r.servicio_puntos||0},'${(r.cliente_nombre||'Cliente').replace(/'/g,"\\'")}')">💈 Marcar completada</button>
+          <button class="btn-small btn-completar" onclick="marcarCompletada('${r.id}','${r.cliente_id||''}',${r.servicio_puntos||0},'${(r.cliente_nombre||'Cliente').replace(/'/g,"\\'")}',${r.suerteGanada===true})">💈 Marcar completada</button>
           <button class="btn-small btn-rechazar"  onclick="cambiarEstado('${r.id}','rechazado')">❌ Cancelar</button>
           ${btnSuerteHtml}
         </div>`;
@@ -819,7 +834,7 @@
         </div>
         <div class="reserva-servicio">✂️ ${r.servicio_nombre||'Servicio'}</div>
         <div class="reserva-horario">🕐 ${r.hora_inicio} - ${r.hora_fin}</div>
-        ${ptsHtml}${notaHtml}${accionesHtml}`;
+        ${ptsHtml}${suerteGanadaHtml}${notaHtml}${accionesHtml}`;
       return div;
     }
 
@@ -841,22 +856,42 @@
       catch(err) { alert("Error: "+err.message); }
     };
 
-    window.marcarCompletada = async function(reservaId, clienteId, pts, nombre) {
-      if (!confirm(`¿Marcar como completada?\nSe sumarán ${pts} puntos a ${nombre}.`)) return;
+    window.marcarCompletada = async function(reservaId, clienteId, pts, nombre, suerteGanada) {
+      const yaGanoPremio = suerteGanada === true;
+      const confirmMsg = yaGanoPremio
+        ? `¿Marcar como completada?\n\n🎰 Este cliente ganó el premio de Probar SUERTE.\nNO se sumarán puntos (ya recibió un premio).`
+        : `¿Marcar como completada?\nSe sumarán ${pts} puntos a ${nombre}.`;
+      if (!confirm(confirmMsg)) return;
       try {
-        await updateDoc(doc(db,"reservas",reservaId), { estado:'completada', puntos_sumados:pts, completadaAt:serverTimestamp(), updatedAt:serverTimestamp() });
-        if (clienteId && pts > 0) {
+        const ahora = serverTimestamp();
+        const puntosASumar = yaGanoPremio ? 0 : pts;
+        await updateDoc(doc(db,"reservas",reservaId), { estado:'completada', puntos_sumados: puntosASumar, completadaAt: ahora, updatedAt: ahora });
+        if (clienteId) {
           const uSnap = await getDocs(query(collection(db,"users"), where("uid","==",clienteId)));
           if (!uSnap.empty) {
-            await updateDoc(doc(db,"users",uSnap.docs[0].id), { puntos: increment(pts) });
-            await addDoc(collection(db,"canjes"), {
-              clienteId, clienteNombre: nombre, tipo:'reserva_completada',
-              nombrePromocion:`Reserva completada (+${pts} pts)`,
-              puntosAgregados: pts, reservaId, fecha: serverTimestamp(), visto: false
-            });
+            const userRef = doc(db,"users",uSnap.docs[0].id);
+            const updateData = {
+              ultimaVisita: ahora,
+              ultimaCaducidad: null,
+              caducidadTipo: null,
+              fechaCaducidadParcial: null,
+              visitaEnCaducidadParcial: null
+            };
+            if (puntosASumar > 0) updateData.puntos = increment(puntosASumar);
+            await updateDoc(userRef, updateData);
+            if (puntosASumar > 0) {
+              await addDoc(collection(db,"canjes"), {
+                clienteId, clienteNombre: nombre, tipo:'reserva_completada',
+                nombrePromocion:`Reserva completada (+${puntosASumar} pts)`,
+                puntosAgregados: puntosASumar, reservaId, fecha: ahora, visto: false
+              });
+            }
           }
         }
-        alert(`✅ Completada. +${pts} pts sumados a ${nombre}`);
+        const alertMsg = yaGanoPremio
+          ? `✅ Completada. (Premio de Probar SUERTE — sin puntos extra)`
+          : `✅ Completada. +${pts} pts sumados a ${nombre}`;
+        alert(alertMsg);
       } catch(err) { alert("❌ Error: "+err.message); }
     };
 
@@ -1042,9 +1077,10 @@
           div.className = 'promo'; div.style.marginBottom = '15px';
           div.style.borderColor = c.visto ? '#555' : '#0a0';
           div.innerHTML = `
-            <strong>${c.nombrePromocion||(c.tipo==='codigo'?'Código canjeado':'Canje')}</strong><br>
+            <strong>${c.nombrePromocion||(c.tipo==='codigo'?'Código canjeado':'Promoción canjeada')}</strong><br>
             Cliente: ${c.clienteNombre||c.clienteId?.substring(0,12)||'N/A'}<br>
-            Puntos: ${c.puntosAgregados||c.puntosUsados||'N/A'}<br>
+	    Promoción: ${c.promoNombre||'N/A'}<br>
+            Puntos: ${c.puntosAgregados||c.puntosGastados||'N/A'}<br>
             Fecha: ${fecha}<br>
             ${!c.visto?`<button class="btn" style="margin-top:8px;background:#0a0;color:white;font-size:0.85rem;padding:6px 12px;" onclick="marcarVisto('${c.id}')">✅ Marcar como visto</button>`:'<small style="color:#aaa;">Visto</small>'}`;
           cont.appendChild(div);
@@ -1200,6 +1236,8 @@
       }
 
       cont.innerHTML = '';
+      const ahora = new Date();
+
       lista.forEach((c, i) => {
         const iniciales = (c.nombre || 'C').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
         const div = document.createElement('div');
@@ -1216,12 +1254,50 @@
              </span>`
           : `<span class="cliente-pass" style="color:#333;">Sin contraseña guardada</span>`;
 
+        // ── Última visita y estado de caducidad ──
+        let visitaHtml = '';
+        let borderColor = '';
+        if (c.ultimaVisita) {
+          const ultimaVisita = c.ultimaVisita?.toDate?.() ?? new Date(c.ultimaVisita);
+          const diffDias  = Math.floor((ahora - ultimaVisita) / (1000 * 60 * 60 * 24));
+          const diffMeses = diffDias / 30.44;
+
+          let estadoVisita, colorVisita;
+          if (diffMeses >= 5) {
+            estadoVisita = `⛔ ${Math.floor(diffMeses)}m sin venir — puntos en 0`;
+            colorVisita  = '#dc3545';
+            borderColor  = 'border-left:3px solid #dc3545;';
+          } else if (diffMeses >= 3) {
+            estadoVisita = `🔴 ${Math.floor(diffMeses)}m sin venir — -20% pts`;
+            colorVisita  = '#ff6b6b';
+            borderColor  = 'border-left:3px solid #ff6b6b;';
+          } else if (diffDias >= 40) {
+            estadoVisita = `⚠️ ${diffDias}d sin venir`;
+            colorVisita  = '#ffc107';
+            borderColor  = 'border-left:3px solid #ffc107;';
+          } else {
+            estadoVisita = `✅ Hace ${diffDias}d`;
+            colorVisita  = '#28a745';
+          }
+          const fechaStr = ultimaVisita.toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' });
+          visitaHtml = `<div style="font-size:0.75rem;margin-top:3px;">
+            <span style="color:#555;">Última visita: </span>
+            <span style="color:#888;">${fechaStr}</span><br>
+            <span style="color:${colorVisita};font-weight:bold;font-size:0.72rem;">${estadoVisita}</span>
+          </div>`;
+        } else {
+          visitaHtml = `<div style="font-size:0.72rem;color:#444;margin-top:3px;">Sin visitas registradas</div>`;
+        }
+
+        div.setAttribute('style', `flex-wrap:wrap;gap:10px;${borderColor}`);
+
         div.innerHTML = `
           <div class="cliente-avatar">${iniciales}</div>
           <div class="cliente-info" style="flex:1;min-width:140px;">
             <div class="cliente-nombre">${c.nombre || 'Sin nombre'}</div>
             <div class="cliente-email">${c.email || ''}</div>
             ${passHtml}
+            ${visitaHtml}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
             <div style="text-align:right;">
@@ -1655,5 +1731,108 @@
         alert(`✅ Email de recuperación enviado a ${email}`);
       } catch(e) { alert('❌ Error: ' + e.message); }
     };
+
+    // ════════════════════════════════════════════
+    // BORRADO MASIVO — RESERVAS
+    // ════════════════════════════════════════════
+    window.eliminarTodasReservas = async function() {
+      if (!confirm('⚠️ ¿Eliminar TODAS las reservas (de todos los estados)?\n\nEsta acción no se puede deshacer.')) return;
+      if (!confirm('🔴 Segunda confirmación: se borrarán PERMANENTEMENTE todas las reservas. ¿Continuar?')) return;
+      try {
+        const snap = await getDocs(collection(db, 'reservas'));
+        if (snap.empty) { alert('No hay reservas que eliminar.'); return; }
+        const borrados = snap.docs.map(d => deleteDoc(doc(db, 'reservas', d.id)));
+        await Promise.all(borrados);
+        alert(`✅ ${snap.size} reserva(s) eliminada(s).`);
+        // Refrescar lista visible
+        iniciarListenerReservas();
+      } catch(err) { alert('❌ Error: ' + err.message); }
+    };
+
+    // ════════════════════════════════════════════
+    // BORRADO MASIVO — CANJES
+    // ════════════════════════════════════════════
+    window.eliminarTodosCanjes = async function() {
+      if (!confirm('⚠️ ¿Eliminar TODO el historial de canjes?\n\nEsta acción no se puede deshacer.')) return;
+      try {
+        const snap = await getDocs(collection(db, 'canjes'));
+        if (snap.empty) { alert('No hay canjes que eliminar.'); return; }
+        await Promise.all(snap.docs.map(d => deleteDoc(doc(db, 'canjes', d.id))));
+        alert(`✅ ${snap.size} canje(s) eliminado(s).`);
+        cargarCanjes();
+      } catch(err) { alert('❌ Error: ' + err.message); }
+    };
+
+    // ════════════════════════════════════════════
+    // LISTENER: SUERTE GANADA (cliente paró en 10.00)
+    // Escucha reservas donde suerteGanada pasa a true
+    // ════════════════════════════════════════════
+    let reservasSuerteConocidas = null; // null = primera carga
+
+    function escucharSuerteGanada() {
+      onSnapshot(
+        query(collection(db, 'reservas'), where('suerteGanada', '==', true)),
+        (snap) => {
+          if (reservasSuerteConocidas === null) {
+            // Primera carga: registrar sin notificar
+            reservasSuerteConocidas = new Set(snap.docs.map(d => d.id));
+            return;
+          }
+          snap.docChanges().forEach(change => {
+            if (change.type === 'added' && !reservasSuerteConocidas.has(change.doc.id)) {
+              reservasSuerteConocidas.add(change.doc.id);
+              const r = change.doc.data();
+              const nombreCliente = r.cliente_nombre || 'Cliente';
+              agregarNotif({
+                id: 'suerte-' + change.doc.id,
+                icono: '🎰',
+                titulo: '¡Premio Probar SUERTE!',
+                mensaje: `${nombreCliente} ha conseguido el premio de Probar SUERTE (10.00 seg)`,
+                ts: Date.now()
+              });
+            }
+          });
+        }
+      );
+    }
+
+    // ════════════════════════════════════════════
+    // LISTENER: CANJES NUEVOS (promociones/códigos)
+    // Notifica cada vez que un cliente canjea algo
+    // ════════════════════════════════════════════
+    let canjesConocidos = null; // null = primera carga
+
+    function escucharCanjesNuevos() {
+      onSnapshot(
+        query(collection(db, 'canjes'), orderBy('fecha', 'desc')),
+        (snap) => {
+          if (canjesConocidos === null) {
+            // Primera carga: registrar IDs existentes sin notificar
+            canjesConocidos = new Set(snap.docs.map(d => d.id));
+            return;
+          }
+          snap.docChanges().forEach(change => {
+            if (change.type === 'added' && !canjesConocidos.has(change.doc.id)) {
+              canjesConocidos.add(change.doc.id);
+              const c = change.doc.data();
+              // Solo notificar canjes de cliente (no los de reserva_completada generados por el admin)
+              if (c.tipo === 'reserva_completada') return;
+              const nombreCliente = c.clienteNombre || c.clienteId?.substring(0,12) || 'Cliente';
+              const esPromo = c.tipo === 'promocion';
+              const nombreCanje = esPromo
+                ? (c.promoNombre || 'una promoción')
+                : `código de puntos (+${c.puntosAgregados || 0} pts)`;
+              agregarNotif({
+                id: 'canje-' + change.doc.id,
+                icono: '🔄',
+                titulo: esPromo ? 'Canje de promoción' : 'Canje de código',
+                mensaje: `${nombreCliente} ha canjeado ${nombreCanje}`,
+                ts: Date.now()
+              });
+            }
+          });
+        }
+      );
+    }
 
   </script>

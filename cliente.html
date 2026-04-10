@@ -447,6 +447,63 @@
     .toast-cli-titulo.rechazada { color:#dc3545; }
     .toast-cli-msg { font-size:0.82rem; color:#aaa; }
 
+.btn-canje-promo {
+  width: 100%; padding: 10px; margin-top: 10px;
+  font-weight: bold; border: none; border-radius: 6px;
+  cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+}
+.btn-canje-promo:hover:not(:disabled) { filter: brightness(0.9); transform: translateY(-1px); }
+.btn-canje-promo:disabled { cursor: not-allowed; }
+.btn-canje-promo.canjeable { background: var(--gold); color: #000; }
+.btn-canje-promo.insuficiente { background: #333; color: #888; border: 1px solid #444; }
+.btn-canje-promo.expirada { background: #2a1515; color: #b00000; border: 1px solid #b00000; }
+
+/* ── BANNER CADUCIDAD DE PUNTOS ── */
+#banner-caducidad {
+  position: relative;
+  margin: 0 0 16px;
+  border-radius: 12px;
+  padding: 14px 44px 14px 16px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  animation: slideDownBanner 0.4s ease;
+  display: none;
+}
+@keyframes slideDownBanner {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#banner-caducidad.nivel-aviso {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid #ffc107;
+  border-left: 4px solid #ffc107;
+  color: #ffe082;
+}
+#banner-caducidad.nivel-peligro {
+  background: rgba(220, 53, 69, 0.12);
+  border: 1px solid #dc3545;
+  border-left: 4px solid #dc3545;
+  color: #ff8a8a;
+}
+#banner-caducidad .banner-titulo {
+  font-weight: 900;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  display: block;
+}
+#banner-caducidad .banner-highlight {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 1rem;
+}
+#banner-caducidad .btn-cerrar-banner {
+  position: absolute; top: 10px; right: 12px;
+  background: none; border: none; cursor: pointer;
+  font-size: 1.1rem; color: #888; line-height: 1;
+  padding: 0; transition: color 0.2s;
+}
+#banner-caducidad .btn-cerrar-banner:hover { color: #fff; }
+
   </style>
 </head>
 <body>
@@ -521,6 +578,13 @@
         <button onclick="cerrarSesion()" style="background:none; border:none; color:#666; cursor:pointer; margin-left:10px;">🚪 Salir</button>
       </div>
 
+      <!-- Banner flotante caducidad de puntos -->
+      <div id="banner-caducidad">
+        <button class="btn-cerrar-banner" onclick="cerrarBannerCaducidad()" title="Cerrar">✕</button>
+        <span class="banner-titulo" id="banner-titulo">⚠️ Tus puntos están en riesgo</span>
+        <div id="banner-cuerpo"></div>
+      </div>
+
       <div class="nav-tabs">
         <button class="nav-btn active" data-section="puntos">⭐ Mis Puntos</button>
         <button class="nav-btn" data-section="reservar">📅 Reservar</button>
@@ -543,7 +607,7 @@
             <div class="counter-value" id="puntos-acumulados">0</div>
           </div>
           <div class="counter-box">
-            <div class="counter-label">Próximo descuento</div>
+            <div class="counter-label">Puntos para Próximo descuento</div>
             <div class="counter-value" id="puntos-proximo">0</div>
           </div>
         </div>
@@ -677,7 +741,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { 
       getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc,
-      doc, query, where, serverTimestamp, onSnapshot
+      doc, query, where, serverTimestamp, onSnapshot, increment
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { 
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
@@ -850,6 +914,7 @@
         });
         document.getElementById('panel-section').style.display = 'block';
         await cargarPuntosUsuario();
+        await verificarCaducidadPuntos(user.uid);
         iniciarNotificacionesCliente(user.uid);
         escucharSuerteCliente(user.uid);
         await cargarServicios();
@@ -866,19 +931,265 @@
     });
 
     // ── PUNTOS ──────────────────────────────────────
-    async function cargarPuntosUsuario() {
-      try {
-        const userSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', usuarioActual.uid)));
-        if (!userSnap.empty) {
-          const userData = userSnap.docs[0].data();
-          usuarioActual.puntos = userData.puntos || 0;
-          usuarioActual.nombre = userData.nombre || 'Cliente';
-          document.getElementById('puntos-acumulados').textContent = usuarioActual.puntos;
-          document.getElementById('puntos-proximo').textContent = Math.max(0, 50 - usuarioActual.puntos);
-          document.getElementById('usuario-nombre').textContent = `👤 ${usuarioActual.nombre}`;
-        }
-      } catch (err) { console.error('Error cargando puntos:', err); }
+async function cargarPuntosUsuario() {
+  try {
+    // 1️⃣ Obtener datos del usuario
+    const userSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', usuarioActual.uid)));
+    if (userSnap.empty) return;
+    
+    const userData = userSnap.docs[0].data();
+    usuarioActual.puntos = userData.puntos || 0;
+    usuarioActual.nombre = userData.nombre || 'Cliente';
+    document.getElementById('puntos-acumulados').textContent = usuarioActual.puntos;
+    document.getElementById('usuario-nombre').textContent = `👤 ${usuarioActual.nombre}`;
+
+    // 2️⃣ Obtener promociones activas y no expiradas
+    const promoSnap = await getDocs(collection(db, 'promociones'));
+    const ahora = new Date();
+    const umbrales = [];
+
+    promoSnap.forEach(docSnap => {
+      const p = docSnap.data();
+      // Filtrar: debe estar activa y no expirada
+      if (p.activa === false) return;
+      
+      let fechaExp = null;
+      if (p.fechaExpiracion) {
+        fechaExp = p.fechaExpiracion.toDate ? p.fechaExpiracion.toDate() : new Date(p.fechaExpiracion);
+      }
+      if (fechaExp && ahora > fechaExp) return; // Expirada
+      
+      // Guardar solo el campo de puntos requeridos (asegúrate que se llama 'puntos' en tu BD)
+      if (typeof p.puntos === 'number' && p.puntos > 0) {
+        umbrales.push(p.puntos);
+      }
+    });
+
+    // 3️⃣ Ordenar umbrales de menor a mayor
+    umbrales.sort((a, b) => a - b);
+
+    // 4️⃣ Calcular próximo descuento
+    let puntosFaltantes = 0;
+    if (umbrales.length === 0) {
+      puntosFaltantes = 0; // Sin promociones activas
+    } else {
+      // Buscar el primer umbral mayor a los puntos actuales
+      const siguiente = umbrales.find(umbral => umbral > usuarioActual.puntos);
+      if (siguiente) {
+        puntosFaltantes = siguiente - usuarioActual.puntos;
+      } else {
+        // Ya tiene puntos para todas las promociones
+        puntosFaltantes = 0;
+      }
     }
+
+    // 5️⃣ Actualizar el contador en pantalla
+    document.getElementById('puntos-proximo').textContent = puntosFaltantes;
+
+  } catch (err) { 
+    console.error('Error cargando puntos/promociones:', err); 
+    // Fallback: mostrar 0 si hay error
+    document.getElementById('puntos-proximo').textContent = '—';
+  }
+}
+
+
+    // ── CANJEAR CÓDIGO ──────────────────────────────
+
+    // ════════════════════════════════════════════════════════
+    // CADUCIDAD DE PUNTOS + BANNER DE AVISO
+    // ════════════════════════════════════════════════════════
+    // ── CONFIGURACIÓN (ajusta estos valores a tu gusto) ──
+    const CADUCIDAD_CONFIG = {
+      diasAviso:        40,   // A partir de X días sin visita se muestra el banner
+      mesesParcial:      3,   // Con 3+ meses sin visita → pierde el 20% de puntos
+      porcentajeParcial: 50,  // % de puntos que se restan (siempre entero)
+      mesesTotal:        5,   // Con 5+ meses sin visita → pierde el 100% de puntos
+      // ── MODO PRUEBA ─────────────────────────────────────────────────────
+      // Pon aquí un número de días para simular que el cliente lleva X días
+      // sin venir, independientemente de la realidad. Pon null para desactivar.
+      diasPrueba: null,       // ej: 50 para probar el banner de aviso
+      //                           100 para probar caducidad parcial (≈3 meses)
+      //                           160 para probar caducidad total   (≈5 meses)
+      // ────────────────────────────────────────────────────────────────────
+    };
+
+    async function verificarCaducidadPuntos(uid) {
+      try {
+        // 1. Obtener doc del usuario
+        const userSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', uid)));
+        if (userSnap.empty) return;
+        const userDocRef     = doc(db, 'users', userSnap.docs[0].id);
+        const datosUser      = userSnap.docs[0].data();
+        const puntosActuales = datosUser.puntos || 0;
+
+        // 2. Determinar ultimaVisita:
+        //    Fuente 1 — última reserva completada en Firestore
+        //    Fuente 2 — campo ultimaVisita guardado en el perfil (fallback si borraron reservas)
+        let ultimaVisita = null;
+
+        const snapRes = await getDocs(query(
+          collection(db, 'reservas'),
+          where('cliente_id', '==', uid),
+          where('estado', '==', 'completada')
+        ));
+        snapRes.forEach(d => {
+          const r  = d.data();
+          const ts = r.completadaAt?.toDate?.()
+            ?? (typeof r.completadaAt === 'string' ? new Date(r.completadaAt) : null)
+            ?? (typeof r.fecha === 'string' ? new Date(r.fecha) : r.fecha?.toDate?.() ?? null);
+          const fecha = ts instanceof Date ? ts : (ts ? new Date(ts) : null);
+          if (fecha && (!ultimaVisita || fecha > ultimaVisita)) ultimaVisita = fecha;
+        });
+
+        // Fallback: usar ultimaVisita del perfil si no hay reservas
+        if (!ultimaVisita && datosUser.ultimaVisita) {
+          ultimaVisita = datosUser.ultimaVisita?.toDate?.() ?? new Date(datosUser.ultimaVisita);
+        }
+
+        // Si no hay referencia real Y no hay modo prueba → no hacer nada
+        if (!ultimaVisita && CADUCIDAD_CONFIG.diasPrueba === null) return;
+
+        // 3. Calcular días (modo prueba sobreescribe el valor real)
+        const ahora     = new Date();
+        const diffDias  = CADUCIDAD_CONFIG.diasPrueba !== null
+          ? CADUCIDAD_CONFIG.diasPrueba
+          : Math.floor((ahora - ultimaVisita) / (1000 * 60 * 60 * 24));
+        const diffMeses = diffDias / 30.44;
+
+        // 4. Aplicar caducidad si corresponde
+        let puntosNuevos      = puntosActuales;
+        let caducidadAplicada = null;
+
+        if (diffMeses >= CADUCIDAD_CONFIG.mesesTotal) {
+          // 100% — siempre se marca como caducidad total en el banner,
+          // pero solo se escribe en Firestore si aún tiene puntos
+          caducidadAplicada = 'total';
+          if (puntosActuales > 0) {
+            puntosNuevos = 0;
+            await updateDoc(userDocRef, {
+              puntos: 0,
+              ...(ultimaVisita ? { ultimaVisita } : {}),
+              ultimaCaducidad: ahora,
+              caducidadTipo: null
+            });
+            document.getElementById('puntos-acumulados').textContent = 0;
+            usuarioActual.puntos = 0;
+          }
+
+        } else if (diffMeses >= CADUCIDAD_CONFIG.mesesParcial) {
+          // 20% — solo UNA VEZ en este tramo
+          const fechaGuardada  = datosUser.fechaCaducidadParcial?.toDate?.()
+            ?? (datosUser.fechaCaducidadParcial ? new Date(datosUser.fechaCaducidadParcial) : null);
+          const visitaGuardada = datosUser.visitaEnCaducidadParcial?.toDate?.()
+            ?? (datosUser.visitaEnCaducidadParcial ? new Date(datosUser.visitaEnCaducidadParcial) : null);
+
+          // Misma visita de referencia = mismo tramo, no se vuelve a restar
+          const mismaVisita = ultimaVisita && visitaGuardada
+            && Math.abs(visitaGuardada - ultimaVisita) < 1000 * 60;
+          const yaAplicada  = fechaGuardada && mismaVisita;
+
+          // En modo prueba, nunca bloquear el 20% para poder ver el efecto
+          const aplicar = CADUCIDAD_CONFIG.diasPrueba !== null ? true : !yaAplicada;
+
+          if (aplicar && puntosActuales > 0) {
+            const restados    = Math.floor(puntosActuales * CADUCIDAD_CONFIG.porcentajeParcial / 100);
+            puntosNuevos      = puntosActuales - restados;
+            caducidadAplicada = 'parcial';
+            // En modo prueba no escribimos a Firestore para no alterar datos reales
+            if (CADUCIDAD_CONFIG.diasPrueba === null) {
+              await updateDoc(userDocRef, {
+                puntos: puntosNuevos,
+                ...(ultimaVisita ? { ultimaVisita, visitaEnCaducidadParcial: ultimaVisita } : {}),
+                fechaCaducidadParcial: ahora,
+                caducidadTipo: null
+              });
+            }
+            document.getElementById('puntos-acumulados').textContent = puntosNuevos;
+            usuarioActual.puntos = puntosNuevos;
+          } else if (!aplicar) {
+            // Ya se restó en este tramo — marcar para el banner pero sin restar
+            caducidadAplicada = 'parcial_ya';
+          }
+
+        } else {
+          // Sin caducidad — guardar ultimaVisita y limpiar marcas
+          if (ultimaVisita) {
+            await updateDoc(userDocRef, {
+              ultimaVisita,
+              fechaCaducidadParcial: null,
+              visitaEnCaducidadParcial: null,
+              caducidadTipo: null
+            }).catch(() => {});
+          }
+        }
+
+        // 5. Mostrar banner si supera el umbral de aviso
+        if (diffDias >= CADUCIDAD_CONFIG.diasAviso) {
+          mostrarBannerCaducidad(diffDias, diffMeses, puntosNuevos, caducidadAplicada);
+        }
+
+      } catch(err) { console.error('Error verificarCaducidadPuntos:', err); }
+    }
+
+    function mostrarBannerCaducidad(dias, meses, puntos, caducidadAplicada) {
+      const banner   = document.getElementById('banner-caducidad');
+      const titulo   = document.getElementById('banner-titulo');
+      const cuerpo   = document.getElementById('banner-cuerpo');
+      if (!banner) return;
+
+      const diasRestantesParcial = Math.max(0, Math.round(CADUCIDAD_CONFIG.mesesParcial * 30.44 - dias));
+      const diasRestantesTotal   = Math.max(0, Math.round(CADUCIDAD_CONFIG.mesesTotal   * 30.44 - dias));
+      const puntosPerderian20    = Math.floor(puntos * CADUCIDAD_CONFIG.porcentajeParcial / 100);
+
+      let nivel, tituloTxt, cuerpHtml;
+
+      if (caducidadAplicada === 'total') {
+        nivel     = 'nivel-peligro';
+        tituloTxt = '🔴 Tus puntos han caducado';
+        cuerpHtml = `Llevabas <strong>${Math.floor(meses)} meses</strong> sin visitarnos.<br>
+                     Tus puntos han sido reiniciados a <span class="banner-highlight">0</span>.<br>
+                     <small style="color:#aaa;">¡Reserva ahora para empezar a acumular de nuevo!</small>`;
+      } else if (caducidadAplicada === 'parcial') {
+        nivel     = 'nivel-peligro';
+        tituloTxt = '⚠️ Se han deducido puntos por inactividad';
+        cuerpHtml = `Llevabas <strong>${Math.floor(meses)} meses</strong> sin visitarnos y se te ha aplicado una deducción del ${CADUCIDAD_CONFIG.porcentajeParcial}%.<br>
+                     Puntos restantes: <span class="banner-highlight">${puntos}</span><br>
+                     ${diasRestantesTotal > 0 ? `<small style="color:#aaa;">En ${diasRestantesTotal} días más perderías el 100% si no vienes.</small>` : ''}`;
+      } else if (caducidadAplicada === 'parcial_ya') {
+        // Ya se restó el 20% antes, sigue en el tramo, recordatorio
+        nivel     = 'nivel-peligro';
+        tituloTxt = '⚠️ Llevas meses sin visitarnos';
+        cuerpHtml = `Llevas <strong>${Math.floor(meses)} meses</strong> sin pasarte por la barbería.<br>
+                     Tienes <span class="banner-highlight">${puntos} puntos</span> restantes.<br>
+                     ${diasRestantesTotal > 0 ? `<small style="color:#aaa;">En ${diasRestantesTotal} días perderías el 100% de tus puntos.</small>` : ''}`;
+      } else if (meses >= CADUCIDAD_CONFIG.mesesParcial) {
+        nivel     = 'nivel-peligro';
+        tituloTxt = '🔴 ¡Tus puntos están en peligro!';
+        cuerpHtml = `Llevas <strong>${Math.floor(meses)} meses</strong> sin visitarnos.<br>
+                     Tienes <span class="banner-highlight">${puntos} puntos</span> que podrían caducar.<br>
+                     ${diasRestantesTotal > 0 ? `<small style="color:#aaa;">En ${diasRestantesTotal} días perderías el 100% de tus puntos.</small>` : ''}`;
+      } else {
+        nivel     = 'nivel-aviso';
+        tituloTxt = '⏰ Llevas un tiempo sin visitarnos';
+        cuerpHtml = `Llevas <strong>${dias} días</strong> sin pasarte por la barbería.<br>
+                     Tienes <span class="banner-highlight">${puntos} puntos</span> acumulados.<br>
+                     ${diasRestantesParcial > 0
+                       ? `<small style="color:#aaa;">En ${diasRestantesParcial} días perderías ${puntosPerderian20} puntos (${CADUCIDAD_CONFIG.porcentajeParcial}%) por inactividad.</small>`
+                       : ''}`;
+      }
+
+      banner.className = nivel;
+      titulo.textContent = tituloTxt;
+      cuerpo.innerHTML   = cuerpHtml;
+      banner.style.display = 'block';
+    }
+
+    window.cerrarBannerCaducidad = function() {
+      const banner = document.getElementById('banner-caducidad');
+      if (banner) banner.style.display = 'none';
+    };
+    // ════════════════════════════════════════════════════════
 
     // ── CANJEAR CÓDIGO ──────────────────────────────
     window.canjearCodigo = async () => {
@@ -909,6 +1220,7 @@
         mostrarMensaje('mensaje-codigo', `✅ ¡Canjeado! +${data.puntosAsignar} puntos`, 'exito');
         document.getElementById('codigo-puntos').value = '';
         cargarPuntosUsuario();
+	await cargarPuntosUsuario();
       } catch (err) {
         mostrarMensaje('mensaje-codigo', '❌ Error al canjear', 'error');
       }
@@ -927,7 +1239,7 @@
         const dias = [];
         snap.forEach(docSnap => {
           const h = docSnap.data();
-          if (h.activo === false) return;
+          if (h.activa === false) return;
 
           let fechaStr, fechaObj;
           if (typeof h.fecha === 'string') {
@@ -975,7 +1287,7 @@
         select.innerHTML = '<option value="">-- Selecciona un servicio --</option>';
         snap.forEach(docSnap => {
           const s = docSnap.data();
-          if (s.activo === false) return;
+          if (s.activa === false) return;
           const option = document.createElement('option');
           option.value = docSnap.id;
           option.textContent = `${s.nombre} - €${s.precio} (${s.duracion_min}min)`;
@@ -1030,7 +1342,7 @@
         let horario = null;
         horSnap.forEach(d => {
           const h = d.data();
-          if (h.activo === false) return;
+          if (h.activa === false) return;
           // Normalizar fecha del documento a string para comparar
           let docFechaStr;
           if (typeof h.fecha === 'string') {
@@ -1266,33 +1578,129 @@
     };
 
     // ── PROMOCIONES ─────────────────────────────────
-    async function cargarPromociones() {
-      const contenedor = document.getElementById('lista-promociones');
-      try {
-        const snap = await getDocs(collection(db, 'promociones'));
-        if (snap.empty) {
-          contenedor.innerHTML = '<p style="color:#aaa;text-align:center;">🎁 No hay promociones disponibles</p>';
-          return;
-        }
-        contenedor.innerHTML = '';
-        snap.forEach(docSnap => {
-          const p = docSnap.data();
-          const fechaExp = p.fechaExpiracion?.toDate?.() ?? new Date(p.fechaExpiracion);
-          const expirado = new Date() > fechaExp;
-          const div = document.createElement('div');
-          div.className = `promo ${expirado ? 'expired' : ''}`;
-          div.innerHTML = `
-            <strong style="color:var(--gold);font-size:1.1rem;">${p.nombre}</strong><br>
-            ${p.descripcion ? `<small style="color:#aaa;">${p.descripcion}</small><br>` : ''}
-            <span style="color:var(--gold);font-weight:bold;">${p.puntos} puntos</span><br>
-            <small style="color:#888;">Vence: ${fechaExp.toLocaleDateString('es-ES')}</small>
-          `;
-          contenedor.appendChild(div);
-        });
-      } catch (err) {
-        contenedor.innerHTML = '<p style="color:#dc3545;text-align:center;">❌ Error al cargar promociones</p>';
-      }
+async function cargarPromociones() {
+  const contenedor = document.getElementById('lista-promociones');
+  if (!contenedor) return;
+  
+  contenedor.innerHTML = '<div class="loader"></div><p style="color:#aaa;text-align:center;">Cargando promociones...</p>';
+  try {
+    const snap = await getDocs(collection(db, 'promociones'));
+    if (snap.empty) {
+      contenedor.innerHTML = '<p style="color:#aaa;text-align:center;">🎁 No hay promociones disponibles</p>';
+      return;
     }
+    
+    contenedor.innerHTML = '';
+    const ahora = new Date();
+
+    snap.forEach(docSnap => {
+      const p = docSnap.data();
+      if (p.activo === false) return;
+      
+      let fechaExp = null;
+      if (p.fechaExpiracion) {
+        fechaExp = p.fechaExpiracion.toDate ? p.fechaExpiracion.toDate() : new Date(p.fechaExpiracion);
+      }
+      const expirado = fechaExp && ahora > fechaExp;
+      const costo = p.puntos || 0;
+      const puedeCanjear = !expirado && (usuarioActual.puntos || 0) >= costo;
+
+      let claseBtn = 'btn-canje-promo';
+      let textoBtn = '❓ Sin puntos';
+      if (expirado) {
+        claseBtn += ' expirada';
+        textoBtn = '⏰ Caducada';
+      } else if (puedeCanjear) {
+        claseBtn += ' canjeable';
+        textoBtn = '✅ CANJEAR AHORA';
+      } else {
+        claseBtn += ' insuficiente';
+        textoBtn = `🔒 Faltan ${costo - (usuarioActual.puntos || 0)} pts`;
+      }
+
+      const div = document.createElement('div');
+      div.className = `promo ${expirado ? 'expired' : ''}`;
+      div.innerHTML = `
+        <strong style="color:var(--gold);font-size:1.1rem;">${p.nombre || 'Promoción'}</strong><br>
+        ${p.descripcion ? `<small style="color:#aaa;">${p.descripcion}</small><br>` : ''}
+        <span style="color:var(--gold);font-weight:bold;">${costo} puntos</span><br>
+        <small style="color:#888;">Vence: ${fechaExp ? fechaExp.toLocaleDateString('es-ES') : 'Sin fecha límite'}</small>
+        <button class="${claseBtn}" data-id="${docSnap.id}" data-nombre="${p.nombre || 'Promoción'}" data-costo="${costo}" ${puedeCanjear ? '' : 'disabled'}>
+          ${textoBtn}
+        </button>
+      `;
+      contenedor.appendChild(div);
+    });
+
+    // Vincular eventos a los botones activos
+    document.querySelectorAll('.btn-canje-promo.canjeable').forEach(btn => {
+      btn.addEventListener('click', () => {
+        canjearPromocion(btn.dataset.id, btn.dataset.nombre, parseInt(btn.dataset.costo));
+      });
+    });
+
+  } catch (err) {
+    console.error('Error cargando promociones:', err);
+    contenedor.innerHTML = '<p style="color:#dc3545;text-align:center;">❌ Error al cargar promociones</p>';
+  }
+}
+
+// ── CANJEAR PROMOCIÓN ──────────────────────────
+async function canjearPromocion(promoId, promoNombre, costoPuntos) {
+  if (!confirm(`¿Confirmas canjear "${promoNombre}" por ${costoPuntos} puntos?\n\nLos puntos se restarán al instante.`)) return;
+
+  const btn = document.querySelector(`.btn-canje-promo[data-id="${promoId}"]`);
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Procesando...';
+    btn.style.opacity = '0.6';
+  }
+
+  try {
+    // 1️⃣ Obtener referencia exacta del usuario
+    const userSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', usuarioActual.uid)));
+    if (userSnap.empty) throw new Error('Sesión no encontrada');
+    
+    const userDoc = userSnap.docs[0];
+    const userRef = doc(db, 'users', userDoc.id);
+    const puntosActuales = userDoc.data().puntos || 0;
+
+    // 2️⃣ Validación de seguridad (evita race conditions o doble clic)
+    if (puntosActuales < costoPuntos) throw new Error('Puntos insuficientes');
+
+    // 3️⃣ Restar puntos y registrar canje en paralelo
+    await Promise.all([
+      updateDoc(userRef, { puntos: puntosActuales - costoPuntos }),
+      addDoc(collection(db, 'canjes'), {
+        clienteId: usuarioActual.uid,
+        clienteNombre: usuarioActual.nombre,
+        tipo: 'promocion',
+        promoId,
+        promoNombre,
+        puntosGastados: costoPuntos,
+        fecha: serverTimestamp(),
+        estado: 'activo' // Para que el barbero pueda validarlo
+      })
+    ]);
+
+    // 4️⃣ Éxito
+    alert(`✅ ¡"${promoNombre}" canjeada con éxito!\nMuéstrale esta pantalla al barbero.`);
+    
+    // 5️⃣ Refrescar UI
+    usuarioActual.puntos = puntosActuales - costoPuntos;
+    await cargarPuntosUsuario(); // Actualiza contadores superiores
+    await cargarPromociones();   // Actualiza botones de promos
+
+  } catch (err) {
+    console.error('Error en canje:', err);
+    alert('❌ No se pudo canjear: ' + err.message);
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '✅ CANJEAR AHORA';
+      btn.style.opacity = '1';
+    }
+  }
+}
 
     // ── UTILIDADES ──────────────────────────────────
     function mostrarMensaje(elementId, texto, tipo) {
@@ -1586,6 +1994,13 @@
         if (esExacto) {
           msg.textContent = '¡¡ 10.00 !!';
           msg.className   = 'crono-msg ganador';
+          // Marcar en Firestore que ganó (barbería lo detectará en tiempo real)
+          if (reservaConSuerte) {
+            updateDoc(doc(db, 'reservas', reservaConSuerte), {
+              suerteGanada: true,
+              suerteGanadaAt: serverTimestamp()
+            }).catch(err => console.error('Error marcando suerteGanada:', err));
+          }
           setTimeout(() => mostrarGanador(), 500);
         } else {
           const diferencia = cronoElapsed - OBJETIVO_MS;

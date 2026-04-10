@@ -166,3 +166,146 @@ input, textarea {
   margin: 20px auto;
   border: 2px solid var(--gold);
 }
+
+/* === SISTEMA DE RESERVAS === */
+.subsection { display: none; padding: 10px 0; animation: fadeIn 0.3s ease; }
+.subsection.active { display: block; }
+
+/* Tarjetas de reserva */
+.reserva-card {
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 12px 0;
+  text-align: left;
+  background: #111;
+  position: relative;
+}
+.reserva-card.pendiente {
+  border-left: 5px solid #ffc107;
+  background: linear-gradient(90deg, rgba(255,193,7,0.15), transparent);
+}
+.reserva-card.aprobada {
+  border-left: 5px solid #28a745;
+  background: linear-gradient(90deg, rgba(40,167,69,0.15), transparent);
+}
+.reserva-card.rechazada {
+  border-left: 5px solid #dc3545;
+  opacity: 0.7;
+}
+
+.reserva-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.reserva-cliente { font-weight: bold; color: var(--gold); }
+.reserva-fecha { font-size: 0.9rem; color: #aaa; }
+.reserva-servicio { margin: 5px 0; font-size: 1.1rem; }
+.reserva-horario { 
+  background: #222; 
+  padding: 4px 10px; 
+  border-radius: 4px; 
+  font-family: 'Orbitron', monospace;
+  font-size: 0.95rem;
+}
+
+/* Botones de acción */
+.reserva-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.btn-small {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.1s;
+}
+.btn-small:active { transform: scale(0.98); }
+.btn-aprobar { background: #28a745; color: white; }
+.btn-rechazar { background: #dc3545; color: white; }
+.btn-eliminar { background: #444; color: var(--text); }
+
+/* Lista de servicios/horarios */
+.lista-item {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.lista-item-info { flex: 1; min-width: 200px; }
+.lista-item-actions { display: flex; gap: 5px; }
+
+/* Selector de hora en cliente.html */
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px;
+  margin: 15px 0;
+}
+.time-slot {
+  padding: 10px 5px;
+  background: #222;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.time-slot:hover { background: #333; }
+.time-slot.selected { background: var(--gold); color: #000; font-weight: bold; }
+.time-slot.occupied { 
+  background: #333; 
+  border-color: #555; 
+  color: #666; 
+  cursor: not-allowed; 
+  text-decoration: line-through;
+}
+.time-slot.pending {
+  background: rgba(255, 193, 7, 0.3);
+  border-color: #ffc107;
+  cursor: not-allowed;
+}
+
+/* Estado visual en cliente.html */
+.reserva-cliente-card {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px 0;
+  border: 1px solid var(--gold);
+}
+.reserva-cliente-card.pendiente {
+  border-left: 4px solid #ffc107;
+  background: rgba(255, 193, 7, 0.1);
+}
+.reserva-cliente-card.aprobada {
+  border-left: 4px solid #28a745;
+  background: rgba(40, 167, 69, 0.1);
+}
+.estado-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-top: 8px;
+}
+.estado-badge.pendiente { background: #ffc107; color: #000; }
+.estado-badge.aprobada { background: #28a745; color: white; }
+.estado-badge.rechazada { background: #dc3545; color: white; }
