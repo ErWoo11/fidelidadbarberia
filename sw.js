@@ -1,4 +1,4 @@
-const CACHE_NAME = 'barberia-la-nueva-v1';
+const CACHE_NAME = 'barberia-la-nueva-v2';
 const urlsToCache = [
   '/fidelidadbarberia/',
   '/fidelidadbarberia/index.html',
