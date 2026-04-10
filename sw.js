@@ -1,4 +1,4 @@
-const CACHE_NAME = 'barberia-la-nueva-v1';
+const CACHE_NAME = 'barberia-la-nueva-v2';
 const urlsToCache = [
   '/fidelidadbarberia/',
   '/fidelidadbarberia/index.html',
@@ -9,6 +9,10 @@ const urlsToCache = [
   '/fidelidadbarberia/barberia.js',
   '/fidelidadbarberia/logo.png'
 ];
+
+self.addEventListener('activate', event => {
+  event.waitUntil(self.clients.claim());
+});
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
