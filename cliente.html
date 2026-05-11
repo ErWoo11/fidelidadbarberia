@@ -546,10 +546,10 @@
       <p style="color:#aaa; margin-bottom:20px;">Inicia sesión para gestionar tus puntos y reservas</p>
       <input type="email" id="loginEmail" placeholder="Tu email" required />
       <input type="password" id="loginPass" placeholder="Contraseña" required />
-      <button class="btn" onclick="iniciarSesion()">🔐 Iniciar sesión</button>
+      <button class="btn" id="btn-iniciar-sesion">🔐 Iniciar sesión</button>
       <div id="mensaje-login" style="margin-top:8px;"></div>
       <p style="margin-top:10px; color:#aaa; font-size:0.9rem;">
-        ¿No tienes cuenta? <a href="#" style="color:var(--gold);" onclick="mostrarVerificarPin()">Regístrate</a>
+        ¿No tienes cuenta? <a href="#" id="link-mostrar-pin" style="color:var(--gold);">Regístrate</a>
       </p>
     </div>
 
@@ -566,9 +566,9 @@
           style="text-align:center; font-family:'Orbitron',monospace; font-size:1.5rem; letter-spacing:8px; padding:14px;" />
       </div>
       <div id="mensaje-pin"></div>
-      <button class="btn" onclick="verificarPin()" style="margin-top:8px;">Verificar PIN</button>
+      <button class="btn" id="btn-verificar-pin" style="margin-top:8px;">Verificar PIN</button>
       <p style="margin-top:15px; color:#aaa; font-size:0.9rem;">
-        ¿Ya tienes cuenta? <a href="#" style="color:var(--gold);" onclick="mostrarLogin()">Inicia sesión</a>
+        ¿Ya tienes cuenta? <a href="#" id="link-mostrar-login-pin" style="color:var(--gold);">Inicia sesión</a>
       </p>
     </div>
 
@@ -581,9 +581,9 @@
       <input type="text" id="registroNombre" placeholder="Tu nombre completo" required />
       <input type="email" id="registroEmail" placeholder="Tu email" required />
       <input type="password" id="registroPass" placeholder="Contraseña (mín. 6 caracteres)" minlength="6" required />
-      <button class="btn" onclick="registrarUsuario()">📝 Crear cuenta</button>
+      <button class="btn" id="btn-registrar-usuario">📝 Crear cuenta</button>
       <p style="margin-top:15px; color:#aaa; font-size:0.9rem;">
-        ¿Ya tienes cuenta? <a href="#" style="color:var(--gold);" onclick="mostrarLogin()">Inicia sesión</a>
+        ¿Ya tienes cuenta? <a href="#" id="link-mostrar-login-reg" style="color:var(--gold);">Inicia sesión</a>
       </p>
     </div>
 
@@ -591,7 +591,7 @@
     <div id="panel-section" style="display:none;">
       <div style="text-align:right; margin-bottom:10px;">
         <span id="usuario-nombre" style="color:var(--gold); font-weight:bold;"></span>
-        <button onclick="cerrarSesion()" style="background:none; border:none; color:#666; cursor:pointer; margin-left:10px;">🚪 Salir</button>
+        <button id="btn-cerrar-sesion" style="background:none; border:none; color:#666; cursor:pointer; margin-left:10px;">🚪 Salir</button>
       </div>
 
       <!-- Banner flotante caducidad de puntos -->
@@ -606,6 +606,7 @@
         <button class="nav-btn" data-section="reservar">📅 Reservar</button>
         <button class="nav-btn" data-section="mis-reservas">📋 Mis Reservas</button>
         <button class="nav-btn" data-section="promociones">🎁 Promociones</button>
+        <button class="nav-btn" data-section="tarjeta-regalo">🎀 Tarjeta Regalo</button>
         <button class="nav-btn" data-section="suerte" id="btn-suerte" disabled
           style="opacity:0.35; cursor:not-allowed; position:relative;"
           title="El barbero debe habilitarte esta opción">
@@ -681,7 +682,7 @@
           </div>
 
           <div id="mensaje-reserva"></div>
-          <button class="btn" id="btn-reservar" onclick="confirmarReserva()" disabled>
+          <button class="btn" id="btn-reservar" disabled>
             ✅ Confirmar Reserva
           </button>
         </div>
@@ -705,6 +706,102 @@
         </div>
       </div>
       <!-- PROBAR SUERTE -->
+      <!-- ── TARJETA REGALO ── -->
+      <div id="tarjeta-regalo" class="section">
+        <h3 class="section-title">🎀 Tarjeta Regalo</h3>
+
+        <!-- Estado: sin tarjeta -->
+        <div id="tg-estado-vacio" style="text-align:center;padding:20px 0;">
+          <div style="font-size:3rem;margin-bottom:12px;">🎀</div>
+          <p style="color:#666;font-size:0.9rem;margin-bottom:20px;">¿Tienes un código de tarjeta regalo?<br>Introdúcelo aquí para canjearla.</p>
+          <div style="max-width:340px;margin:0 auto;">
+            <input type="text" id="tg-codigo-input" placeholder="TG-XXXXXXXX"
+              style="width:100%;text-transform:uppercase;letter-spacing:3px;font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;text-align:center;padding:14px 16px;background:#111;border:2px solid rgba(212,175,55,0.5);border-radius:10px;color:var(--gold);margin-bottom:10px;"
+              oninput="this.value=this.value.toUpperCase()" />
+            <button class="btn" onclick="verificarCodigoTG()" style="width:100%;padding:14px;font-size:1rem;">Verificar código</button>
+          </div>
+          <div id="tg-error-msg" style="color:#dc3545;font-size:0.82rem;margin-top:8px;display:none;"></div>
+        </div>
+
+        <!-- Tarjeta visual (se muestra al verificar) -->
+        <div id="tg-card-display" style="display:none;">
+          <!-- SVG tarjeta regalo -->
+          <div style="display:flex;justify-content:center;margin:10px 0 20px;">
+            <svg id="tg-svg" viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg"
+              style="width:100%;max-width:360px;border-radius:18px;filter:drop-shadow(0 8px 24px rgba(212,175,55,0.35));">
+              <defs>
+                <linearGradient id="tgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%"   style="stop-color:#0d0a00;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#1a1208;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="tgShine" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"   style="stop-color:rgba(212,175,55,0);stop-opacity:1" />
+                  <stop offset="50%"  style="stop-color:rgba(212,175,55,0.12);stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:rgba(212,175,55,0);stop-opacity:1" />
+                </linearGradient>
+                <clipPath id="tgClip">
+                  <rect width="360" height="210" rx="18" ry="18"/>
+                </clipPath>
+              </defs>
+              <!-- Fondo -->
+              <rect width="360" height="210" rx="18" ry="18" fill="url(#tgGrad)"/>
+              <!-- Brillo diagonal -->
+              <rect width="360" height="210" rx="18" ry="18" fill="url(#tgShine)"/>
+              <!-- Línea dorada superior -->
+              <rect y="0" width="360" height="3" rx="1.5" fill="#d4af37" opacity="0.8"/>
+              <!-- Línea dorada inferior -->
+              <rect y="207" width="360" height="3" rx="1.5" fill="#d4af37" opacity="0.8"/>
+              <!-- Decoración círculo izquierdo -->
+              <circle cx="0" cy="105" r="60" fill="none" stroke="#d4af37" stroke-width="1" opacity="0.12"/>
+              <circle cx="0" cy="105" r="90" fill="none" stroke="#d4af37" stroke-width="1" opacity="0.07"/>
+              <!-- Decoración círculo derecho -->
+              <circle cx="360" cy="105" r="60" fill="none" stroke="#d4af37" stroke-width="1" opacity="0.12"/>
+              <!-- Lazo (🎀) -->
+              <text x="310" y="52" font-size="36" opacity="0.25" clip-path="url(#tgClip)">🎀</text>
+              <!-- REGALO -->
+              <text x="26" y="44" font-family="'Orbitron',monospace" font-size="9" fill="#d4af37" opacity="0.7" letter-spacing="4">BARBERÍA LA NUEVA</text>
+              <!-- Línea separadora -->
+              <line x1="26" y1="52" x2="334" y2="52" stroke="#d4af37" stroke-width="0.5" opacity="0.3"/>
+              <!-- TARJETA REGALO -->
+              <text x="26" y="80" font-family="'Orbitron',monospace" font-size="13" fill="#d4af37" font-weight="700" letter-spacing="2">TARJETA REGALO</text>
+              <!-- Nombre servicio -->
+              <text id="tg-svg-servicio" x="26" y="112" font-family="'IM Fell English',serif" font-size="22" fill="#ffffff" font-style="italic">Servicio</text>
+              <!-- Código -->
+              <text id="tg-svg-codigo" x="26" y="148" font-family="'Orbitron',monospace" font-size="13" fill="#d4af37" opacity="0.9" letter-spacing="3">TG-XXXXXXXX</text>
+              <!-- Caduca -->
+              <text id="tg-svg-caduca" x="26" y="170" font-family="'Segoe UI',sans-serif" font-size="9" fill="#888">Válida hasta: —</text>
+              <!-- Nombre cliente -->
+              <text id="tg-svg-cliente" x="26" y="192" font-family="'Segoe UI',sans-serif" font-size="10" fill="#aaa">Para: —</text>
+              <!-- Chip decorativo -->
+              <rect x="290" y="155" width="44" height="34" rx="5" fill="#d4af37" opacity="0.12" stroke="#d4af37" stroke-width="0.8" opacity="0.35"/>
+              <line x1="290" y1="165" x2="334" y2="165" stroke="#d4af37" stroke-width="0.5" opacity="0.3"/>
+              <line x1="290" y1="172" x2="334" y2="172" stroke="#d4af37" stroke-width="0.5" opacity="0.3"/>
+              <line x1="290" y1="179" x2="334" y2="179" stroke="#d4af37" stroke-width="0.5" opacity="0.3"/>
+            </svg>
+          </div>
+
+          <!-- Mensaje personalizado -->
+          <div id="tg-mensaje-display" style="display:none;text-align:center;font-style:italic;color:#aaa;font-size:0.9rem;margin-bottom:16px;padding:10px 16px;background:rgba(212,175,55,0.06);border-radius:8px;border-left:3px solid rgba(212,175,55,0.4);">
+            💬 <span id="tg-mensaje-texto"></span>
+          </div>
+
+          <!-- Info puntos -->
+          <div id="tg-puntos-info" style="text-align:center;font-size:0.85rem;color:var(--gold);margin-bottom:16px;">
+            ⭐ Ganarás <span id="tg-puntos-val" style="font-family:'Orbitron',monospace;font-weight:700;"></span> puntos cuando el barbero complete el servicio
+          </div>
+
+          <!-- Botón canjear -->
+          <button class="btn" id="tg-btn-canjear" onclick="canjearTarjetaRegalo()"
+            style="width:100%;background:var(--gold);font-family:'Orbitron',monospace;letter-spacing:1px;">
+            🎀 Canjear y seleccionar turno
+          </button>
+          <button onclick="tgResetear()" style="width:100%;margin-top:8px;background:none;border:none;color:#555;cursor:pointer;font-size:0.82rem;">
+            ← Introducir otro código
+          </button>
+        </div>
+
+      </div>
+
       <div id="suerte" class="section">
         <h3 class="section-title">🎰 Probar SUERTE</h3>
 
@@ -731,7 +828,7 @@
 
         <!-- Pulsador 3D -->
         <div id="btn-pulsador-wrap">
-          <button id="btn-pulsador" onclick="accionPulsador()">
+          <button id="btn-pulsador">
             <span id="pulsador-label">PULSA</span>
           </button>
           <p id="pulsador-hint">Pulsa para arrancar el cronómetro</p>
@@ -756,7 +853,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { 
-      getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc,
+      getFirestore, collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc,
       doc, query, where, serverTimestamp, onSnapshot, increment
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { 
@@ -903,7 +1000,8 @@
             target.style.display = 'block';
             if (sectionId === 'mis-reservas') cargarMisReservas();
             if (sectionId === 'promociones') cargarPromociones();
-            // Al entrar a suerte: consumir intento en Firestore
+            // Al salir de la sección de reservas, cancelar listener de slots
+            if (sectionId !== 'reservas' && _unsubSlots) { _unsubSlots(); _unsubSlots = null; }
             if (sectionId === 'suerte' && reservaConSuerte) marcarSuerteUsada();
           }
         });
@@ -936,9 +1034,14 @@
         await cargarServicios();
         await cargarDiasDisponibles();
         await cargarMisReservas();
+        iniciarListenerMisReservas(user.uid);
+        iniciarListenerPuntos(user.uid);
+        tgCargarTarjetaGuardada(user.uid);
         await cargarPromociones();
       } else {
         usuarioActual = null;
+        if (_unsubPuntos)      { _unsubPuntos();      _unsubPuntos      = null; }
+        if (_unsubMisReservas) { _unsubMisReservas(); _unsubMisReservas = null; }
         document.getElementById('login-section').style.display = 'block';
         document.getElementById('registro-pin-section').style.display = 'none';
         document.getElementById('registro-section').style.display = 'none';
@@ -947,6 +1050,51 @@
     });
 
     // ── PUNTOS ──────────────────────────────────────
+    // Listener en tiempo real: se actualiza al instante cuando el barbero suma puntos
+    let _unsubPuntos = null;
+
+    function iniciarListenerPuntos(uid) {
+      if (_unsubPuntos) _unsubPuntos();
+      const q = query(collection(db, 'users'), where('uid', '==', uid));
+      _unsubPuntos = onSnapshot(q, (snap) => {
+        if (snap.empty) return;
+        const data       = snap.docs[0].data();
+        const puntosPrev = usuarioActual.puntos ?? null;
+        const puntosNuev = data.puntos || 0;
+        usuarioActual.puntos = puntosNuev;
+        usuarioActual.nombre = data.nombre || 'Cliente';
+        document.getElementById('usuario-nombre').textContent = `👤 ${usuarioActual.nombre}`;
+        const el = document.getElementById('puntos-acumulados');
+        el.textContent = puntosNuev;
+        // Flash dorado cuando suben los puntos (no en carga inicial)
+        if (puntosPrev !== null && puntosNuev > puntosPrev) {
+          el.style.transition = 'color 0.1s, text-shadow 0.1s';
+          el.style.color = '#fff';
+          el.style.textShadow = '0 0 24px #fff, 0 0 40px rgba(212,175,55,1)';
+          setTimeout(() => { el.style.color = ''; el.style.textShadow = ''; }, 900);
+          actualizarContadorProximo(puntosNuev);
+        }
+      }, err => console.error('Listener puntos:', err));
+    }
+
+    async function actualizarContadorProximo(puntosActuales) {
+      try {
+        const promoSnap = await getDocs(collection(db, 'promociones'));
+        const ahora = new Date();
+        const umbrales = [];
+        promoSnap.forEach(d => {
+          const p = d.data();
+          if (p.activa === false) return;
+          let fechaExp = p.fechaExpiracion ? (p.fechaExpiracion.toDate?.() ?? new Date(p.fechaExpiracion)) : null;
+          if (fechaExp && ahora > fechaExp) return;
+          if (typeof p.puntos === 'number' && p.puntos > 0) umbrales.push(p.puntos);
+        });
+        umbrales.sort((a,b) => a-b);
+        const siguiente = umbrales.find(u => u > puntosActuales);
+        document.getElementById('puntos-proximo').textContent = siguiente ? siguiente - puntosActuales : 0;
+      } catch {}
+    }
+
 async function cargarPuntosUsuario() {
   try {
     // 1️⃣ Obtener datos del usuario
@@ -1018,7 +1166,7 @@ async function cargarPuntosUsuario() {
     // ── CONFIGURACIÓN (ajusta estos valores a tu gusto) ──
     const CADUCIDAD_CONFIG = {
       diasAviso:        40,   // A partir de X días sin visita se muestra el banner
-      mesesParcial:      3,   // Con 3+ meses sin visita → pierde el 20% de puntos
+      mesesParcial:      3,   // Con 3+ meses sin visita → pierde el 50% de puntos
       porcentajeParcial: 50,  // % de puntos que se restan (siempre entero)
       mesesTotal:        5,   // Con 5+ meses sin visita → pierde el 100% de puntos
       // ── MODO PRUEBA ─────────────────────────────────────────────────────
@@ -1342,98 +1490,117 @@ async function cargarPuntosUsuario() {
       } catch (err) { console.error('Error cargando servicios:', err); }
     }
 
-    // ── HORAS DISPONIBLES ───────────────────────────
+    // ── HORAS DISPONIBLES — TIEMPO REAL ─────────────
+    let _unsubSlots = null;
+    let _horarioActual = null; // horario del día seleccionado (cacheado)
+
     async function cargarHorasDisponibles() {
-      const fechaVal = document.getElementById('reserva-fecha').value; // "YYYY-MM-DD"
+      const fechaVal   = document.getElementById('reserva-fecha').value;
       const contenedor = document.getElementById('time-slots');
       const grupoHoras = document.getElementById('grupo-horas');
       if (!fechaVal || !servicioSeleccionado) { grupoHoras.style.display = 'none'; return; }
+
+      // Cancelar listener previo si era de otro día
+      if (_unsubSlots) { _unsubSlots(); _unsubSlots = null; }
 
       contenedor.innerHTML = '<div class="loader" style="width:24px;height:24px;border-width:2px;margin:10px auto;"></div>';
       grupoHoras.style.display = 'block';
 
       try {
-        // 1. Buscar horario por fecha string (nuevo sistema) O por Timestamp (legacy)
+        // 1. Obtener el horario del día (lectura única, no cambia frecuente)
         const horSnap = await getDocs(collection(db, 'horarios_admin'));
-        let horario = null;
+        _horarioActual = null;
         horSnap.forEach(d => {
           const h = d.data();
           if (h.activa === false) return;
-          // Normalizar fecha del documento a string para comparar
-          let docFechaStr;
-          if (typeof h.fecha === 'string') {
-            docFechaStr = h.fecha;
-          } else {
-            docFechaStr = (h.fecha?.toDate?.() ?? new Date(h.fecha)).toISOString().split('T')[0];
-          }
-          if (docFechaStr === fechaVal) horario = h;
+          let docFechaStr = typeof h.fecha === 'string'
+            ? h.fecha
+            : (h.fecha?.toDate?.() ?? new Date(h.fecha)).toISOString().split('T')[0];
+          if (docFechaStr === fechaVal) _horarioActual = h;
         });
 
-        if (!horario) {
+        if (!_horarioActual) {
           contenedor.innerHTML = '<p style="color:#dc3545;grid-column:1/-1;text-align:center;">⚠️ No hay horario para este día</p>';
           return;
         }
 
-        const inicioAdmin = minutosDesdeMedianoche(horario.hora_inicio);
-        const finAdmin = minutosDesdeMedianoche(horario.hora_fin);
-
-        // 2. Obtener reservas del día (estado != rechazado)
-        const reservasSnap = await getDocs(collection(db, 'reservas'));
-        const reservasOcupadas = [], reservasPendientes = [];
-        reservasSnap.forEach(d => {
-          const r = d.data();
-          // Normalizar fecha de la reserva a string
-          let rFechaStr;
-          if (typeof r.fecha === 'string') {
-            rFechaStr = r.fecha.split('T')[0];
-          } else {
-            rFechaStr = (r.fecha?.toDate?.() ?? new Date(r.fecha)).toISOString().split('T')[0];
-          }
-          if (rFechaStr !== fechaVal) return;
-          if (r.estado === 'aprobado' || r.estado === 'completada') reservasOcupadas.push(r);
-          else if (r.estado === 'pendiente') reservasPendientes.push(r);
-        });
-
-        // 3. Generar slots
-        contenedor.innerHTML = '';
-        const duracion = servicioSeleccionado.duracion_min;
-        let min = inicioAdmin;
-        let hayHoras = false;
-
-        while (min + duracion <= finAdmin) {
-          const hInicio = minToStr(min);
-          const hFin = minToStr(min + duracion);
-          const slot = document.createElement('div');
-          slot.className = 'time-slot';
-          slot.textContent = hInicio;
-
-          const ocupado = reservasOcupadas.some(r => horasSeSolapan(hInicio, hFin, r.hora_inicio, r.hora_fin));
-          const pendiente = reservasPendientes.some(r => horasSeSolapan(hInicio, hFin, r.hora_inicio, r.hora_fin));
-
-          if (ocupado) {
-            slot.classList.add('occupied'); slot.title = 'No disponible';
-          } else if (pendiente) {
-            slot.classList.add('pending'); slot.title = 'Pendiente de aprobación';
-          } else {
-            slot.addEventListener('click', () => {
-              document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-              slot.classList.add('selected');
-              horaSeleccionada = hInicio;
-              horaFinSeleccionada = hFin;
-              document.getElementById('btn-reservar').disabled = false;
-              // Mostrar nota y resumen
-              document.getElementById('grupo-nota').style.display = 'block';
-              actualizarResumen();
+        // 2. Listener en tiempo real sobre TODAS las reservas del día
+        //    Se re-renderiza automáticamente cuando entra o cambia cualquier reserva
+        _unsubSlots = onSnapshot(
+          query(collection(db, 'reservas'), where('fecha', '==', fechaVal)),
+          (snap) => {
+            const reservasOcupadas  = [];
+            const reservasPendientes = [];
+            snap.forEach(d => {
+              const r = d.data();
+              if (r.estado === 'aprobado' || r.estado === 'completada') reservasOcupadas.push(r);
+              else if (r.estado === 'pendiente') reservasPendientes.push(r);
             });
-            hayHoras = true;
-          }
-          contenedor.appendChild(slot);
-          min += 15;
-        }
 
-        if (!hayHoras) {
-          contenedor.innerHTML = '<p style="color:#dc3545;grid-column:1/-1;text-align:center;">⚠️ No hay horas disponibles</p>';
-        }
+            // Guardar la hora seleccionada para restaurarla tras re-render
+            const horaPrevia = horaSeleccionada;
+
+            contenedor.innerHTML = '';
+            const ini = minutosDesdeMedianoche(_horarioActual.hora_inicio);
+            const fin = minutosDesdeMedianoche(_horarioActual.hora_fin);
+            const dur = servicioSeleccionado.duracion_min;
+            let min = ini;
+            let hayHoras = false;
+
+            while (min + dur <= fin) {
+              const hInicio = minToStr(min);
+              const hFin    = minToStr(min + dur);
+              const slot    = document.createElement('div');
+              slot.className = 'time-slot';
+              slot.textContent = hInicio;
+
+              const ocupado   = reservasOcupadas.some(r  => horasSeSolapan(hInicio, hFin, r.hora_inicio, r.hora_fin));
+              const pendiente = reservasPendientes.some(r => horasSeSolapan(hInicio, hFin, r.hora_inicio, r.hora_fin));
+
+              if (ocupado) {
+                slot.classList.add('occupied');
+                slot.title = 'No disponible';
+                // Si el cliente tenía esta hora seleccionada y ahora está ocupada, invalidar
+                if (horaPrevia === hInicio) {
+                  horaSeleccionada = null; horaFinSeleccionada = null;
+                  document.getElementById('btn-reservar').disabled = true;
+                  document.getElementById('grupo-nota').style.display = 'none';
+                  actualizarResumen();
+                }
+              } else if (pendiente) {
+                slot.classList.add('pending');
+                slot.title = 'Pendiente de aprobación';
+              } else {
+                // Restaurar selección previa si sigue disponible
+                if (horaPrevia === hInicio) slot.classList.add('selected');
+                slot.addEventListener('click', () => {
+                  document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                  slot.classList.add('selected');
+                  horaSeleccionada    = hInicio;
+                  horaFinSeleccionada = hFin;
+                  document.getElementById('btn-reservar').disabled = false;
+                  document.getElementById('grupo-nota').style.display = 'block';
+                  actualizarResumen();
+                });
+                hayHoras = true;
+              }
+              contenedor.appendChild(slot);
+              min += 15;
+            }
+
+            if (!hayHoras && contenedor.querySelectorAll('.time-slot:not(.occupied):not(.pending)').length === 0) {
+              // Solo mostrar "sin horas" si no hay ningún slot libre
+              const libres = [...contenedor.querySelectorAll('.time-slot')].filter(s => !s.classList.contains('occupied') && !s.classList.contains('pending'));
+              if (libres.length === 0) {
+                contenedor.innerHTML = '<p style="color:#dc3545;grid-column:1/-1;text-align:center;">⚠️ No hay horas disponibles</p>';
+              }
+            }
+          },
+          (err) => {
+            console.error(err);
+            contenedor.innerHTML = '<p style="color:#dc3545;grid-column:1/-1;text-align:center;">❌ Error al cargar horarios</p>';
+          }
+        );
       } catch (err) {
         console.error(err);
         contenedor.innerHTML = '<p style="color:#dc3545;grid-column:1/-1;text-align:center;">❌ Error al cargar horarios</p>';
@@ -1513,69 +1680,82 @@ async function cargarPuntosUsuario() {
     };
 
     // ── MIS RESERVAS ────────────────────────────────
-    async function cargarMisReservas() {
+    // ── MIS RESERVAS — TIEMPO REAL ──────────────────
+    let _unsubMisReservas = null;
+
+    function iniciarListenerMisReservas(uid) {
+      if (_unsubMisReservas) _unsubMisReservas();
       const contenedor = document.getElementById('lista-mis-reservas');
-      contenedor.innerHTML = '<div class="loader"></div><p style="color:#aaa;text-align:center;">Cargando...</p>';
-      try {
-        const snap = await getDocs(query(collection(db,'reservas'), where('cliente_id','==',usuarioActual.uid)));
-        if (snap.empty) {
-          contenedor.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;">📭 No tienes reservas aún</p>';
-          return;
-        }
-        const reservas = [];
-        snap.forEach(d => reservas.push({ id: d.id, ...d.data() }));
-        reservas.sort((a,b) => {
-          const fa = typeof a.fecha==='string' ? new Date(a.fecha) : (a.fecha?.toDate?.()??new Date());
-          const fb = typeof b.fecha==='string' ? new Date(b.fecha) : (b.fecha?.toDate?.()??new Date());
-          return fb-fa;
-        });
+      if (!contenedor) return;
 
-        contenedor.innerHTML = '';
-        reservas.forEach(r => {
-          let fechaObj;
-          if (typeof r.fecha === 'string') {
-            const [y,m,d] = r.fecha.split('-').map(Number);
-            fechaObj = new Date(y,m-1,d);
-          } else {
-            fechaObj = r.fecha?.toDate?.() ?? new Date(r.fecha);
+      _unsubMisReservas = onSnapshot(
+        query(collection(db,'reservas'), where('cliente_id','==', uid)),
+        (snap) => {
+          if (snap.empty) {
+            contenedor.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;">📭 No tienes reservas aún</p>';
+            return;
           }
-          const fechaStr = fechaObj.toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
+          const reservas = [];
+          snap.forEach(d => reservas.push({ id: d.id, ...d.data() }));
+          reservas.sort((a,b) => {
+            const fa = typeof a.fecha==='string' ? new Date(a.fecha) : (a.fecha?.toDate?.()??new Date());
+            const fb = typeof b.fecha==='string' ? new Date(b.fecha) : (b.fecha?.toDate?.()??new Date());
+            return fb-fa;
+          });
 
-          const estadoTexto = {
-            pendiente: '⏳ Pendiente de aprobación',
-            aprobado:  '✅ Confirmada',
-            rechazado: '❌ Rechazada/Cancelada',
-            completada: '💈 Completada'
-          };
+          contenedor.innerHTML = '';
+          reservas.forEach(r => {
+            let fechaObj;
+            if (typeof r.fecha === 'string') {
+              const [y,m,d] = r.fecha.split('-').map(Number);
+              fechaObj = new Date(y,m-1,d);
+            } else {
+              fechaObj = r.fecha?.toDate?.() ?? new Date(r.fecha);
+            }
+            const fechaStr = fechaObj.toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
 
-          const notaHtml = r.nota_cliente
-            ? `<div class="reserva-nota-display">💬 ${r.nota_cliente}</div>` : '';
-          const puntosHtml = r.estado === 'completada' && r.puntos_sumados
-            ? `<div style="margin-top:6px;color:var(--gold);font-size:0.9rem;">⭐ +${r.puntos_sumados} pts ganados</div>` : '';
-          const puntosGanarHtml = ['pendiente','aprobado'].includes(r.estado) && r.servicio_puntos
-            ? `<div style="margin-top:4px;color:#888;font-size:0.85rem;">⭐ Puntos a ganar: ${r.servicio_puntos}</div>` : '';
+            const estadoTexto = {
+              pendiente: '⏳ Pendiente de aprobación',
+              aprobado:  '✅ Confirmada',
+              rechazado: '❌ Rechazada/Cancelada',
+              completada: '💈 Completada'
+            };
 
-          // Botón cancelar solo si está pendiente
-          const cancelarHtml = r.estado === 'pendiente'
-            ? `<div><button class="btn-cancelar-reserva" onclick="cancelarReserva('${r.id}')">🗑️ Cancelar reserva</button></div>` : '';
+            const notaHtml = r.nota_cliente
+              ? `<div class="reserva-nota-display">💬 ${r.nota_cliente}</div>` : '';
+            const puntosHtml = r.estado === 'completada' && r.puntos_sumados
+              ? `<div style="margin-top:6px;color:var(--gold);font-size:0.9rem;">⭐ +${r.puntos_sumados} pts ganados</div>` : '';
+            const puntosGanarHtml = ['pendiente','aprobado'].includes(r.estado) && r.servicio_puntos
+              ? `<div style="margin-top:4px;color:#888;font-size:0.85rem;">⭐ Puntos a ganar: ${r.servicio_puntos}</div>` : '';
 
-          const div = document.createElement('div');
-          div.className = `reserva-cliente-card ${r.estado}`;
-          div.innerHTML = `
-            <div class="reserva-header">
-              <span class="reserva-servicio">✂️ ${r.servicio_nombre||'Servicio'}</span>
-              <span class="estado-badge ${r.estado}">${estadoTexto[r.estado]||r.estado}</span>
-            </div>
-            <div class="reserva-info">
-              📅 ${fechaStr} • 🕐 ${r.hora_inicio} - ${r.hora_fin}
-            </div>
-            ${notaHtml}${puntosHtml}${puntosGanarHtml}${cancelarHtml}
-          `;
-          contenedor.appendChild(div);
-        });
-      } catch (err) {
-        contenedor.innerHTML = '<p style="color:#dc3545;text-align:center;">❌ Error al cargar reservas</p>';
-      }
+            const cancelarHtml = r.estado === 'pendiente'
+              ? `<div><button class="btn-cancelar-reserva" onclick="cancelarReserva('${r.id}')">🗑️ Cancelar reserva</button></div>` : '';
+
+            const div = document.createElement('div');
+            div.className = `reserva-cliente-card ${r.estado}`;
+            div.innerHTML = `
+              <div class="reserva-header">
+                <span class="reserva-servicio">✂️ ${r.servicio_nombre||'Servicio'}</span>
+                <span class="estado-badge ${r.estado}">${estadoTexto[r.estado]||r.estado}</span>
+              </div>
+              <div class="reserva-info">
+                📅 ${fechaStr} • 🕐 ${r.hora_inicio} - ${r.hora_fin}
+              </div>
+              ${notaHtml}${puntosHtml}${puntosGanarHtml}${cancelarHtml}
+            `;
+            contenedor.appendChild(div);
+          });
+        },
+        (err) => {
+          contenedor.innerHTML = '<p style="color:#dc3545;text-align:center;">❌ Error al cargar reservas</p>';
+          console.error(err);
+        }
+      );
+    }
+
+    // Mantener función sincrónica por compatibilidad con llamadas existentes
+    function cargarMisReservas() {
+      if (usuarioActual?.uid) iniciarListenerMisReservas(usuarioActual.uid);
     }
 
     // ── CANCELAR RESERVA (solo si pendiente) ────────
@@ -2165,6 +2345,404 @@ async function canjearPromocion(promoId, promoNombre, costoPuntos) {
         }
       );
     }
+
+    // ── BIND DE BOTONES (reemplaza todos los onclick inline del HTML) ──
+    // Necesario porque el script es type="module" y las funciones no son globales
+    // hasta que el módulo termina de ejecutarse.
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-iniciar-sesion')     ?.addEventListener('click', () => iniciarSesion());
+      document.getElementById('link-mostrar-pin')       ?.addEventListener('click', (e) => { e.preventDefault(); mostrarVerificarPin(); });
+      document.getElementById('btn-verificar-pin')      ?.addEventListener('click', () => verificarPin());
+      document.getElementById('link-mostrar-login-pin') ?.addEventListener('click', (e) => { e.preventDefault(); mostrarLogin(); });
+      document.getElementById('btn-registrar-usuario')  ?.addEventListener('click', () => registrarUsuario());
+      document.getElementById('link-mostrar-login-reg') ?.addEventListener('click', (e) => { e.preventDefault(); mostrarLogin(); });
+      document.getElementById('btn-cerrar-sesion')      ?.addEventListener('click', () => cerrarSesion());
+      document.getElementById('btn-reservar')           ?.addEventListener('click', () => confirmarReserva());
+      document.getElementById('btn-pulsador')           ?.addEventListener('click', () => accionPulsador());
+    });
+
+    // ════════════════════════════════════════════════════
+    // TARJETAS REGALO — CLIENTE
+    // ════════════════════════════════════════════════════
+
+    let _tgDatoActual = null;   // tarjeta verificada actualmente
+    let _tgDocIdActual = null;
+    // ── Verificar código ──
+    window.verificarCodigoTG = async function() {
+      const codigo = document.getElementById('tg-codigo-input').value.trim().toUpperCase();
+      const errEl  = document.getElementById('tg-error-msg');
+      errEl.style.display = 'none';
+
+      if (!codigo) { errEl.textContent = 'Introduce un código.'; errEl.style.display = 'block'; return; }
+
+      try {
+        const snap = await getDocs(query(collection(db, 'tarjetas_regalo'), where('codigo', '==', codigo)));
+        if (snap.empty) {
+          errEl.textContent = '❌ Código no encontrado. Comprueba que está bien escrito.';
+          errEl.style.display = 'block'; return;
+        }
+
+        const d = snap.docs[0];
+        const t = { id: d.id, ...d.data() };
+        const ahora    = new Date();
+        const caducaEn = t.caducaEn?.toDate?.() ?? new Date(t.caducaEn);
+
+        if (t.estado === 'canjeada') {
+          errEl.textContent = '❌ Esta tarjeta ya ha sido canjeada.'; errEl.style.display = 'block'; return;
+        }
+        if (t.estado === 'caducada' || caducaEn < ahora) {
+          errEl.textContent = '⏰ Esta tarjeta ha caducado.'; errEl.style.display = 'block'; return;
+        }
+        if (t.clienteId !== usuarioActual.uid) {
+          errEl.textContent = '❌ Esta tarjeta no está asignada a tu cuenta.'; errEl.style.display = 'block'; return;
+        }
+
+        // Mostrar tarjeta visual
+        _tgDatoActual  = t;
+        _tgDocIdActual = d.id;
+
+        // Guardar en Firestore para que persista entre sesiones
+        const uSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', usuarioActual.uid)));
+        if (!uSnap.empty) {
+          await updateDoc(doc(db, 'users', uSnap.docs[0].id), { tarjetaVerificadaId: d.id });
+        }
+
+        tgMostrarTarjeta(t, caducaEn);
+
+      } catch(e) {
+        errEl.textContent = '❌ Error: ' + e.message; errEl.style.display = 'block';
+      }
+    };
+
+    function tgMostrarTarjeta(t, caducaEn) {
+      // Rellenar SVG
+      const fmtCaduca = caducaEn.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
+      document.getElementById('tg-svg-servicio').textContent = t.servicioNombre || 'Servicio';
+      document.getElementById('tg-svg-codigo').textContent   = t.codigo;
+      document.getElementById('tg-svg-caduca').textContent   = `Válida hasta: ${fmtCaduca}`;
+      document.getElementById('tg-svg-cliente').textContent  = `Para: ${t.clienteNombre}`;
+
+      // Mensaje
+      const msgEl = document.getElementById('tg-mensaje-display');
+      if (t.mensaje) {
+        document.getElementById('tg-mensaje-texto').textContent = t.mensaje;
+        msgEl.style.display = 'block';
+      } else {
+        msgEl.style.display = 'none';
+      }
+
+      // Puntos
+      const ptsEl = document.getElementById('tg-puntos-info');
+      if (t.servicioPuntos > 0) {
+        document.getElementById('tg-puntos-val').textContent = t.servicioPuntos;
+        ptsEl.style.display = 'block';
+      } else {
+        ptsEl.style.display = 'none';
+      }
+
+      // Mostrar / ocultar estados
+      document.getElementById('tg-estado-vacio').style.display   = 'none';
+      document.getElementById('tg-card-display').style.display   = 'block';
+    }
+
+    window.tgResetear = function() {
+      _tgDatoActual = null; _tgDocIdActual = null;
+      document.getElementById('tg-codigo-input').value = '';
+      document.getElementById('tg-error-msg').style.display  = 'none';
+      document.getElementById('tg-estado-vacio').style.display = 'block';
+      document.getElementById('tg-card-display').style.display  = 'none';
+    };
+
+    // ── Canjear tarjeta → crear reserva ──
+    window.canjearTarjetaRegalo = async function() {
+      if (!_tgDatoActual || !_tgDocIdActual) return;
+      const t = _tgDatoActual;
+
+      const confirmar = confirm(
+        `¿Canjear la tarjeta regalo?\n\n` +
+        `✂️ Servicio: ${t.servicioNombre}\n` +
+        `🎁 Precio: GRATIS (tarjeta regalo)\n\n` +
+        `Se creará una reserva pendiente de aprobación.`
+      );
+      if (!confirmar) return;
+
+      const btn = document.getElementById('tg-btn-canjear');
+      btn.disabled = true;
+
+      try {
+        // Guardar tarjeta activa en sesión para que Reservar la use
+        sessionStorage.setItem('tg_activa', JSON.stringify({
+          docId:          _tgDocIdActual,
+          codigo:         t.codigo,
+          servicioId:     t.servicioId,
+          servicioNombre: t.servicioNombre,
+          servicioPuntos: t.servicioPuntos,
+        }));
+
+        // Resetear estado visual
+        tgResetear();
+
+        // Navegar a la sección Reservar y preseleccionar el servicio
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+        const navBtn   = document.querySelector('.nav-btn[data-section="reservar"]');
+        const seccion  = document.getElementById('reservar');
+        if (navBtn)  navBtn.classList.add('active');
+        if (seccion) { seccion.classList.add('active'); seccion.style.display = 'block'; }
+
+        // Preseleccionar el servicio en el <select>
+        await tgPreseleccionarServicio(t.servicioId, t.servicioNombre);
+
+        // Banner informativo en la sección Reservar
+        tgMostrarBannerReserva(t);
+
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+        btn.disabled = false;
+      }
+    };
+
+    // Preselecciona el servicio en el selector de Reservar
+    async function tgPreseleccionarServicio(servicioId, servicioNombre) {
+      const sel = document.getElementById('reserva-servicio');
+      if (!sel) return;
+
+      // 1. Leer el servicio DIRECTAMENTE de Firestore por su ID
+      //    Esto garantiza duracion_min, puntos y precio correctos sin depender del select
+      let svcData = null;
+      try {
+        const { getDoc, doc: fsDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+        const svcSnap = await getDoc(fsDoc(db, 'servicios', servicioId));
+        if (svcSnap.exists()) {
+          svcData = { id: svcSnap.id, ...svcSnap.data() };
+        }
+      } catch(e) { /* fallback al select */ }
+
+      // Fallback: buscar en el select si Firestore falló
+      if (!svcData) {
+        // Asegurarse de que el select está cargado
+        if (sel.options.length <= 1) {
+          await cargarServicios();
+          await new Promise(r => setTimeout(r, 250));
+        }
+        for (let i = 0; i < sel.options.length; i++) {
+          const opt = sel.options[i];
+          if (opt.value === servicioId ||
+              (opt.dataset.nombre||'').toLowerCase() === servicioNombre.toLowerCase()) {
+            svcData = {
+              id:           opt.value,
+              nombre:       opt.dataset.nombre,
+              duracion_min: parseInt(opt.dataset.duracion || 30),
+              puntos_ganados: parseInt(opt.dataset.puntos || 0),
+              precio:       opt.dataset.precio || '0'
+            };
+            break;
+          }
+        }
+      }
+
+      if (!svcData) {
+        console.warn('tgPreseleccionarServicio: servicio no encontrado', servicioId);
+        return;
+      }
+
+      // 2. Poblar servicioSeleccionado con datos reales de Firestore
+      servicioSeleccionado = {
+        id:             svcData.id,
+        nombre:         svcData.nombre,
+        duracion_min:   parseInt(svcData.duracion_min || 30),
+        puntos_ganados: parseInt(svcData.puntos_ganados ?? svcData.puntos ?? 0),
+        precio:         svcData.precio || '0'
+      };
+
+      // 3. Seleccionar visualmente la opción correcta en el <select>
+      //    Asegurarse de que el select está cargado
+      if (sel.options.length <= 1) {
+        await cargarServicios();
+        await new Promise(r => setTimeout(r, 250));
+      }
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === svcData.id) {
+          sel.selectedIndex = i; break;
+        }
+      }
+
+      // 4. Actualizar UI
+      const infoEl = document.getElementById('servicio-info');
+      if (infoEl) infoEl.textContent =
+        `⏱️ ${servicioSeleccionado.duracion_min}min • €${servicioSeleccionado.precio} • ⭐ +${servicioSeleccionado.puntos_ganados} pts`;
+
+      horaSeleccionada = null; horaFinSeleccionada = null;
+      document.getElementById('btn-reservar').disabled = true;
+      document.getElementById('grupo-horas').style.display = 'none';
+
+      // 5. Cargar días disponibles con la duración correcta del servicio
+      await cargarDiasDisponibles();
+
+      // 6. Deshabilitar el select
+      sel.disabled = true;
+      sel.style.opacity = '0.6';
+      sel.style.cursor  = 'not-allowed';
+      sel.title = 'Servicio fijado por la tarjeta regalo';
+    }
+
+    // Banner dorado en sección Reservar avisando que es con tarjeta regalo
+    function tgMostrarBannerReserva(t) {
+      const existente = document.getElementById('tg-banner-reservar');
+      if (existente) existente.remove();
+      const banner = document.createElement('div');
+      banner.id = 'tg-banner-reservar';
+      banner.style.cssText = `
+        background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.45);
+        border-radius:10px;padding:12px 16px;margin-bottom:16px;
+        font-size:0.88rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+      `;
+      banner.innerHTML = `
+        <span style="font-size:1.3rem;">🎀</span>
+        <div style="flex:1;">
+          <strong style="color:var(--gold);">Reservando con Tarjeta Regalo</strong><br>
+          <span style="color:#aaa;">✂️ ${t.servicioNombre} · Código: <span style="font-family:'Orbitron',monospace;font-size:0.82rem;">${t.codigo}</span></span>
+        </div>
+        <button onclick="tgCancelarUso()" style="background:none;border:none;color:#666;cursor:pointer;font-size:0.9rem;" title="Cancelar uso de tarjeta">✕</button>
+      `;
+      const sec = document.getElementById('reservar');
+      if (sec) sec.insertBefore(banner, sec.firstChild);
+    }
+
+    window.tgCancelarUso = function() {
+      sessionStorage.removeItem('tg_activa');
+      document.getElementById('tg-banner-reservar')?.remove();
+      const sel = document.getElementById('reserva-servicio');
+      if (sel) {
+        sel.disabled = false;
+        sel.style.opacity = '';
+        sel.style.cursor  = '';
+        sel.title = '';
+      }
+    };
+
+    // Hook en confirmarReserva: si hay tarjeta activa, usarla
+    const _confirmarReserva_original = window.confirmarReserva;
+    window.confirmarReserva = async function() {
+      const tgRaw = sessionStorage.getItem('tg_activa');
+      if (!tgRaw) return _confirmarReserva_original?.();
+      const tg = JSON.parse(tgRaw);
+
+      // Obtener datos del formulario de reserva normalmente
+      const fecha     = document.getElementById('reserva-fecha')?.value;
+      const horaIni   = horaSeleccionada;
+      const horaFin   = horaFinSeleccionada;
+      const nota      = document.getElementById('reserva-nota')?.value?.trim() || '';
+      const selSvc    = document.getElementById('reserva-servicio') || document.getElementById('servicio-select');
+      const svcOpt    = selSvc?.options[selSvc?.selectedIndex];
+
+      if (!fecha || !horaIni || !horaFin) {
+        alert('⚠️ Selecciona día y hora para completar la reserva.'); return;
+      }
+
+      if (!confirm(`¿Confirmar reserva con Tarjeta Regalo?\n\n✂️ ${tg.servicioNombre}\n📅 ${fecha} · 🕐 ${horaIni} – ${horaFin}\n🎀 Código: ${tg.codigo}\n🎁 Precio: GRATIS`)) return;
+
+      try {
+        const reservaRef = await addDoc(collection(db, 'reservas'), {
+          cliente_id:        usuarioActual.uid,
+          cliente_nombre:    usuarioActual.nombre,
+          cliente_email:     usuarioActual.email || '',
+          servicio_id:       tg.servicioId,
+          servicio_nombre:   tg.servicioNombre,
+          servicio_puntos:   tg.servicioPuntos,
+          fecha,
+          hora_inicio:       horaIni,
+          hora_fin:          horaFin,
+          estado:            'pendiente',
+          nota_cliente:      `🎀 TARJETA REGALO · Código: ${tg.codigo}${nota ? ' · ' + nota : ''}`,
+          esTarjetaRegalo:   true,
+          codigoTarjeta:     tg.codigo,
+          tarjetaId:         tg.docId,
+          puntos_aplicados:  0,
+          probarSuerte:      false,
+          suerteUsada:       false,
+          esManual:          false,
+          createdAt:         serverTimestamp()
+        });
+
+        // Marcar tarjeta como canjeada
+        await updateDoc(doc(db, 'tarjetas_regalo', tg.docId), {
+          estado:    'canjeada',
+          canjeadaAt: serverTimestamp(),
+          reservaId:  reservaRef.id
+        });
+
+        // Los puntos se suman cuando el barbero marca la reserva como completada
+        // (igual que en el flujo normal) — no los sumamos aquí
+
+        sessionStorage.removeItem('tg_activa');
+        document.getElementById('tg-banner-reservar')?.remove();
+        // Rehabilitar selector de servicio
+        const selR = document.getElementById('reserva-servicio') || document.getElementById('servicio-select');
+        if (selR) { selR.disabled = false; selR.style.opacity = ''; selR.style.cursor = ''; selR.title = ''; }
+
+        // Reset formulario reserva
+        horaSeleccionada = null; horaFinSeleccionada = null;
+        document.getElementById('reserva-fecha').value = '';
+        document.getElementById('time-slots').innerHTML = '';
+        document.getElementById('grupo-horas').style.display = 'none';
+        document.getElementById('grupo-nota').style.display  = 'none';
+        document.getElementById('btn-reservar').disabled      = true;
+        if (document.getElementById('reserva-nota')) document.getElementById('reserva-nota').value = '';
+
+        alert(`🎀 ¡Reserva creada con éxito!\n✂️ ${tg.servicioNombre}\n📅 ${fecha} · ${horaIni} – ${horaFin}\nPendiente de aprobación.`);
+
+        // Ir a Mis Reservas
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display='none'; });
+        const nb = document.querySelector('.nav-btn[data-section="mis-reservas"]');
+        const ms = document.getElementById('mis-reservas');
+        if (nb) nb.classList.add('active');
+        if (ms) { ms.classList.add('active'); ms.style.display = 'block'; }
+
+      } catch(e) { alert('❌ Error: ' + e.message); }
+    };
+
+    // ── Cargar tarjeta verificada guardada al iniciar sesión ──
+    async function tgCargarTarjetaGuardada(uid) {
+      try {
+        // Leer tarjetaVerificadaId del perfil del usuario
+        const uSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', uid)));
+        if (uSnap.empty) return;
+        const userDocRef = doc(db, 'users', uSnap.docs[0].id);
+        const tarjetaId  = uSnap.docs[0].data().tarjetaVerificadaId;
+        if (!tarjetaId) return;
+
+        // Cargar la tarjeta por su ID
+        const tDocRef = doc(db, 'tarjetas_regalo', tarjetaId);
+        const tSnap   = await getDoc(tDocRef);
+
+        if (!tSnap.exists()) {
+          await updateDoc(userDocRef, { tarjetaVerificadaId: null });
+          return;
+        }
+
+        const tData    = tSnap.data();
+        const ahora    = new Date();
+        const caducaEn = tData.caducaEn?.toDate?.() ?? new Date(tData.caducaEn);
+
+        // Si ya caducó o fue canjeada, limpiar y no mostrar
+        if (tData.estado !== 'activa' || caducaEn < ahora) {
+          await updateDoc(userDocRef, { tarjetaVerificadaId: null });
+          return;
+        }
+
+        // Restaurar estado en memoria y mostrar tarjeta visual
+        _tgDatoActual  = { id: tSnap.id, ...tData };
+        _tgDocIdActual = tSnap.id;
+        tgMostrarTarjeta(_tgDatoActual, caducaEn);
+
+      } catch(e) { console.error('tgCargarTarjetaGuardada:', e); }
+    }
+
+    // Arrancar listener al iniciar sesión
+    // (se llama desde onAuthStateChanged)
+
   </script>
 </body>
 </html>

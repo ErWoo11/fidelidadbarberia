@@ -367,6 +367,131 @@
     .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
     .form-row > * { flex: 1; min-width: 130px; }
 
+    /* Toggle cliente registrado / manual */
+    .tipo-cliente-toggle {
+      display: flex; gap: 0; margin-bottom: 14px; border-radius: 8px; overflow: hidden;
+      border: 1px solid #333;
+    }
+    .tipo-cliente-toggle button {
+      flex: 1; padding: 9px 8px; background: #111; border: none;
+      color: #666; cursor: pointer; font-size: 0.82rem; font-weight: 600;
+      transition: all 0.2s; letter-spacing: 0.5px;
+    }
+    .tipo-cliente-toggle button.active {
+      background: var(--gold); color: #000;
+    }
+
+    /* Buscador de clientes registrados */
+    .cliente-search-wrap { position: relative; margin-bottom: 8px; }
+    .cliente-search-wrap input { width: 100%; padding-right: 32px; }
+    .cliente-search-results {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 99;
+      background: #1a1a1a; border: 1px solid #444; border-top: none;
+      border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto;
+    }
+    .cliente-search-result-item {
+      padding: 9px 12px; cursor: pointer; font-size: 0.88rem;
+      border-bottom: 1px solid #222; transition: background 0.15s;
+    }
+    .cliente-search-result-item:hover { background: #2a2a2a; }
+    .cliente-search-result-item .item-nombre { color: #eee; font-weight: 600; }
+    .cliente-search-result-item .item-sub { color: #666; font-size: 0.78rem; margin-top: 2px; }
+    .cliente-seleccionado-badge {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+      background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 8px; margin-bottom: 8px; font-size: 0.88rem;
+    }
+    .cliente-seleccionado-badge span { flex: 1; color: var(--gold); }
+    .cliente-seleccionado-badge button {
+      background: none; border: none; color: #666; cursor: pointer; font-size: 0.9rem;
+    }
+    .cliente-seleccionado-badge button:hover { color: #dc3545; }
+
+    /* Días disponibles */
+    .gr-dias-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 8px; margin: 10px 0 16px;
+    }
+    .gr-dia-btn {
+      padding: 10px 6px; background: #1a1a1a; border: 1px solid #333;
+      border-radius: 8px; cursor: pointer; text-align: center;
+      font-size: 0.78rem; color: #aaa; transition: all 0.2s; line-height: 1.35;
+    }
+    .gr-dia-btn:hover { border-color: var(--gold); color: var(--gold); background: #222; }
+    .gr-dia-btn.selected { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+    .gr-dia-btn .dia-nombre { font-weight: 700; font-size: 0.8rem; }
+    .gr-dia-btn .dia-num { font-family: 'Orbitron', monospace; font-size: 1.1rem; font-weight: 900; }
+    .gr-dia-btn .dia-mes { font-size: 0.72rem; opacity: 0.8; }
+
+    /* Slots de horas en admin */
+    .gr-slots-wrap { margin: 0 0 14px; }
+    .gr-slots-titulo {
+      font-size: 0.78rem; color: #666; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .gr-slots-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 7px;
+    }
+    .gr-slot {
+      padding: 9px 4px; background: #1a1a1a; border: 1px solid #333;
+      border-radius: 7px; text-align: center; font-size: 0.85rem;
+      cursor: pointer; transition: all 0.2s; color: #ccc; user-select: none;
+    }
+    .gr-slot:hover:not(.occupied):not(.bloqueado) { border-color: var(--gold); color: var(--gold); }
+    .gr-slot.selected { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+    .gr-slot.occupied { background: #1a1010; border-color: #4a2020; color: #555; cursor: not-allowed; text-decoration: line-through; }
+    .gr-slot.bloqueado { background: #1a1020; border-color: #4a2060; color: #8855aa; cursor: not-allowed; }
+    .gr-slot.bloqueado::after { content: '🔒'; display: block; font-size: 0.6rem; }
+
+    /* Modo bloqueo */
+    .modo-bloqueo-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; background: rgba(136,85,170,0.1);
+      border: 1px solid rgba(136,85,170,0.4); border-radius: 8px;
+      margin-bottom: 14px;
+    }
+    .modo-bloqueo-bar label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.88rem; color: #bb99dd; flex: 1; }
+    .modo-bloqueo-bar input[type=checkbox] { width: 16px; height: 16px; accent-color: #8855aa; }
+
+    /* Sección de bloqueo rápido independiente */
+    .bloqueo-section {
+      background: #0a080e; border: 1px solid rgba(136,85,170,0.3);
+      border-radius: 12px; padding: 16px; margin-bottom: 20px;
+    }
+    .bloqueo-section h4 { color: #bb99dd; margin: 0 0 12px; font-size: 0.9rem; letter-spacing: 1px; }
+
+    /* ── TARJETA REGALO ADMIN ── */
+    .tg-card-admin {
+      background: linear-gradient(135deg, #0d0d0d 0%, #1a1208 100%);
+      border: 1px solid rgba(212,175,55,0.35);
+      border-radius: 14px; padding: 16px; margin-bottom: 14px;
+      position: relative; overflow: hidden;
+    }
+    .tg-card-admin::before {
+      content: '🎀';
+      position: absolute; top: 12px; right: 14px;
+      font-size: 1.6rem; opacity: 0.18;
+    }
+    .tg-card-admin.canjeada { border-color: #28a74555; opacity: 0.75; }
+    .tg-card-admin.caducada { border-color: #dc354555; opacity: 0.65; filter: grayscale(40%); }
+    .tg-card-admin-nombre { font-weight: 700; color: var(--gold); font-size: 0.95rem; margin-bottom: 3px; }
+    .tg-card-admin-servicio { color: #ccc; font-size: 0.88rem; margin-bottom: 6px; }
+    .tg-card-admin-meta { font-size: 0.78rem; color: #666; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+    .tg-card-admin-codigo {
+      font-family: 'Orbitron', monospace; font-size: 0.85rem; font-weight: 700;
+      color: var(--gold); letter-spacing: 3px; background: rgba(212,175,55,0.07);
+      border: 1px dashed rgba(212,175,55,0.35); border-radius: 6px;
+      padding: 5px 12px; display: inline-block; margin-bottom: 8px;
+    }
+    .tg-estado-badge {
+      display: inline-block; font-size: 0.72rem; font-weight: 700;
+      padding: 2px 10px; border-radius: 20px; margin-left: 8px;
+    }
+    .tg-estado-badge.activa   { background: rgba(40,167,69,0.2);  color:#28a745; border:1px solid #28a74588; }
+    .tg-estado-badge.canjeada { background: rgba(108,117,125,0.2); color:#aaa;    border:1px solid #6c757d88; }
+    .tg-estado-badge.caducada { background: rgba(220,53,69,0.15);  color:#dc3545; border:1px solid #dc354588; }
+    .gr-slot.bloqueo-seleccionado { background: rgba(136,85,170,0.3); border-color: #8855aa; color: #cc99ee; font-weight: 700; }
+
     /* Contraseña en clientes */
     .cliente-pass {
       font-family: monospace; font-size: 0.8rem;
@@ -426,6 +551,9 @@
       </button>
       <button class="main-tab-btn" data-main="reservas" id="btn-main-reservas">
         <span class="tab-icon">📅</span>Reservas
+      </button>
+      <button class="main-tab-btn" data-main="tarjetas">
+        <span class="tab-icon">🎀</span>Tarjetas Regalo
       </button>
     </div>
 
@@ -590,34 +718,82 @@
       <!-- Gestión de Reservas (crear manual) -->
       <div id="gestion-reservas" class="sub-panel">
 
-        <!-- Formulario crear reserva -->
+        <!-- ══ SECCIÓN 1: NUEVA RESERVA ══ -->
         <div class="form-reserva-admin">
           <h4>➕ NUEVA RESERVA MANUAL</h4>
 
-          <div class="form-row">
-            <input type="text" id="gr-nombre" placeholder="Nombre del cliente" />
-            <input type="tel" id="gr-telefono" placeholder="Teléfono (opcional)" />
+          <!-- Toggle tipo cliente -->
+          <div class="tipo-cliente-toggle">
+            <button id="btn-tipo-registrado" class="active" onclick="grSetTipoCliente('registrado')">👤 Cliente registrado</button>
+            <button id="btn-tipo-manual"     onclick="grSetTipoCliente('manual')">⚡ Cliente rápido (manual)</button>
           </div>
-          <div class="form-row">
-            <select id="gr-servicio">
-              <option value="">— Servicio —</option>
-            </select>
-            <input type="date" id="gr-fecha" />
+
+          <!-- Cliente REGISTRADO: buscador -->
+          <div id="gr-bloque-registrado">
+            <div class="cliente-search-wrap">
+              <input type="text" id="gr-buscar-cliente" placeholder="🔍 Buscar cliente por nombre..." oninput="grBuscarCliente(this.value)" autocomplete="off" />
+              <div class="cliente-search-results" id="gr-resultados-clientes" style="display:none;"></div>
+            </div>
+            <div id="gr-cliente-badge" style="display:none;">
+              <!-- se rellena al seleccionar -->
+            </div>
           </div>
-          <div class="form-row">
-            <input type="time" id="gr-hora-inicio" value="10:00" />
-            <input type="time" id="gr-hora-fin" value="10:30" />
+
+          <!-- Cliente MANUAL: nombre + teléfono -->
+          <div id="gr-bloque-manual" style="display:none;">
+            <div class="form-row">
+              <input type="text" id="gr-nombre" placeholder="Nombre del cliente" />
+              <input type="tel"  id="gr-telefono" placeholder="Teléfono (opcional)" />
+            </div>
           </div>
-          <select id="gr-estado" style="margin-bottom:10px;">
-            <option value="aprobado">✅ Aprobada directamente</option>
-            <option value="pendiente">⏳ Pendiente</option>
+
+          <!-- Servicio -->
+          <select id="gr-servicio" style="margin-bottom:10px;" onchange="grOnServicioChange()">
+            <option value="">— Selecciona un servicio —</option>
           </select>
-          <button class="btn" onclick="crearReservaAdmin()" style="width:100%;">
+
+          <!-- Días disponibles -->
+          <div id="gr-bloque-dias" style="display:none;">
+            <div class="gr-slots-titulo">📅 Día</div>
+            <div class="gr-dias-grid" id="gr-dias-grid"></div>
+          </div>
+
+          <!-- Slots de hora (cita) -->
+          <div id="gr-bloque-horas" style="display:none;">
+            <div class="gr-slots-titulo">🕐 Hora de inicio</div>
+            <div class="gr-slots-grid" id="gr-slots-grid"></div>
+          </div>
+
+          <!-- Hora fin calculada -->
+          <div id="gr-hora-resumen" style="display:none; margin-bottom:12px; padding:8px 12px; background:#111; border-radius:8px; font-size:0.88rem; color:#aaa;">
+            Turno: <span id="gr-hora-resumen-texto" style="color:var(--gold); font-family:'Orbitron',monospace; font-weight:700;"></span>
+          </div>
+
+          <button class="btn" onclick="crearReservaAdmin()" style="width:100%;" id="gr-btn-crear" disabled>
             💾 Crear reserva
           </button>
         </div>
 
-        <!-- Lista de todas las reservas con opción de eliminar -->
+        <!-- ══ SECCIÓN 2: BLOQUEAR HORAS ══ -->
+        <div class="bloqueo-section">
+          <h4>🔒 BLOQUEAR HORAS (no disponibles)</h4>
+          <p style="font-size:0.82rem;color:#666;margin-bottom:12px;">Marca horas como no disponibles para reservas sin asociar a ningún cliente.</p>
+
+          <!-- Días para bloqueo -->
+          <div class="gr-slots-titulo">📅 Selecciona el día</div>
+          <div class="gr-dias-grid" id="blq-dias-grid"></div>
+
+          <!-- Slots para bloqueo -->
+          <div id="blq-bloque-horas" style="display:none; margin-top:10px;">
+            <div class="gr-slots-titulo">🕐 Selecciona horas a bloquear <span style="color:#8855aa;">(puedes marcar varias)</span></div>
+            <div class="gr-slots-grid" id="blq-slots-grid"></div>
+            <button class="btn" onclick="confirmarBloqueo()" style="width:100%;margin-top:12px;background:#8855aa;color:#fff;" id="blq-btn-confirmar" disabled>
+              🔒 Bloquear horas seleccionadas
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ SECCIÓN 3: TODAS LAS RESERVAS ══ -->
         <h4 style="color:var(--gold); margin-bottom:12px; letter-spacing:1px;">TODAS LAS RESERVAS</h4>
         <div class="filtros-reservas" style="margin-bottom:16px;">
           <button class="filtro-btn active" data-filtro-gr="todas">Todas</button>
@@ -629,6 +805,53 @@
       </div>
 
     </div><!-- /panel-reservas -->
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- PANEL: TARJETAS REGALO                      -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="panel-tarjetas" class="main-panel">
+
+      <!-- Crear tarjeta -->
+      <div class="form-reserva-admin" style="border-color:rgba(212,175,55,0.3);">
+        <h4>🎀 CREAR TARJETA REGALO</h4>
+
+        <!-- Buscar cliente destinatario -->
+        <div class="gr-slots-titulo" style="margin-bottom:6px;">👤 Cliente destinatario</div>
+        <div class="cliente-search-wrap">
+          <input type="text" id="tg-buscar-cliente" placeholder="🔍 Buscar cliente por nombre..." oninput="tgBuscarCliente(this.value)" autocomplete="off" />
+          <div class="cliente-search-results" id="tg-resultados-clientes" style="display:none;"></div>
+        </div>
+        <div id="tg-cliente-badge" style="display:none;"></div>
+
+        <!-- Servicio incluido -->
+        <div class="gr-slots-titulo" style="margin:10px 0 6px;">✂️ Servicio incluido</div>
+        <select id="tg-servicio" style="margin-bottom:10px;">
+          <option value="">— Selecciona un servicio —</option>
+        </select>
+
+        <!-- Mensaje personalizado -->
+        <div class="gr-slots-titulo" style="margin-bottom:6px;">💬 Mensaje (opcional)</div>
+        <textarea id="tg-mensaje" placeholder="Ej: ¡Feliz cumpleaños! Disfruta tu corte." rows="2"
+          style="width:100%;padding:10px;background:#111;border:1px solid #333;color:#ccc;border-radius:8px;resize:none;font-family:inherit;font-size:0.88rem;margin-bottom:12px;"></textarea>
+
+        <button class="btn" id="tg-btn-crear" onclick="crearTarjetaRegalo()" disabled style="width:100%;background:var(--gold);">
+          🎀 Generar tarjeta regalo
+        </button>
+      </div>
+
+      <!-- Lista de tarjetas -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <h4 style="color:var(--gold);letter-spacing:1px;margin:0;">TARJETAS EMITIDAS</h4>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="filtro-btn active" data-filtro-tg="todas" style="font-size:0.78rem;padding:6px 12px;">Todas</button>
+          <button class="filtro-btn" data-filtro-tg="activa" style="font-size:0.78rem;padding:6px 12px;">✅ Activas</button>
+          <button class="filtro-btn" data-filtro-tg="canjeada" style="font-size:0.78rem;padding:6px 12px;">🔄 Canjeadas</button>
+          <button class="filtro-btn" data-filtro-tg="caducada" style="font-size:0.78rem;padding:6px 12px;">⏰ Caducadas</button>
+        </div>
+      </div>
+      <div id="lista-tarjetas-admin"></div>
+    </div><!-- /panel-tarjetas -->
+
   </div><!-- /container panel -->
 
   <script type="module">
@@ -680,6 +903,7 @@
         btn.classList.add('active');
         const panelId = 'panel-' + btn.getAttribute('data-main');
         document.getElementById(panelId)?.classList.add('active');
+        if (btn.getAttribute('data-main') === 'tarjetas') iniciarPanelTarjetas();
       });
     });
 
@@ -711,6 +935,13 @@
           if (subId === 'config-servicios') cargarServicios();
           if (subId === 'aprobar-reservas') iniciarListenerReservas();
           if (subId === 'gestion-reservas') { cargarServiciosEnGR(); cargarTodasReservas('todas'); }
+
+          // Al salir de gestión-reservas, limpiar listeners de slots y lista
+          if (subId !== 'gestion-reservas') {
+            if (_unsubGrSlots)  { _unsubGrSlots();  _unsubGrSlots  = null; }
+            if (_unsubBlqSlots) { _unsubBlqSlots(); _unsubBlqSlots = null; }
+            if (_unsubGrLista)  { _unsubGrLista();  _unsubGrLista  = null; }
+          }
         });
       });
 
@@ -813,13 +1044,30 @@
       div.className = `reserva-card ${r.estado}`;
       const fechaStr = fechaADate(r.fecha).toLocaleDateString('es-ES', { weekday:'short', day:'numeric', month:'short' });
       const notaHtml  = r.nota_cliente ? `<div class="reserva-nota">💬 "${r.nota_cliente}"</div>` : '';
-      const ptsHtml   = r.servicio_puntos ? `<div style="margin:5px 0;color:var(--gold);">⭐ Puntos a ganar: ${r.servicio_puntos}</div>` : '';
+      const ptsHtml   = (!r.esBloqueo && r.servicio_puntos) ? `<div style="margin:5px 0;color:var(--gold);">⭐ Puntos a ganar: ${r.servicio_puntos}</div>` : '';
       const suerteGanadaHtml = r.suerteGanada === true
         ? `<div style="margin:5px 0;background:rgba(212,175,55,0.12);border:1px solid var(--gold);border-radius:6px;padding:6px 10px;font-size:0.85rem;color:var(--gold);">🎰 <strong>¡Premio ganado!</strong> — No se sumarán puntos al completar</div>`
         : '';
 
+      // Badge tipo de reserva
+      let tipoBadgeHtml = '';
+      if (r.esBloqueo) {
+        tipoBadgeHtml = `<div style="margin:4px 0;"><span style="font-size:0.75rem;padding:2px 8px;border-radius:20px;background:rgba(136,85,170,0.2);color:#bb99dd;border:1px solid #8855aa;">🔒 Hora bloqueada</span></div>`;
+      } else if (r.esTarjetaRegalo) {
+        tipoBadgeHtml = `<div style="margin:4px 0;"><span style="font-size:0.75rem;padding:2px 8px;border-radius:20px;background:rgba(212,175,55,0.12);color:var(--gold);border:1px solid rgba(212,175,55,0.5);">🎀 Tarjeta Regalo · ${r.codigoTarjeta||''}</span></div>`;
+      } else if (r.esManual && r.clienteRegistrado) {
+        tipoBadgeHtml = `<div style="margin:4px 0;"><span style="font-size:0.75rem;padding:2px 8px;border-radius:20px;background:rgba(212,175,55,0.1);color:var(--gold);border:1px solid rgba(212,175,55,0.35);">✏️ Cita manual · cliente registrado</span></div>`;
+      } else if (r.esManual) {
+        tipoBadgeHtml = `<div style="margin:4px 0;"><span style="font-size:0.75rem;padding:2px 8px;border-radius:20px;background:#1a1a1a;color:#777;border:1px solid #333;">⚡ Cita manual · cliente rápido</span></div>`;
+      }
+
       let accionesHtml = '';
-      if (r.estado === 'pendiente') {
+      if (r.esBloqueo) {
+        // Las horas bloqueadas solo se pueden eliminar
+        accionesHtml = `<div class="reserva-actions">
+          <button class="btn-small btn-rechazar" onclick="cambiarEstado('${r.id}','rechazado')" style="background:#555;">🔓 Desbloquear</button>
+        </div>`;
+      } else if (r.estado === 'pendiente') {
         accionesHtml = `<div class="reserva-actions">
           <button class="btn-small btn-aprobar" onclick="cambiarEstado('${r.id}','aprobado')">✅ Aprobar</button>
           <button class="btn-small btn-rechazar" onclick="cambiarEstado('${r.id}','rechazado')">❌ Rechazar</button>
@@ -848,6 +1096,7 @@
           <span class="reserva-cliente">👤 ${r.cliente_nombre||'Cliente'}</span>
           <span class="reserva-fecha">📅 ${fechaStr}</span>
         </div>
+        ${tipoBadgeHtml}
         <div class="reserva-servicio">✂️ ${r.servicio_nombre||'Servicio'}</div>
         <div class="reserva-horario">🕐 ${r.hora_inicio} - ${r.hora_fin}</div>
         ${ptsHtml}${suerteGanadaHtml}${notaHtml}${accionesHtml}`;
@@ -1569,84 +1818,482 @@
     // ════════════════════════════════════════════
     // GESTIÓN DE RESERVAS — CREAR MANUAL
     // ════════════════════════════════════════════
+    // ════════════════════════════════════════════
+    // GESTIÓN DE RESERVAS — SISTEMA MEJORADO
+    // ════════════════════════════════════════════
+
+    // ── Estado del formulario ──
+    let grTipoCliente  = 'registrado'; // 'registrado' | 'manual'
+    let grClienteSeleccionado = null;  // { uid, nombre, email, puntos, docId }
+    let grServicioSeleccionado = null; // { id, nombre, duracion_min, puntos }
+    let grFechaSeleccionada = null;    // 'YYYY-MM-DD'
+    let grHoraInicio = null;
+    let grHoraFin    = null;
+    let grHorariosCache = [];          // horarios_admin cargados
+
+    // ── Utilidades compartidas ──
+    function grMinutos(hora) { const [h,m]=hora.split(':').map(Number); return h*60+m; }
+    function grMinToStr(min) { return `${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`; }
+    function grSolapan(i1,f1,i2,f2) { return grMinutos(i1)<grMinutos(f2) && grMinutos(i2)<grMinutos(f1); }
+
+    // ── Inicializar cuando se abre el sub-panel ──
     async function cargarServiciosEnGR() {
       const sel = document.getElementById('gr-servicio');
-      if (!sel || sel.options.length > 1) return; // ya cargados
+      if (sel && sel.options.length > 1) { /* ya cargados */ } else {
+        try {
+          const snap = await getDocs(collection(db, 'servicios'));
+          snap.forEach(d => {
+            const s = d.data();
+            const opt = document.createElement('option');
+            opt.value = d.id;
+            opt.textContent = `${s.nombre} (${s.duracion_min}min · €${s.precio})`;
+            opt.dataset.duracion = s.duracion_min;
+            opt.dataset.nombre   = s.nombre;
+            opt.dataset.puntos   = s.puntos_ganados || 0;
+            if (sel) sel.appendChild(opt);
+          });
+        } catch(e) { console.error(e); }
+      }
+      // Cargar horarios para días
+      await grCargarDias();
+      await blqCargarDias();
+    }
+
+    // ── TIPO CLIENTE ──
+    window.grSetTipoCliente = function(tipo) {
+      grTipoCliente = tipo;
+      document.getElementById('btn-tipo-registrado').classList.toggle('active', tipo === 'registrado');
+      document.getElementById('btn-tipo-manual').classList.toggle('active', tipo === 'manual');
+      document.getElementById('gr-bloque-registrado').style.display = tipo === 'registrado' ? 'block' : 'none';
+      document.getElementById('gr-bloque-manual').style.display     = tipo === 'manual'     ? 'block' : 'none';
+      grClienteSeleccionado = null;
+      grValidarBoton();
+    };
+
+    // ── BÚSQUEDA CLIENTE REGISTRADO ──
+    let grBuscarTimer = null;
+    window.grBuscarCliente = function(q) {
+      clearTimeout(grBuscarTimer);
+      const resCont = document.getElementById('gr-resultados-clientes');
+      if (!q || q.length < 2) { resCont.style.display = 'none'; return; }
+      grBuscarTimer = setTimeout(async () => {
+        try {
+          const snap = await getDocs(collection(db, 'users'));
+          const ql = q.toLowerCase();
+          const matches = [];
+          snap.forEach(d => {
+            const u = d.data();
+            if ((u.nombre||'').toLowerCase().includes(ql) || (u.email||'').toLowerCase().includes(ql)) {
+              matches.push({ docId: d.id, uid: u.uid, nombre: u.nombre||'Sin nombre', email: u.email||'', puntos: u.puntos||0 });
+            }
+          });
+          resCont.innerHTML = '';
+          if (matches.length === 0) {
+            resCont.innerHTML = '<div class="cliente-search-result-item" style="color:#666;">Sin resultados</div>';
+          } else {
+            matches.forEach(u => {
+              const item = document.createElement('div');
+              item.className = 'cliente-search-result-item';
+              item.innerHTML = `<div class="item-nombre">👤 ${u.nombre}</div><div class="item-sub">${u.email} · ${u.puntos} pts</div>`;
+              item.onclick = () => grSeleccionarCliente(u);
+              resCont.appendChild(item);
+            });
+          }
+          resCont.style.display = 'block';
+        } catch(e) { console.error(e); }
+      }, 300);
+    };
+
+    function grSeleccionarCliente(u) {
+      grClienteSeleccionado = u;
+      document.getElementById('gr-buscar-cliente').value = '';
+      document.getElementById('gr-resultados-clientes').style.display = 'none';
+      const badge = document.getElementById('gr-cliente-badge');
+      badge.style.display = 'flex';
+      badge.className = 'cliente-seleccionado-badge';
+      badge.innerHTML = `<span>✅ ${u.nombre} <small style="color:#888;">· ${u.email} · ${u.puntos} pts</small></span>
+        <button onclick="grLimpiarCliente()" title="Cambiar cliente">✕</button>`;
+      grValidarBoton();
+    }
+
+    window.grLimpiarCliente = function() {
+      grClienteSeleccionado = null;
+      document.getElementById('gr-cliente-badge').style.display = 'none';
+      document.getElementById('gr-buscar-cliente').value = '';
+      grValidarBoton();
+    };
+
+    // ── SERVICIO ──
+    window.grOnServicioChange = function() {
+      const sel = document.getElementById('gr-servicio');
+      const opt = sel.options[sel.selectedIndex];
+      if (!opt?.value) { grServicioSeleccionado = null; grResetHoras(); return; }
+      grServicioSeleccionado = {
+        id: opt.value,
+        nombre: opt.dataset.nombre,
+        duracion_min: parseInt(opt.dataset.duracion||30),
+        puntos: parseInt(opt.dataset.puntos||0)
+      };
+      grResetHoras();
+      grRenderDias();
+      document.getElementById('gr-bloque-dias').style.display = 'block';
+      grValidarBoton();
+    };
+
+    function grResetHoras() {
+      grFechaSeleccionada = null; grHoraInicio = null; grHoraFin = null;
+      document.getElementById('gr-bloque-horas').style.display = 'none';
+      document.getElementById('gr-hora-resumen').style.display = 'none';
+      grValidarBoton();
+    }
+
+    // ── DÍAS ──
+    async function grCargarDias() {
       try {
-        const snap = await getDocs(collection(db, 'servicios'));
+        const snap = await getDocs(collection(db, 'horarios_admin'));
+        const hoy  = new Date(); hoy.setHours(0,0,0,0);
+        grHorariosCache = [];
         snap.forEach(d => {
-          const s = d.data();
-          const opt = document.createElement('option');
-          opt.value = d.id;
-          opt.textContent = `${s.nombre} (${s.duracion_min}min · €${s.precio})`;
-          opt.dataset.duracion = s.duracion_min;
-          opt.dataset.nombre   = s.nombre;
-          opt.dataset.puntos   = s.puntos_ganados || 0;
-          sel.appendChild(opt);
+          const h = d.data();
+          if (h.activa === false) return;
+          let fechaStr;
+          if (typeof h.fecha === 'string') { fechaStr = h.fecha; }
+          else { fechaStr = (h.fecha?.toDate?.() ?? new Date(h.fecha)).toISOString().split('T')[0]; }
+          const [y,m,dy] = fechaStr.split('-').map(Number);
+          const fo = new Date(y,m-1,dy);
+          if (fo >= hoy) grHorariosCache.push({ ...h, fechaStr, fechaObj: fo });
         });
-        // Auto-calcular hora_fin al cambiar servicio u hora_inicio
-        const autoFin = () => {
-          const opt = sel.options[sel.selectedIndex];
-          const duracion = parseInt(opt?.dataset?.duracion || 0);
-          const inicio = document.getElementById('gr-hora-inicio').value;
-          if (!duracion || !inicio) return;
-          const [h, m] = inicio.split(':').map(Number);
-          const fin = new Date(2000, 0, 1, h, m + duracion);
-          document.getElementById('gr-hora-fin').value =
-            `${String(fin.getHours()).padStart(2,'0')}:${String(fin.getMinutes()).padStart(2,'0')}`;
-        };
-        sel.addEventListener('change', autoFin);
-        document.getElementById('gr-hora-inicio')?.addEventListener('change', autoFin);
+        grHorariosCache.sort((a,b) => a.fechaStr.localeCompare(b.fechaStr));
       } catch(e) { console.error(e); }
     }
 
+    function grRenderDias() {
+      const cont = document.getElementById('gr-dias-grid');
+      if (!cont) return;
+      cont.innerHTML = '';
+      if (grHorariosCache.length === 0) {
+        cont.innerHTML = '<p style="color:#666;font-size:0.82rem;grid-column:1/-1;">No hay días configurados en Horarios.</p>';
+        return;
+      }
+      grHorariosCache.forEach(h => {
+        const btn = document.createElement('div');
+        btn.className = 'gr-dia-btn' + (grFechaSeleccionada === h.fechaStr ? ' selected' : '');
+        const fo = h.fechaObj;
+        const nombre = fo.toLocaleDateString('es-ES',{weekday:'short'});
+        const dia    = fo.getDate();
+        const mes    = fo.toLocaleDateString('es-ES',{month:'short'});
+        btn.innerHTML = `<div class="dia-nombre">${nombre}</div><div class="dia-num">${dia}</div><div class="dia-mes">${mes}</div>`;
+        btn.onclick = () => grSeleccionarDia(h.fechaStr);
+        cont.appendChild(btn);
+      });
+    }
+
+    async function grSeleccionarDia(fecha) {
+      grFechaSeleccionada = fecha;
+      grHoraInicio = null; grHoraFin = null;
+      document.getElementById('gr-hora-resumen').style.display = 'none';
+      grRenderDias();
+      grValidarBoton();
+      await grRenderSlots();
+      document.getElementById('gr-bloque-horas').style.display = 'block';
+      // Listener en tiempo real: re-renderizar slots si cambia alguna reserva del día
+      if (_unsubGrSlots) _unsubGrSlots();
+      _unsubGrSlots = onSnapshot(
+        query(collection(db, 'reservas'), where('fecha', '==', fecha)),
+        async () => { if (grFechaSeleccionada === fecha) await grRenderSlots(); }
+      );
+    }
+
+    let _unsubGrSlots = null;
+
+    // ── SLOTS DE HORA ──
+    async function grRenderSlots() {
+      const cont = document.getElementById('gr-slots-grid');
+      if (!cont || !grFechaSeleccionada || !grServicioSeleccionado) return;
+      cont.innerHTML = '<p style="color:#666;font-size:0.82rem;grid-column:1/-1;">Cargando...</p>';
+
+      const horario = grHorariosCache.find(h => h.fechaStr === grFechaSeleccionada);
+      if (!horario) { cont.innerHTML = '<p style="color:#dc3545;grid-column:1/-1;">Sin horario para este día.</p>'; return; }
+
+      // Reservas del día
+      const snap = await getDocs(collection(db, 'reservas'));
+      const ocupadas = [], pendientes = [], bloqueadas = [];
+      snap.forEach(d => {
+        const r = d.data();
+        let rf = typeof r.fecha === 'string' ? r.fecha.split('T')[0] : (r.fecha?.toDate?.() ?? new Date(r.fecha)).toISOString().split('T')[0];
+        if (rf !== grFechaSeleccionada) return;
+        if (r.estado === 'aprobado' || r.estado === 'completada') {
+          if (r.esBloqueo) bloqueadas.push(r);
+          else ocupadas.push(r);
+        } else if (r.estado === 'pendiente') pendientes.push(r);
+      });
+
+      cont.innerHTML = '';
+      const ini = grMinutos(horario.hora_inicio);
+      const fin = grMinutos(horario.hora_fin);
+      const dur = grServicioSeleccionado.duracion_min;
+      let min = ini;
+
+      while (min + dur <= fin) {
+        const hI = grMinToStr(min), hF = grMinToStr(min+dur);
+        const slot = document.createElement('div');
+        slot.className = 'gr-slot';
+        slot.textContent = hI;
+        if (grHoraInicio === hI) slot.classList.add('selected');
+
+        const esOcupado  = ocupadas.some(r => grSolapan(hI,hF,r.hora_inicio,r.hora_fin));
+        const esPendiente = pendientes.some(r => grSolapan(hI,hF,r.hora_inicio,r.hora_fin));
+        const esBloqueado = bloqueadas.some(r => grSolapan(hI,hF,r.hora_inicio,r.hora_fin));
+
+        if (esBloqueado) {
+          slot.classList.add('bloqueado'); slot.title = 'Bloqueado';
+        } else if (esOcupado) {
+          slot.classList.add('occupied'); slot.title = 'Ocupado';
+        } else if (esPendiente) {
+          slot.classList.add('occupied'); slot.title = 'Pendiente';
+        } else {
+          slot.onclick = () => grSeleccionarHora(hI, hF);
+        }
+        cont.appendChild(slot);
+        min += 15;
+      }
+    }
+
+    function grSeleccionarHora(hI, hF) {
+      grHoraInicio = hI; grHoraFin = hF;
+      document.querySelectorAll('#gr-slots-grid .gr-slot').forEach(s => {
+        s.classList.toggle('selected', s.textContent === hI);
+      });
+      const res = document.getElementById('gr-hora-resumen');
+      res.style.display = 'block';
+      document.getElementById('gr-hora-resumen-texto').textContent = `${hI} → ${hF}`;
+      grValidarBoton();
+    }
+
+    // ── VALIDAR BOTÓN CREAR ──
+    function grValidarBoton() {
+      const btn = document.getElementById('gr-btn-crear');
+      if (!btn) return;
+      const clienteOk = grTipoCliente === 'manual'
+        ? (document.getElementById('gr-nombre')?.value.trim().length > 0)
+        : (grClienteSeleccionado !== null);
+      btn.disabled = !(clienteOk && grServicioSeleccionado && grFechaSeleccionada && grHoraInicio);
+    }
+
+    // Escuchar cambios en el nombre manual
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('gr-nombre')?.addEventListener('input', grValidarBoton);
+    });
+
+    // ── CREAR RESERVA ──
     window.crearReservaAdmin = async function() {
-      const nombre   = document.getElementById('gr-nombre').value.trim();
-      const tel      = document.getElementById('gr-telefono').value.trim();
-      const fecha    = document.getElementById('gr-fecha').value;
-      const hInicio  = document.getElementById('gr-hora-inicio').value;
-      const hFin     = document.getElementById('gr-hora-fin').value;
-      const estado   = document.getElementById('gr-estado').value;
-      const sel      = document.getElementById('gr-servicio');
-      const svcOpt   = sel.options[sel.selectedIndex];
-
-      if (!nombre) return alert('⚠️ Introduce el nombre del cliente');
-      if (!fecha)  return alert('⚠️ Selecciona una fecha');
-      if (!hInicio || !hFin) return alert('⚠️ Indica la hora de inicio y fin');
-      if (!svcOpt?.value) return alert('⚠️ Selecciona un servicio');
-
+      const btn = document.getElementById('gr-btn-crear');
+      btn.disabled = true;
       try {
+        let clienteId    = 'admin-manual';
+        let clienteNombre, clienteEmail = '', clienteTel = '';
+        let sumaPuntos   = false;
+
+        if (grTipoCliente === 'registrado' && grClienteSeleccionado) {
+          clienteId     = grClienteSeleccionado.uid;
+          clienteNombre = grClienteSeleccionado.nombre;
+          clienteEmail  = grClienteSeleccionado.email;
+          sumaPuntos    = true;
+        } else {
+          clienteNombre = document.getElementById('gr-nombre').value.trim();
+          clienteTel    = document.getElementById('gr-telefono')?.value.trim() || '';
+        }
+
         await addDoc(collection(db, 'reservas'), {
-          cliente_id:      'admin-manual',
-          cliente_nombre:  nombre,
-          cliente_email:   '',
-          cliente_telefono: tel,
-          servicio_id:     svcOpt.value,
-          servicio_nombre: svcOpt.dataset.nombre,
-          servicio_puntos: parseInt(svcOpt.dataset.puntos || 0),
-          fecha,
-          hora_inicio:   hInicio,
-          hora_fin:      hFin,
-          estado,
-          nota_cliente:  '',
+          cliente_id:       clienteId,
+          cliente_nombre:   clienteNombre,
+          cliente_email:    clienteEmail,
+          cliente_telefono: clienteTel,
+          servicio_id:      grServicioSeleccionado.id,
+          servicio_nombre:  grServicioSeleccionado.nombre,
+          servicio_puntos:  grServicioSeleccionado.puntos,
+          fecha:            grFechaSeleccionada,
+          hora_inicio:      grHoraInicio,
+          hora_fin:         grHoraFin,
+          estado:           'aprobado',
+          nota_cliente:     '',
           puntos_aplicados: 0,
-          probarSuerte:  false,
-          suerteUsada:   false,
-          esManual:      true,
-          createdAt:     serverTimestamp()
+          probarSuerte:     false,
+          suerteUsada:      false,
+          esManual:         true,
+          clienteRegistrado: sumaPuntos,
+          createdAt:        serverTimestamp()
         });
-        alert('✅ Reserva creada');
-        // Limpiar
+
+        alert(`✅ Reserva creada para ${clienteNombre} · ${grFechaSeleccionada} ${grHoraInicio}–${grHoraFin}`);
+
+        // Reset formulario
+        grClienteSeleccionado = null; grServicioSeleccionado = null;
+        grFechaSeleccionada = null; grHoraInicio = null; grHoraFin = null;
         document.getElementById('gr-nombre').value    = '';
         document.getElementById('gr-telefono').value  = '';
-        document.getElementById('gr-fecha').value     = '';
         document.getElementById('gr-servicio').value  = '';
+        document.getElementById('gr-cliente-badge').style.display = 'none';
+        document.getElementById('gr-buscar-cliente').value = '';
+        document.getElementById('gr-bloque-dias').style.display  = 'none';
+        document.getElementById('gr-bloque-horas').style.display = 'none';
+        document.getElementById('gr-hora-resumen').style.display = 'none';
+        cargarTodasReservas(filtroGRActivo);
+      } catch(e) { alert('❌ Error: ' + e.message); }
+      finally { grValidarBoton(); }
+    };
+
+    // ════════════════════════════════════════════
+    // BLOQUEO DE HORAS
+    // ════════════════════════════════════════════
+    let blqFechaSeleccionada = null;
+    let blqSlotsSeleccionados = new Set(); // set de 'HH:MM'
+
+    async function blqCargarDias() {
+      const cont = document.getElementById('blq-dias-grid');
+      if (!cont) return;
+      cont.innerHTML = '';
+      if (grHorariosCache.length === 0) await grCargarDias();
+      grHorariosCache.forEach(h => {
+        const btn = document.createElement('div');
+        btn.className = 'gr-dia-btn' + (blqFechaSeleccionada === h.fechaStr ? ' selected' : '');
+        const fo = h.fechaObj;
+        btn.innerHTML = `<div class="dia-nombre">${fo.toLocaleDateString('es-ES',{weekday:'short'})}</div>
+          <div class="dia-num">${fo.getDate()}</div>
+          <div class="dia-mes">${fo.toLocaleDateString('es-ES',{month:'short'})}</div>`;
+        btn.onclick = () => blqSeleccionarDia(h.fechaStr);
+        cont.appendChild(btn);
+      });
+    }
+
+    let _unsubBlqSlots = null;
+
+    async function blqSeleccionarDia(fecha) {
+      blqFechaSeleccionada = fecha;
+      blqSlotsSeleccionados.clear();
+      blqCargarDias();
+      await blqRenderSlots();
+      document.getElementById('blq-bloque-horas').style.display = 'block';
+      document.getElementById('blq-btn-confirmar').disabled = true;
+      // Listener tiempo real: re-renderizar slots de bloqueo si cambia una reserva del día
+      if (_unsubBlqSlots) _unsubBlqSlots();
+      _unsubBlqSlots = onSnapshot(
+        query(collection(db, 'reservas'), where('fecha', '==', fecha)),
+        async () => { if (blqFechaSeleccionada === fecha) await blqRenderSlots(); }
+      );
+    }
+
+    async function blqRenderSlots() {
+      const cont = document.getElementById('blq-slots-grid');
+      if (!cont || !blqFechaSeleccionada) return;
+      cont.innerHTML = '<p style="color:#666;font-size:0.82rem;grid-column:1/-1;">Cargando...</p>';
+
+      const horario = grHorariosCache.find(h => h.fechaStr === blqFechaSeleccionada);
+      if (!horario) { cont.innerHTML = '<p style="color:#666;grid-column:1/-1;">Sin horario para este día.</p>'; return; }
+
+      // Reservas del día
+      const snap = await getDocs(collection(db, 'reservas'));
+      const ocupadas = [];
+      snap.forEach(d => {
+        const r = d.data();
+        let rf = typeof r.fecha === 'string' ? r.fecha.split('T')[0] : (r.fecha?.toDate?.() ?? new Date(r.fecha)).toISOString().split('T')[0];
+        if (rf !== blqFechaSeleccionada) return;
+        if (r.estado === 'aprobado' || r.estado === 'completada' || r.estado === 'pendiente') ocupadas.push(r);
+      });
+
+      cont.innerHTML = '';
+      const ini = grMinutos(horario.hora_inicio);
+      const fin = grMinutos(horario.hora_fin);
+      let min = ini;
+
+      while (min < fin) {
+        const hI = grMinToStr(min);
+        const slot = document.createElement('div');
+        slot.className = 'gr-slot';
+        slot.textContent = hI;
+        if (blqSlotsSeleccionados.has(hI)) slot.classList.add('bloqueo-seleccionado');
+
+        const esOcupado = ocupadas.some(r => {
+          const ri = grMinutos(r.hora_inicio), rf2 = grMinutos(r.hora_fin);
+          const sm = min;
+          return sm >= ri && sm < rf2;
+        });
+
+        if (esOcupado && !ocupadas.find(r => r.esBloqueo && grMinutos(r.hora_inicio) <= min && min < grMinutos(r.hora_fin))) {
+          slot.classList.add('occupied'); slot.title = 'Ya reservado';
+        } else {
+          const esBloqueoExistente = ocupadas.some(r => r.esBloqueo && grMinutos(r.hora_inicio) <= min && min < grMinutos(r.hora_fin));
+          if (esBloqueoExistente) {
+            slot.classList.add('bloqueado');
+            slot.title = 'Ya bloqueado';
+          } else {
+            slot.onclick = () => blqToggleSlot(hI, slot);
+          }
+        }
+        cont.appendChild(slot);
+        min += 15;
+      }
+    }
+
+    function blqToggleSlot(hI, slotEl) {
+      if (blqSlotsSeleccionados.has(hI)) {
+        blqSlotsSeleccionados.delete(hI);
+        slotEl.classList.remove('bloqueo-seleccionado');
+      } else {
+        blqSlotsSeleccionados.add(hI);
+        slotEl.classList.add('bloqueo-seleccionado');
+      }
+      document.getElementById('blq-btn-confirmar').disabled = blqSlotsSeleccionados.size === 0;
+    }
+
+    window.confirmarBloqueo = async function() {
+      if (!blqFechaSeleccionada || blqSlotsSeleccionados.size === 0) return;
+      if (!confirm(`¿Bloquear ${blqSlotsSeleccionados.size} hora(s) el ${blqFechaSeleccionada}?`)) return;
+      try {
+        const horario = grHorariosCache.find(h => h.fechaStr === blqFechaSeleccionada);
+        const bloques = [...blqSlotsSeleccionados].sort();
+        // Agrupar bloques consecutivos de 15 min en un solo registro
+        const grupos = [];
+        bloques.forEach(hI => {
+          const min = grMinutos(hI);
+          const ultimo = grupos[grupos.length - 1];
+          if (ultimo && grMinutos(ultimo.fin) === min) {
+            ultimo.fin = grMinToStr(min + 15);
+          } else {
+            grupos.push({ ini: hI, fin: grMinToStr(min + 15) });
+          }
+        });
+
+        for (const g of grupos) {
+          await addDoc(collection(db, 'reservas'), {
+            cliente_id:      'admin-bloqueo',
+            cliente_nombre:  'Bloqueado',
+            cliente_email:   '',
+            servicio_id:     'bloqueo',
+            servicio_nombre: 'Hora bloqueada',
+            servicio_puntos: 0,
+            fecha:           blqFechaSeleccionada,
+            hora_inicio:     g.ini,
+            hora_fin:        g.fin,
+            estado:          'aprobado',
+            esBloqueo:       true,
+            esManual:        false,
+            createdAt:       serverTimestamp()
+          });
+        }
+        alert(`✅ ${blqSlotsSeleccionados.size} slot(s) bloqueados`);
+        blqSlotsSeleccionados.clear();
+        await blqRenderSlots();
+        document.getElementById('blq-btn-confirmar').disabled = true;
+        // Refrescar también los slots del formulario si está en el mismo día
+        if (grFechaSeleccionada === blqFechaSeleccionada) await grRenderSlots();
         cargarTodasReservas(filtroGRActivo);
       } catch(e) { alert('❌ Error: ' + e.message); }
     };
 
     // ── LISTA TODAS LAS RESERVAS CON ELIMINAR ──
     let filtroGRActivo = 'todas';
+    let _unsubGrLista = null;
 
     // Filtros en Gestión
     document.addEventListener('DOMContentLoaded', () => {
@@ -1660,62 +2307,78 @@
       });
     });
 
-    async function cargarTodasReservas(filtro = 'todas') {
+    function renderListaGestion(reservas) {
       const cont = document.getElementById('lista-gestion-reservas');
       if (!cont) return;
-      cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:12px;">Cargando...</p>';
-      try {
-        const snap = await getDocs(collection(db, 'reservas'));
-        let reservas = [];
-        snap.forEach(d => reservas.push({ id: d.id, ...d.data() }));
-        if (filtro !== 'todas') reservas = reservas.filter(r => r.estado === filtro);
-        reservas.sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
-
-        if (reservas.length === 0) {
-          cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:16px;font-style:italic;">Sin reservas</p>';
-          return;
+      if (reservas.length === 0) {
+        cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:16px;font-style:italic;">Sin reservas</p>';
+        return;
+      }
+      cont.innerHTML = '';
+      reservas.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'lista-item';
+        div.style.cssText = 'flex-direction:column;align-items:flex-start;gap:6px;';
+        const estadoColor = { pendiente:'#ffc107', aprobado:'#28a745', completada:'#6f42c1', rechazado:'#dc3545' };
+        const col = estadoColor[r.estado] || '#888';
+        let tipoBadge = '';
+        if (r.esBloqueo) {
+          tipoBadge = '<span style="font-size:0.72rem;padding:2px 8px;border-radius:20px;background:rgba(136,85,170,0.2);color:#bb99dd;border:1px solid #8855aa;">🔒 bloqueado</span>';
+        } else if (r.esManual && r.clienteRegistrado) {
+          tipoBadge = '<span style="font-size:0.72rem;padding:2px 8px;border-radius:20px;background:rgba(212,175,55,0.1);color:var(--gold);border:1px solid rgba(212,175,55,0.4);">✏️ manual·registrado</span>';
+        } else if (r.esManual) {
+          tipoBadge = '<span style="font-size:0.72rem;padding:2px 8px;border-radius:20px;background:#222;color:#888;border:1px solid #444;">⚡ manual·rápido</span>';
         }
-
-        cont.innerHTML = '';
-        reservas.forEach(r => {
-          const div = document.createElement('div');
-          div.className = 'lista-item';
-          div.style.flexDirection = 'column';
-          div.style.alignItems    = 'flex-start';
-          div.style.gap           = '6px';
-
-          const estadoColor = {
-            pendiente: '#ffc107', aprobado: '#28a745',
-            completada: '#6f42c1', rechazado: '#dc3545'
-          };
-          const col = estadoColor[r.estado] || '#888';
-
-          div.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:center;width:100%;flex-wrap:wrap;gap:6px;">
-              <strong style="color:var(--text-light);">👤 ${r.cliente_nombre || 'Sin nombre'}</strong>
+        div.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;width:100%;flex-wrap:wrap;gap:6px;">
+            <strong style="color:var(--text-light);">👤 ${r.cliente_nombre || 'Sin nombre'}</strong>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+              ${tipoBadge}
               <span style="font-size:0.78rem;padding:2px 10px;border-radius:20px;background:${col}22;color:${col};border:1px solid ${col};">${r.estado}</span>
             </div>
-            <div style="font-size:0.85rem;color:#aaa;">
-              ✂️ ${r.servicio_nombre || '—'} &nbsp;·&nbsp;
-              📅 ${r.fecha || '—'} &nbsp;·&nbsp;
-              🕐 ${r.hora_inicio} – ${r.hora_fin}
-              ${r.esManual ? '<span style="margin-left:6px;font-size:0.74rem;color:#555;">(manual)</span>' : ''}
-            </div>
-            <div style="display:flex;gap:8px;margin-top:4px;">
-              <button class="btn-small btn-eliminar" onclick="eliminarReservaAdmin('${r.id}')">🗑️ Eliminar</button>
-            </div>`;
-          cont.appendChild(div);
-        });
-      } catch(e) {
-        cont.innerHTML = `<p style="color:#dc3545;">Error: ${e.message}</p>`;
-      }
+          </div>
+          <div style="font-size:0.85rem;color:#aaa;">
+            ✂️ ${r.servicio_nombre || '—'} &nbsp;·&nbsp;
+            📅 ${r.fecha || '—'} &nbsp;·&nbsp;
+            🕐 ${r.hora_inicio} – ${r.hora_fin}
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button class="btn-small btn-eliminar" onclick="eliminarReservaAdmin('${r.id}')">🗑️ Eliminar</button>
+          </div>`;
+        cont.appendChild(div);
+      });
+    }
+
+    function cargarTodasReservas(filtro = 'todas') {
+      const cont = document.getElementById('lista-gestion-reservas');
+      if (!cont) return;
+
+      // Cancelar listener previo si existía
+      if (_unsubGrLista) { _unsubGrLista(); _unsubGrLista = null; }
+      cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:12px;">Cargando...</p>';
+
+      const q = filtro === 'todas'
+        ? collection(db, 'reservas')
+        : query(collection(db, 'reservas'), where('estado', '==', filtro));
+
+      _unsubGrLista = onSnapshot(q,
+        (snap) => {
+          let reservas = [];
+          snap.forEach(d => reservas.push({ id: d.id, ...d.data() }));
+          reservas.sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+          renderListaGestion(reservas);
+        },
+        (err) => {
+          cont.innerHTML = `<p style="color:#dc3545;">Error: ${err.message}</p>`;
+        }
+      );
     }
 
     window.eliminarReservaAdmin = async function(id) {
       if (!confirm('¿Eliminar esta reserva? Esta acción no se puede deshacer.')) return;
       try {
         await deleteDoc(doc(db, 'reservas', id));
-        cargarTodasReservas(filtroGRActivo);
+        // La lista se actualiza sola vía onSnapshot
       } catch(e) { alert('❌ Error: ' + e.message); }
     };
 
@@ -1850,5 +2513,224 @@
         }
       );
     }
+
+    // ════════════════════════════════════════════════════
+    // TARJETAS REGALO
+    // ════════════════════════════════════════════════════
+
+    const TG_MESES_CADUCIDAD = 6;
+    let tgClienteSeleccionado = null;
+    let tgFiltroActivo = 'todas';
+    let _unsubTarjetas = null;
+
+    // Arrancar cuando se abre el panel
+    async function iniciarPanelTarjetas() {
+      await tgCargarServicios();
+      iniciarListenerTarjetas();
+    }
+
+    async function tgCargarServicios() {
+      const sel = document.getElementById('tg-servicio');
+      if (!sel || sel.options.length > 1) return;
+      try {
+        const snap = await getDocs(collection(db, 'servicios'));
+        snap.forEach(d => {
+          const s = d.data();
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = `${s.nombre} (${s.duracion_min}min · €${s.precio})`;
+          opt.dataset.nombre   = s.nombre;
+          opt.dataset.duracion = s.duracion_min;
+          opt.dataset.precio   = s.precio;
+          opt.dataset.puntos   = s.puntos_ganados || 0;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', tgValidarBoton);
+      } catch(e) { console.error(e); }
+    }
+
+    // ── Buscador cliente ──
+    let _tgBuscarTimer = null;
+    window.tgBuscarCliente = function(q) {
+      clearTimeout(_tgBuscarTimer);
+      const resCont = document.getElementById('tg-resultados-clientes');
+      if (!q || q.length < 2) { resCont.style.display = 'none'; return; }
+      _tgBuscarTimer = setTimeout(async () => {
+        const snap = await getDocs(collection(db, 'users'));
+        const ql   = q.toLowerCase();
+        const matches = [];
+        snap.forEach(d => {
+          const u = d.data();
+          if ((u.nombre||'').toLowerCase().includes(ql) || (u.email||'').toLowerCase().includes(ql))
+            matches.push({ docId: d.id, uid: u.uid, nombre: u.nombre||'', email: u.email||'' });
+        });
+        resCont.innerHTML = '';
+        (matches.length ? matches : [{ nombre: 'Sin resultados', email: '' }]).forEach(u => {
+          const item = document.createElement('div');
+          item.className = 'cliente-search-result-item';
+          item.innerHTML = `<div class="item-nombre">👤 ${u.nombre}</div><div class="item-sub">${u.email}</div>`;
+          if (u.uid) item.onclick = () => tgSeleccionarCliente(u);
+          resCont.appendChild(item);
+        });
+        resCont.style.display = 'block';
+      }, 280);
+    };
+
+    function tgSeleccionarCliente(u) {
+      tgClienteSeleccionado = u;
+      document.getElementById('tg-buscar-cliente').value = '';
+      document.getElementById('tg-resultados-clientes').style.display = 'none';
+      const badge = document.getElementById('tg-cliente-badge');
+      badge.style.display = 'flex';
+      badge.className = 'cliente-seleccionado-badge';
+      badge.innerHTML = `<span>✅ ${u.nombre} <small style="color:#888;">· ${u.email}</small></span>
+        <button onclick="tgLimpiarCliente()" title="Cambiar">✕</button>`;
+      tgValidarBoton();
+    }
+
+    window.tgLimpiarCliente = function() {
+      tgClienteSeleccionado = null;
+      document.getElementById('tg-cliente-badge').style.display = 'none';
+      document.getElementById('tg-buscar-cliente').value = '';
+      tgValidarBoton();
+    };
+
+    function tgValidarBoton() {
+      const btn = document.getElementById('tg-btn-crear');
+      const svc = document.getElementById('tg-servicio')?.value;
+      if (btn) btn.disabled = !(tgClienteSeleccionado && svc);
+    }
+
+    // ── Generar código aleatorio ──
+    function generarCodigoTG() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = 'TG-';
+      for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      return code;
+    }
+
+    // ── Crear tarjeta ──
+    window.crearTarjetaRegalo = async function() {
+      const btn = document.getElementById('tg-btn-crear');
+      btn.disabled = true;
+      try {
+        const sel     = document.getElementById('tg-servicio');
+        const opt     = sel.options[sel.selectedIndex];
+        const mensaje = document.getElementById('tg-mensaje').value.trim();
+        const ahora   = new Date();
+        const caducaEn = new Date(ahora);
+        caducaEn.setMonth(caducaEn.getMonth() + TG_MESES_CADUCIDAD);
+
+        const codigo = generarCodigoTG();
+
+        await addDoc(collection(db, 'tarjetas_regalo'), {
+          codigo,
+          clienteId:        tgClienteSeleccionado.uid,
+          clienteNombre:    tgClienteSeleccionado.nombre,
+          clienteEmail:     tgClienteSeleccionado.email,
+          servicioId:       opt.value,
+          servicioNombre:   opt.dataset.nombre,
+          servicioDuracion: parseInt(opt.dataset.duracion || 30),
+          servicioPrecio:   parseFloat(opt.dataset.precio || 0),
+          servicioPuntos:   parseInt(opt.dataset.puntos || 0),
+          mensaje,
+          estado:           'activa',
+          creadaAt:         serverTimestamp(),
+          caducaEn,
+          canjeadaAt:       null,
+          reservaId:        null,
+        });
+
+        alert(`✅ Tarjeta regalo creada\nCódigo: ${codigo}\nCliente: ${tgClienteSeleccionado.nombre}`);
+
+        // Reset
+        tgClienteSeleccionado = null;
+        document.getElementById('tg-cliente-badge').style.display = 'none';
+        document.getElementById('tg-buscar-cliente').value = '';
+        document.getElementById('tg-servicio').value = '';
+        document.getElementById('tg-mensaje').value = '';
+        tgValidarBoton();
+      } catch(e) { alert('❌ Error: ' + e.message); }
+      finally { tgValidarBoton(); }
+    };
+
+    // ── Listener lista tarjetas ──
+    function iniciarListenerTarjetas() {
+      if (_unsubTarjetas) { _unsubTarjetas(); _unsubTarjetas = null; }
+      const cont = document.getElementById('lista-tarjetas-admin');
+      if (!cont) return;
+      cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:12px;">Cargando...</p>';
+
+      _unsubTarjetas = onSnapshot(collection(db, 'tarjetas_regalo'), (snap) => {
+        const ahora = new Date();
+        let tarjetas = [];
+        snap.forEach(d => {
+          const t = { id: d.id, ...d.data() };
+          // Auto-caducar en memoria si ya pasó la fecha
+          const caducaEn = t.caducaEn?.toDate?.() ?? new Date(t.caducaEn);
+          if (t.estado === 'activa' && caducaEn < ahora) t.estado = 'caducada';
+          tarjetas.push(t);
+        });
+
+        // Filtrar
+        if (tgFiltroActivo !== 'todas') tarjetas = tarjetas.filter(t => t.estado === tgFiltroActivo);
+        tarjetas.sort((a, b) => {
+          const fa = a.creadaAt?.toDate?.() ?? new Date(a.creadaAt);
+          const fb = b.creadaAt?.toDate?.() ?? new Date(b.creadaAt);
+          return fb - fa;
+        });
+
+        cont.innerHTML = '';
+        if (tarjetas.length === 0) {
+          cont.innerHTML = '<p style="color:#aaa;text-align:center;padding:16px;font-style:italic;">Sin tarjetas</p>';
+          return;
+        }
+
+        tarjetas.forEach(t => {
+          const caducaEn   = t.caducaEn?.toDate?.() ?? new Date(t.caducaEn);
+          const creadaAt   = t.creadaAt?.toDate?.() ?? new Date(t.creadaAt ?? 0);
+          const canjeadaAt = t.canjeadaAt ? (t.canjeadaAt?.toDate?.() ?? new Date(t.canjeadaAt)) : null;
+          const fmtFecha   = f => f?.toLocaleDateString?.('es-ES',{day:'numeric',month:'short',year:'numeric'}) ?? '—';
+
+          const div = document.createElement('div');
+          div.className = `tg-card-admin ${t.estado}`;
+          div.innerHTML = `
+            <div style="margin-bottom:4px;">
+              <span class="tg-card-admin-nombre">👤 ${t.clienteNombre}</span>
+              <span class="tg-estado-badge ${t.estado}">${t.estado === 'activa' ? '✅ Activa' : t.estado === 'canjeada' ? '🔄 Canjeada' : '⏰ Caducada'}</span>
+            </div>
+            <div class="tg-card-admin-servicio">✂️ ${t.servicioNombre}</div>
+            <div class="tg-card-admin-codigo">${t.codigo}</div>
+            <div class="tg-card-admin-meta">
+              <span>📅 Creada: ${fmtFecha(creadaAt)}</span>
+              <span>⏳ Caduca: ${fmtFecha(caducaEn)}</span>
+              ${canjeadaAt ? `<span>🔄 Canjeada: ${fmtFecha(canjeadaAt)}</span>` : ''}
+              ${t.mensaje ? `<span>💬 "${t.mensaje}"</span>` : ''}
+            </div>
+            ${t.estado === 'activa' ? `<button class="btn-small btn-rechazar" style="font-size:0.78rem;" onclick="anularTarjeta('${t.id}')">🗑️ Anular</button>` : ''}
+          `;
+          cont.appendChild(div);
+        });
+      });
+    }
+
+    window.anularTarjeta = async function(id) {
+      if (!confirm('¿Anular esta tarjeta regalo? El cliente no podrá usarla.')) return;
+      try {
+        await updateDoc(doc(db, 'tarjetas_regalo', id), { estado: 'caducada' });
+      } catch(e) { alert('❌ Error: ' + e.message); }
+    };
+
+    // Filtros de tarjetas
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.filtro-btn[data-filtro-tg]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filtro-btn[data-filtro-tg]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          tgFiltroActivo = btn.getAttribute('data-filtro-tg');
+          iniciarListenerTarjetas();
+        });
+      });
+    });
 
   </script>
