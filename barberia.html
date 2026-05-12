@@ -1572,6 +1572,11 @@
             <button class="btn-reset-pass" onclick="enviarResetPass('${c.email || ''}','${(c.nombre||'').replace(/'/g,"\\'")}')">
               📧 Reset pass
             </button>
+            <button onclick="eliminarCliente('${c.id}','${c.uid||''}','${(c.nombre||'Cliente').replace(/'/g,"\\'")}')"
+              style="background:none;border:1px solid #6b0000;color:#ff6b6b;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:0.78rem;transition:background 0.2s;"
+              onmouseover="this.style.background='rgba(107,0,0,0.4)'" onmouseout="this.style.background='none'">
+              🗑️ Eliminar
+            </button>
           </div>
         `;
         cont.appendChild(div);
@@ -2412,6 +2417,55 @@
     };
 
     // ════════════════════════════════════════════
+    // ELIMINAR CLIENTE COMPLETO
+    // Borra: users · reservas · canjes · tarjetas_regalo
+    // ════════════════════════════════════════════
+    window.eliminarCliente = async function(docId, uid, nombre) {
+      if (!confirm(`⚠️ ¿Eliminar al cliente "${nombre}"?\n\nSe borrarán permanentemente:\n• Su cuenta de usuario\n• Todas sus reservas\n• Todos sus canjes\n• Todas sus tarjetas regalo\n\nEsta acción NO se puede deshacer.`)) return;
+      if (!confirm(`🔴 Segunda confirmación: eliminar TODOS los datos de "${nombre}". ¿Continuar?`)) return;
+
+      try {
+        let borrados = { reservas: 0, canjes: 0, tarjetas: 0 };
+
+        // 1. Reservas del cliente
+        if (uid) {
+          const resSnap = await getDocs(query(collection(db, 'reservas'), where('cliente_id', '==', uid)));
+          await Promise.all(resSnap.docs.map(d => deleteDoc(doc(db, 'reservas', d.id))));
+          borrados.reservas = resSnap.size;
+        }
+
+        // 2. Canjes del cliente
+        if (uid) {
+          const canjesSnap = await getDocs(query(collection(db, 'canjes'), where('clienteId', '==', uid)));
+          await Promise.all(canjesSnap.docs.map(d => deleteDoc(doc(db, 'canjes', d.id))));
+          borrados.canjes = canjesSnap.size;
+        }
+
+        // 3. Tarjetas regalo del cliente
+        if (uid) {
+          const tgSnap = await getDocs(query(collection(db, 'tarjetas_regalo'), where('clienteId', '==', uid)));
+          await Promise.all(tgSnap.docs.map(d => deleteDoc(doc(db, 'tarjetas_regalo', d.id))));
+          borrados.tarjetas = tgSnap.size;
+        }
+
+        // 4. Documento del usuario en Firestore (users)
+        if (docId) await deleteDoc(doc(db, 'users', docId));
+
+        // Recargar lista
+        await cargarClientes();
+
+        alert(
+          `✅ Cliente "${nombre}" eliminado correctamente.\n\n` +
+          `🗑️ Reservas eliminadas: ${borrados.reservas}\n` +
+          `🗑️ Canjes eliminados: ${borrados.canjes}\n` +
+          `🗑️ Tarjetas regalo eliminadas: ${borrados.tarjetas}\n\n` +
+          `⚠️ Nota: la cuenta de autenticación (Firebase Auth) debe eliminarse manualmente desde la consola de Firebase si deseas que el cliente no pueda volver a iniciar sesión.`
+        );
+
+      } catch(e) { alert('❌ Error al eliminar: ' + e.message); }
+    };
+
+    // ════════════════════════════════════════════
     // BORRADO MASIVO — RESERVAS
     // ════════════════════════════════════════════
     window.eliminarTodasReservas = async function() {
@@ -2707,7 +2761,10 @@
               ${canjeadaAt ? `<span>🔄 Canjeada: ${fmtFecha(canjeadaAt)}</span>` : ''}
               ${t.mensaje ? `<span>💬 "${t.mensaje}"</span>` : ''}
             </div>
-            ${t.estado === 'activa' ? `<button class="btn-small btn-rechazar" style="font-size:0.78rem;" onclick="anularTarjeta('${t.id}')">🗑️ Anular</button>` : ''}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+              ${t.estado === 'activa' ? `<button class="btn-small btn-rechazar" style="font-size:0.78rem;" onclick="anularTarjeta('${t.id}')">🚫 Anular</button>` : ''}
+              <button class="btn-small btn-eliminar" style="font-size:0.78rem;" onclick="eliminarTarjeta('${t.id}','${t.codigo}','${(t.clienteNombre||'').replace(/'/g,"\\'")}')">🗑️ Eliminar</button>
+            </div>
           `;
           cont.appendChild(div);
         });
@@ -2718,6 +2775,14 @@
       if (!confirm('¿Anular esta tarjeta regalo? El cliente no podrá usarla.')) return;
       try {
         await updateDoc(doc(db, 'tarjetas_regalo', id), { estado: 'caducada' });
+      } catch(e) { alert('❌ Error: ' + e.message); }
+    };
+
+    window.eliminarTarjeta = async function(id, codigo, clienteNombre) {
+      if (!confirm(`¿Eliminar definitivamente la tarjeta "${codigo}" de ${clienteNombre}?\n\nEsta acción no se puede deshacer.`)) return;
+      try {
+        await deleteDoc(doc(db, 'tarjetas_regalo', id));
+        // El listener onSnapshot actualiza la lista automáticamente
       } catch(e) { alert('❌ Error: ' + e.message); }
     };
 
