@@ -952,7 +952,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
       getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc,
-      doc, serverTimestamp, query, where, onSnapshot, increment, orderBy
+      doc, serverTimestamp, query, where, onSnapshot, increment, orderBy, setDoc
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -1064,6 +1064,7 @@
       iniciarListenerNotificaciones();
       escucharSuerteGanada();
       escucharCanjesNuevos();
+      await rcCargarConfigEmail();
       iniciarListenerEmailReservas();
     }
 
@@ -2902,8 +2903,41 @@
     const EMAILJS_TEMPLATE_ID = 'template_iyzzjkd';
     const EMAILJS_SCRIPT_URL  = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
 
-    const RC_EMAIL_KEY = 'barberia_email_notif'; // localStorage key
+    const RC_CONFIG_DOC = 'config_barberia'; // doc ID en colección 'config'
 
+    let _rcEmailActivo = false; // cache en memoria
+
+    async function rcCargarConfigEmail() {
+      try {
+        const snap = await getDocs(query(collection(db, 'config'), where('__name__', '==', RC_CONFIG_DOC)));
+        if (!snap.empty) {
+          _rcEmailActivo = snap.docs[0].data().emailNotifActivo === true;
+        }
+      } catch(e) { console.error('rcCargarConfigEmail:', e); }
+    }
+
+    function rcGetEmailActivo() { return _rcEmailActivo; }
+
+    function rcActualizarToggleUI() {
+      const activo = _rcEmailActivo;
+      const track  = document.getElementById('rc-toggle-track');
+      const estado = document.getElementById('rc-email-estado');
+      if (!track) return;
+      track.classList.toggle('on', activo);
+      if (estado) { estado.textContent = activo ? 'Activado' : 'Desactivado'; estado.style.color = activo ? 'var(--gold)' : '#666'; }
+    }
+
+    window.rcToggleEmail = async function() {
+      const nuevo = !_rcEmailActivo;
+      try {
+        // Upsert en colección 'config', doc fijo 'config_barberia'
+        const ref = doc(db, 'config', RC_CONFIG_DOC);
+        await setDoc(ref, { emailNotifActivo: nuevo }, { merge: true });
+        _rcEmailActivo = nuevo;
+        rcActualizarToggleUI();
+        if (nuevo) cargarEmailJS();
+      } catch(e) { alert('❌ Error guardando configuración: ' + e.message); }
+    };
     let emailjsCargado = false;
     async function cargarEmailJS() {
       if (emailjsCargado) return;
@@ -2933,25 +2967,6 @@
         });
       } catch(e) { console.error('EmailJS error:', e); }
     }
-
-    // ── Toggle email ──
-    function rcGetEmailActivo() { return localStorage.getItem(RC_EMAIL_KEY) === '1'; }
-
-    function rcActualizarToggleUI() {
-      const activo = rcGetEmailActivo();
-      const track  = document.getElementById('rc-toggle-track');
-      const estado = document.getElementById('rc-email-estado');
-      if (!track) return;
-      track.classList.toggle('on', activo);
-      if (estado) { estado.textContent = activo ? 'Activado' : 'Desactivado'; estado.style.color = activo ? 'var(--gold)' : '#666'; }
-    }
-
-    window.rcToggleEmail = function() {
-      const nuevo = !rcGetEmailActivo();
-      localStorage.setItem(RC_EMAIL_KEY, nuevo ? '1' : '0');
-      rcActualizarToggleUI();
-      if (nuevo) cargarEmailJS(); // precargar SDK
-    };
 
     // ── Hook en addDoc de reservas para enviar email automático ──
     // Se llama desde el listener de onSnapshot cuando llega una reserva nueva
@@ -2985,6 +3000,7 @@
     let _rcTodasReservas = []; // cache local
 
     async function cargarResumenCitas() {
+      await rcCargarConfigEmail(); // refrescar desde Firestore al abrir el panel
       rcActualizarToggleUI();
       const snap = await getDocs(collection(db, 'reservas'));
       _rcTodasReservas = [];
