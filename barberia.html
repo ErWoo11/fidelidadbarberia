@@ -460,7 +460,49 @@
     }
     .bloqueo-section h4 { color: #bb99dd; margin: 0 0 12px; font-size: 0.9rem; letter-spacing: 1px; }
 
-    /* ── TARJETA REGALO ADMIN ── */
+    /* ── TOGGLE EMAIL ── */
+    .rc-toggle-wrap { cursor:pointer; }
+    .rc-toggle-track {
+      width: 46px; height: 26px; border-radius: 13px;
+      background: #222; border: 1px solid #333;
+      position: relative; transition: background 0.25s, border-color 0.25s;
+    }
+    .rc-toggle-track.on { background: var(--gold); border-color: var(--gold); }
+    .rc-toggle-thumb {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #555; position: absolute; top: 2px; left: 2px;
+      transition: left 0.25s, background 0.25s;
+    }
+    .rc-toggle-track.on .rc-toggle-thumb { left: 22px; background: #000; }
+
+    /* ── TABLA RESUMEN ── */
+    .rc-dia-grupo { margin-bottom: 20px; }
+    .rc-dia-header {
+      font-family: 'Orbitron', monospace; font-size: 0.78rem; font-weight: 700;
+      color: var(--gold); letter-spacing: 2px; text-transform: uppercase;
+      padding: 8px 12px; background: rgba(212,175,55,0.07);
+      border-left: 3px solid var(--gold); border-radius: 0 6px 6px 0;
+      margin-bottom: 8px;
+    }
+    .rc-fila {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+      padding: 10px 12px; background: #0d0d0d;
+      border: 1px solid #1a1a1a; border-radius: 8px; margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+    .rc-fila:hover { border-color: #2a2a2a; }
+    .rc-hora { font-family: 'Orbitron', monospace; font-size: 0.8rem; color: var(--gold); min-width: 90px; }
+    .rc-cliente { font-weight: 600; color: #eee; flex: 1; min-width: 120px; }
+    .rc-servicio { color: #888; font-size: 0.8rem; flex: 1; min-width: 120px; }
+    .rc-badges { display:flex; gap:6px; flex-wrap:wrap; }
+    .rc-estado {
+      font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .rc-estado.pendiente  { background:rgba(255,193,7,0.15);  color:#ffc107; border:1px solid #ffc10755; }
+    .rc-estado.aprobado   { background:rgba(40,167,69,0.15);  color:#28a745; border:1px solid #28a74555; }
+    .rc-estado.completada { background:rgba(111,66,193,0.15); color:#a07ae0; border:1px solid #6f42c155; }
+    .rc-estado.rechazado  { background:rgba(220,53,69,0.15);  color:#dc3545; border:1px solid #dc354555; }
     .tg-card-admin {
       background: linear-gradient(135deg, #0d0d0d 0%, #1a1208 100%);
       border: 1px solid rgba(212,175,55,0.35);
@@ -655,6 +697,7 @@
         <button class="sub-tab-btn" data-sub="config-servicios">✂️ Servicios</button>
         <button class="sub-tab-btn" data-sub="aprobar-reservas" id="btn-sub-reservas">✅ Reservas</button>
         <button class="sub-tab-btn" data-sub="gestion-reservas">📋 Gestión</button>
+        <button class="sub-tab-btn" data-sub="resumen-citas">📊 Resumen</button>
       </div>
 
       <!-- Horarios -->
@@ -804,6 +847,57 @@
         <div id="lista-gestion-reservas"></div>
       </div>
 
+      <!-- ══ RESUMEN CITAS ══ -->
+      <div id="resumen-citas" class="sub-panel">
+
+        <!-- Toggle notificación email -->
+        <div id="rc-email-toggle-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 16px;background:#0d0d0d;border:1px solid #222;border-radius:10px;margin-bottom:18px;">
+          <div>
+            <div style="font-weight:700;color:var(--gold);font-size:0.9rem;">📧 Email al recibir reserva</div>
+            <div style="font-size:0.78rem;color:#555;margin-top:2px;">Recibirás un email cada vez que un cliente reserve una cita</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+            <span id="rc-email-estado" style="font-size:0.82rem;color:#666;">Desactivado</span>
+            <div class="rc-toggle-wrap" onclick="rcToggleEmail()">
+              <div class="rc-toggle-track" id="rc-toggle-track">
+                <div class="rc-toggle-thumb" id="rc-toggle-thumb"></div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Filtros -->
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:flex-end;">
+          <div style="flex:1;min-width:140px;">
+            <div style="font-size:0.75rem;color:#666;margin-bottom:4px;letter-spacing:1px;">📅 FILTRAR POR DÍA</div>
+            <select id="rc-filtro-fecha" onchange="rcRenderTabla()" style="width:100%;">
+              <option value="">— Todos los días —</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:140px;">
+            <div style="font-size:0.75rem;color:#666;margin-bottom:4px;letter-spacing:1px;">🔖 FILTRAR POR ESTADO</div>
+            <select id="rc-filtro-estado" onchange="rcRenderTabla()" style="width:100%;">
+              <option value="">— Todos los estados —</option>
+              <option value="pendiente">⏳ Pendiente</option>
+              <option value="aprobado">✅ Aprobada</option>
+              <option value="completada">💈 Completada</option>
+              <option value="rechazado">❌ Rechazada</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0;">
+            <button onclick="rcLimpiarFiltros()" style="padding:10px 14px;background:none;border:1px solid #333;color:#888;border-radius:8px;cursor:pointer;font-size:0.82rem;">↺ Limpiar</button>
+            <button onclick="rcEliminarFiltrado()" style="padding:10px 14px;background:none;border:1px solid #6b0000;color:#ff6b6b;border-radius:8px;cursor:pointer;font-size:0.82rem;"
+              onmouseover="this.style.background='rgba(107,0,0,0.4)'" onmouseout="this.style.background='none'">🗑️ Borrar filtrado</button>
+          </div>
+        </div>
+
+        <!-- Contador -->
+        <div id="rc-contador" style="font-size:0.8rem;color:#555;margin-bottom:10px;"></div>
+
+        <!-- Tabla / Lista -->
+        <div id="rc-lista"></div>
+      </div>
+
     </div><!-- /panel-reservas -->
 
     <!-- ══════════════════════════════════════════ -->
@@ -935,6 +1029,7 @@
           if (subId === 'config-servicios') cargarServicios();
           if (subId === 'aprobar-reservas') iniciarListenerReservas();
           if (subId === 'gestion-reservas') { cargarServiciosEnGR(); cargarTodasReservas('todas'); }
+          if (subId === 'resumen-citas')    cargarResumenCitas();
 
           // Al salir de gestión-reservas, limpiar listeners de slots y lista
           if (subId !== 'gestion-reservas') {
@@ -969,6 +1064,7 @@
       iniciarListenerNotificaciones();
       escucharSuerteGanada();
       escucharCanjesNuevos();
+      iniciarListenerEmailReservas();
     }
 
     // ════════════════════════════════════════════
@@ -2797,5 +2893,318 @@
         });
       });
     });
+
+    // ════════════════════════════════════════════════════
+    // EMAILJS — NOTIFICACIÓN AL RECIBIR RESERVA
+    // ════════════════════════════════════════════════════
+    const EMAILJS_PUBLIC_KEY  = 'K6IRqTyMBLBaijucu';
+    const EMAILJS_SERVICE_ID  = 'service_939073p';
+    const EMAILJS_TEMPLATE_ID = 'template_iyzzjkd';
+    const EMAILJS_SCRIPT_URL  = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+
+    const RC_EMAIL_KEY = 'barberia_email_notif'; // localStorage key
+
+    let emailjsCargado = false;
+    async function cargarEmailJS() {
+      if (emailjsCargado) return;
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = EMAILJS_SCRIPT_URL;
+        s.onload = () => { emailjs.init(EMAILJS_PUBLIC_KEY); emailjsCargado = true; res(); };
+        s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+
+    async function enviarEmailReserva(r) {
+      try {
+        await cargarEmailJS();
+        const horaInicio = r.hora_inicio || '—';
+        const horaFin    = r.hora_fin    || '—';
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          cliente_nombre:  r.cliente_nombre  || 'Cliente',
+          servicio_nombre: r.servicio_nombre || 'Servicio',
+          fecha:           r.fecha           || '—',
+          hora_inicio:     horaInicio,
+          hora_fin:        horaFin,
+          hora:            `${horaInicio} – ${horaFin}`,
+          estado:          r.estado          || 'pendiente',
+          nota_cliente:    r.nota_cliente    || '(Sin nota)',
+        });
+      } catch(e) { console.error('EmailJS error:', e); }
+    }
+
+    // ── Toggle email ──
+    function rcGetEmailActivo() { return localStorage.getItem(RC_EMAIL_KEY) === '1'; }
+
+    function rcActualizarToggleUI() {
+      const activo = rcGetEmailActivo();
+      const track  = document.getElementById('rc-toggle-track');
+      const estado = document.getElementById('rc-email-estado');
+      if (!track) return;
+      track.classList.toggle('on', activo);
+      if (estado) { estado.textContent = activo ? 'Activado' : 'Desactivado'; estado.style.color = activo ? 'var(--gold)' : '#666'; }
+    }
+
+    window.rcToggleEmail = function() {
+      const nuevo = !rcGetEmailActivo();
+      localStorage.setItem(RC_EMAIL_KEY, nuevo ? '1' : '0');
+      rcActualizarToggleUI();
+      if (nuevo) cargarEmailJS(); // precargar SDK
+    };
+
+    // ── Hook en addDoc de reservas para enviar email automático ──
+    // Se llama desde el listener de onSnapshot cuando llega una reserva nueva
+    let _rcReservasConocidas = null;
+    function iniciarListenerEmailReservas() {
+      onSnapshot(collection(db, 'reservas'), (snap) => {
+        if (_rcReservasConocidas === null) {
+          _rcReservasConocidas = new Set(snap.docs.map(d => d.id));
+          return;
+        }
+        snap.docChanges().forEach(change => {
+          if (change.type === 'added' && !_rcReservasConocidas.has(change.doc.id)) {
+            _rcReservasConocidas.add(change.doc.id);
+            const r = change.doc.data();
+            // Solo si es reserva real de cliente (no bloqueo, no manual)
+            if (!r.esBloqueo && r.estado === 'pendiente' && rcGetEmailActivo()) {
+              enviarEmailReserva(r);
+            }
+          }
+        });
+        // Si el panel de resumen está abierto, refrescarlo
+        if (document.getElementById('resumen-citas')?.classList.contains('active')) {
+          rcRenderTabla();
+        }
+      });
+    }
+
+    // ════════════════════════════════════════════════════
+    // RESUMEN CITAS
+    // ════════════════════════════════════════════════════
+    let _rcTodasReservas = []; // cache local
+
+    async function cargarResumenCitas() {
+      rcActualizarToggleUI();
+      const snap = await getDocs(collection(db, 'reservas'));
+      _rcTodasReservas = [];
+      snap.forEach(d => {
+        const r = d.data();
+        if (!r.esBloqueo) _rcTodasReservas.push({ id: d.id, ...r });
+      });
+
+      // Rellenar select de días con los que realmente existen en reservas
+      const sel = document.getElementById('rc-filtro-fecha');
+      if (sel) {
+        const valorActual = sel.value;
+        // Obtener días únicos ordenados
+        const dias = [...new Set(
+          _rcTodasReservas
+            .map(r => r.fecha || '')
+            .filter(f => f)
+        )].sort();
+
+        sel.innerHTML = '<option value="">— Todos los días —</option>';
+        dias.forEach(fecha => {
+          const [y, m, d] = fecha.split('-').map(Number);
+          const label = new Date(y, m-1, d).toLocaleDateString('es-ES', {
+            weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+          });
+          const opt = document.createElement('option');
+          opt.value = fecha;
+          opt.textContent = `📅 ${label}`;
+          if (fecha === valorActual) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+
+      rcRenderTabla();
+    }
+
+    window.rcRenderTabla = function() {
+      const cont       = document.getElementById('rc-lista');
+      const contador   = document.getElementById('rc-contador');
+      const filtroFecha = document.getElementById('rc-filtro-fecha')?.value || '';
+      const filtroEstado = document.getElementById('rc-filtro-estado')?.value || '';
+
+      if (!cont) return;
+
+      let lista = [..._rcTodasReservas];
+
+      // Filtrar
+      if (filtroFecha)  lista = lista.filter(r => (r.fecha||'').startsWith(filtroFecha));
+      if (filtroEstado) lista = lista.filter(r => r.estado === filtroEstado);
+
+      // Ordenar por fecha y hora
+      lista.sort((a, b) => {
+        const fa = (a.fecha||'') + (a.hora_inicio||'');
+        const fb = (b.fecha||'') + (b.hora_inicio||'');
+        return fa.localeCompare(fb);
+      });
+
+      contador.textContent = `${lista.length} cita${lista.length !== 1 ? 's' : ''}${filtroFecha || filtroEstado ? ' (filtradas)' : ''}`;
+
+      if (lista.length === 0) {
+        cont.innerHTML = '<p style="color:#444;text-align:center;padding:24px;font-style:italic;">Sin citas para los filtros aplicados.</p>';
+        return;
+      }
+
+      // Agrupar por día
+      const grupos = {};
+      lista.forEach(r => {
+        const key = r.fecha || 'Sin fecha';
+        if (!grupos[key]) grupos[key] = [];
+        grupos[key].push(r);
+      });
+
+      cont.innerHTML = '';
+      Object.keys(grupos).sort().forEach(fecha => {
+        const grupo = document.createElement('div');
+        grupo.className = 'rc-dia-grupo';
+
+        // Cabecera del día
+        let fechaStr = fecha;
+        if (fecha && fecha !== 'Sin fecha') {
+          const [y, m, d] = fecha.split('-').map(Number);
+          fechaStr = new Date(y, m-1, d).toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+        }
+        const header = document.createElement('div');
+        header.className = 'rc-dia-header';
+        header.textContent = fechaStr;
+        grupo.appendChild(header);
+
+        // Filas
+        grupos[fecha].forEach(r => {
+          const fila = document.createElement('div');
+          fila.className = 'rc-fila';
+
+          let tipoBadge = '';
+          if (r.esTarjetaRegalo) tipoBadge = `<span class="rc-estado" style="background:rgba(212,175,55,0.1);color:var(--gold);border:1px solid rgba(212,175,55,0.4);">🎀 Regalo</span>`;
+          else if (r.esManual && r.clienteRegistrado) tipoBadge = `<span class="rc-estado" style="background:#1a1a1a;color:#888;border:1px solid #333;">✏️ Manual</span>`;
+          else if (r.esManual) tipoBadge = `<span class="rc-estado" style="background:#1a1a1a;color:#555;border:1px solid #222;">⚡ Rápido</span>`;
+
+          // Serializar r de forma segura para el onclick
+          const rId = r.id;
+
+          fila.innerHTML = `
+            <div class="rc-hora">${r.hora_inicio||'—'} – ${r.hora_fin||'—'}</div>
+            <div class="rc-cliente">👤 ${r.cliente_nombre||'—'}</div>
+            <div class="rc-servicio">✂️ ${r.servicio_nombre||'—'}</div>
+            <div class="rc-badges">
+              <span class="rc-estado ${r.estado||''}">${
+                {pendiente:'⏳ Pendiente',aprobado:'✅ Aprobada',completada:'💈 Completada',rechazado:'❌ Rechazada'}[r.estado] || r.estado
+              }</span>
+              ${tipoBadge}
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0;">
+              <button onclick="rcDescargarICS('${rId}')"
+                style="background:none;border:1px solid #1a3a5c;color:#6ba3d6;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:0.75rem;"
+                onmouseover="this.style.background='rgba(26,58,92,0.5)'" onmouseout="this.style.background='none'"
+                title="Añadir al calendario">📅</button>
+              <button onclick="rcEliminarUna('${rId}')"
+                style="background:none;border:1px solid #3a0000;color:#ff6b6b;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:0.75rem;"
+                onmouseover="this.style.background='rgba(107,0,0,0.4)'" onmouseout="this.style.background='none'"
+                title="Eliminar cita">🗑️</button>
+            </div>
+          `;
+          grupo.appendChild(fila);
+        });
+        cont.appendChild(grupo);
+      });
+    };
+
+    // ── Generar y descargar .ics ──
+    window.rcDescargarICS = function(id) {
+      const r = _rcTodasReservas.find(x => x.id === id);
+      if (!r || !r.fecha || !r.hora_inicio || !r.hora_fin) {
+        alert('⚠️ Esta cita no tiene fecha u hora completa para exportar.'); return;
+      }
+
+      // Convertir fecha + hora a formato iCal: YYYYMMDDTHHMMSS
+      function toICSDate(fecha, hora) {
+        const [y, m, d]  = fecha.split('-');
+        const [hh, mm]   = hora.split(':');
+        return `${y}${m.padStart(2,'0')}${d.padStart(2,'0')}T${hh.padStart(2,'0')}${mm.padStart(2,'0')}00`;
+      }
+
+      const dtStart  = toICSDate(r.fecha, r.hora_inicio);
+      const dtEnd    = toICSDate(r.fecha, r.hora_fin);
+      const ahora    = new Date().toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
+      const uid      = `${id}@barberia-lanueava`;
+      const resumen  = `${r.servicio_nombre||'Cita'} - ${r.cliente_nombre||'Cliente'}`;
+      const nota     = r.nota_cliente ? `\\nNota: ${r.nota_cliente}` : '';
+      const tipo     = r.esTarjetaRegalo ? '\\n🎀 Tarjeta Regalo' : r.esManual ? '\\n✏️ Cita manual' : '';
+
+      const ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Barberia La Nueva//ES',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        `UID:${uid}`,
+        `DTSTAMP:${ahora}`,
+        `DTSTART:${dtStart}`,
+        `DTEND:${dtEnd}`,
+        `SUMMARY:${resumen}`,
+        `DESCRIPTION:Cliente: ${r.cliente_nombre||'—'}\\nServicio: ${r.servicio_nombre||'—'}\\nEstado: ${r.estado||'—'}${nota}${tipo}`,
+        'LOCATION:Barbería La Nueva',
+        'BEGIN:VALARM',
+        'TRIGGER:-PT30M',
+        'ACTION:DISPLAY',
+        'DESCRIPTION:Recordatorio de cita',
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `cita-${r.fecha}-${r.hora_inicio.replace(':','-')}.ics`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    window.rcLimpiarFiltros = function() {
+      document.getElementById('rc-filtro-fecha').value  = '';
+      document.getElementById('rc-filtro-estado').value = '';
+      rcRenderTabla();
+    };
+
+    window.rcEliminarUna = async function(id) {
+      if (!confirm('¿Eliminar esta cita?')) return;
+      try {
+        await deleteDoc(doc(db, 'reservas', id));
+        _rcTodasReservas = _rcTodasReservas.filter(r => r.id !== id);
+        rcRenderTabla();
+      } catch(e) { alert('❌ Error: ' + e.message); }
+    };
+
+    window.rcEliminarFiltrado = async function() {
+      const filtroFecha  = document.getElementById('rc-filtro-fecha')?.value  || '';
+      const filtroEstado = document.getElementById('rc-filtro-estado')?.value || '';
+
+      let lista = [..._rcTodasReservas];
+      if (filtroFecha)  lista = lista.filter(r => (r.fecha||'').startsWith(filtroFecha));
+      if (filtroEstado) lista = lista.filter(r => r.estado === filtroEstado);
+
+      if (lista.length === 0) { alert('No hay citas para borrar con los filtros actuales.'); return; }
+
+      const desc = [];
+      if (filtroFecha)  desc.push(`día ${filtroFecha}`);
+      if (filtroEstado) desc.push(`estado "${filtroEstado}"`);
+
+      if (!confirm(`¿Eliminar ${lista.length} cita${lista.length!==1?'s':''} ${desc.length ? 'con filtro: '+desc.join(' + ') : ''}?\n\nEsta acción no se puede deshacer.`)) return;
+
+      try {
+        await Promise.all(lista.map(r => deleteDoc(doc(db, 'reservas', r.id))));
+        const idsEliminados = new Set(lista.map(r => r.id));
+        _rcTodasReservas = _rcTodasReservas.filter(r => !idsEliminados.has(r.id));
+        rcRenderTabla();
+        alert(`✅ ${lista.length} cita${lista.length!==1?'s':''} eliminada${lista.length!==1?'s':''}.`);
+      } catch(e) { alert('❌ Error: ' + e.message); }
+    };
 
   </script>
