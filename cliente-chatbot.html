@@ -3164,44 +3164,38 @@ async function canjearPromocion(promoId, promoNombre, costoPuntos) {
       // Show typing indicator
       showTypingIndicator();
 
-      try {
-        // Gather fresh context for each message
-        const context = await gatherFullContext();
-
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: text,
-            history: bbChatHistory.slice(0, -1), // exclude the current message (already added to history)
-            context: context
-          })
-        });
-
-        hideTypingIndicator();
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        const botReply = data.reply || data.message || data.content || 'Lo siento, no pude procesar tu mensaje.';
-
-        addMessageToUI('bot', botReply);
-        bbChatHistory.push({ role: 'assistant', content: botReply });
-
-      } catch (err) {
-        hideTypingIndicator();
-        console.error('BarberBot error:', err);
-        const errorMsg = '⚠️ No pude conectar con el servidor. Inténtalo de nuevo en un momento.';
-        addMessageToUI('bot', errorMsg);
-        bbChatHistory.push({ role: 'assistant', content: errorMsg });
-      } finally {
-        bbIsSending = false;
-        if (sendBtn) sendBtn.disabled = false;
-        inputEl.focus();
-      }
-    }
+try {
+  // Simulación de respuesta IA (para pruebas inmediatas)
+  showTypingIndicator();
+  await new Promise(r => setTimeout(r, 800)); // Simula "pensando"
+  hideTypingIndicator();
+  
+  const c = await gatherFullContext();
+  const lower = text.toLowerCase();
+  let botReply = "Entendido. ¿Necesitas ayuda con otra cosa?";
+  
+  if (lower.includes("servicio") || lower.includes("precio")) {
+    const svc = c.services.slice(0, 3).map(s => `• ${s.nombre} (€${s.precio})`).join("\n");
+    botReply = `✂️ Servicios disponibles:\n${svc || "No hay servicios cargados aún."}`;
+  } else if (lower.includes("horario") || lower.includes("día")) {
+    botReply = c.availableDays.length > 0 
+      ? `📅 Días disponibles: ${c.availableDays.map(d => d.label).join(", ")}.` 
+      : "📅 No hay días configurados aún por el barbero.";
+  } else if (lower.includes("puntos")) {
+    botReply = `⭐ Tienes ${c.userPoints} puntos acumulados.`;
+  } else if (lower.includes("reserva")) {
+    const pend = c.userReservations.filter(r => r.estado === "pendiente");
+    botReply = pend.length > 0 
+      ? `📋 Tienes reservas pendientes: ${pend.map(r => `${r.servicio_nombre} el ${r.fecha}`).join(", ")}.` 
+      : "📋 No tienes reservas pendientes actualmente.";
+  }
+  
+  addMessageToUI('bot', botReply);
+  bbChatHistory.push({ role: 'assistant', content: botReply });
+} catch (err) {
+  hideTypingIndicator();
+  addMessageToUI('bot', '⚠️ Error interno del chat.');
+}
 
     function toggleChat() {
       const panel = document.getElementById('barberbot-panel');
@@ -3308,8 +3302,6 @@ async function canjearPromocion(promoId, promoNombre, costoPuntos) {
         bbMainBtn.addEventListener('click', () => toggleChat());
       }
     });
-
-  </script>
 
   <!-- ══ BARBERBOT CHATBOT WIDGET ══ -->
   <button id="barberbot-btn" title="BarberBot - Asistente">
